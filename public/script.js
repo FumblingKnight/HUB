@@ -133,14 +133,14 @@ function animate(now) {
   const dt = Math.min((now - lastFrame) / 16.667, 2);
   lastFrame = now;
 
-  const spring = 0.115;
-  const damping = 0.79;
+  const spring = 0.17;
+  const damping = 0.69;
 
   const force = (target - position) * spring;
   velocity = (velocity + force * dt) * Math.pow(damping, dt);
   position += velocity * dt;
 
-  if (Math.abs(target - position) < 0.0005 && Math.abs(velocity) < 0.0005) {
+  if (Math.abs(target - position) < 0.0015 && Math.abs(velocity) < 0.0015) {
     position = target;
     velocity = 0;
   }
