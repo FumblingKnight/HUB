@@ -24,7 +24,6 @@ html, body {
 body {
   min-height: 100vh;
   overflow: hidden;
-  transition: background-color .45s ease;
 }
 
 a, button { font: inherit; }
@@ -38,14 +37,14 @@ a, button { font: inherit; }
     radial-gradient(circle at 57% 48%, rgba(var(--theme-a), .22), transparent 34rem),
     radial-gradient(circle at 18% 86%, rgba(var(--theme-b), .17), transparent 30rem),
     linear-gradient(130deg, #08090d 0%, #06070a 58%, #090a0d 100%);
-  transition: background .55s ease;
+  transition: background .7s cubic-bezier(.2,.8,.2,1);
 }
 
 .backdrop-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(1px);
-  transition: background .5s ease, border-color .5s ease, transform .8s cubic-bezier(.2,.8,.2,1);
+  transition: background .65s ease, border-color .65s ease, transform .9s cubic-bezier(.2,.8,.2,1);
 }
 
 .orb-a {
@@ -115,7 +114,7 @@ a, button { font: inherit; }
   letter-spacing: -.06em;
 }
 
-.dot { color: var(--accent); transition: color .35s ease; }
+.dot { color: var(--accent); transition: color .5s ease; }
 
 .hamburger {
   position: fixed;
@@ -228,7 +227,7 @@ a, button { font: inherit; }
   font-size: 12px;
   letter-spacing: .12em;
   margin: 0 0 16px;
-  transition: color .35s ease, opacity .2s ease, transform .2s ease;
+  transition: color .45s ease, opacity .18s ease, transform .18s ease;
 }
 
 .stage h2 {
@@ -238,7 +237,7 @@ a, button { font: inherit; }
   letter-spacing: -.075em;
   max-width: 8ch;
   text-wrap: balance;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .18s ease, transform .18s ease;
 }
 
 .stage #pageHint {
@@ -247,7 +246,7 @@ a, button { font: inherit; }
   line-height: 1.65;
   max-width: 42ch;
   margin: 25px 0 0;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .18s ease, transform .18s ease;
 }
 
 .enter-link {
@@ -268,7 +267,7 @@ a, button { font: inherit; }
 
 .swap {
   opacity: 0 !important;
-  transform: translateY(7px);
+  transform: translateY(5px);
 }
 
 .description {
@@ -290,7 +289,7 @@ a, button { font: inherit; }
   border: 1px solid rgba(var(--accent-rgb), .32);
   padding: 5px 7px;
   border-radius: 999px;
-  transition: color .35s ease, border-color .35s ease;
+  transition: color .45s ease, border-color .45s ease;
 }
 
 .description p {
@@ -298,7 +297,7 @@ a, button { font: inherit; }
   color: #b2b4bd;
   line-height: 1.55;
   font-size: 13px;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .18s ease, transform .18s ease;
 }
 
 .selector {
@@ -309,6 +308,7 @@ a, button { font: inherit; }
   width: min(40vw, 520px);
   height: 540px;
   z-index: 8;
+  touch-action: none;
 }
 
 .selector-focus-line {
@@ -321,7 +321,7 @@ a, button { font: inherit; }
   transform: translateY(-50%);
   background: var(--accent);
   box-shadow: 0 0 26px rgba(var(--accent-rgb), .42);
-  transition: background .35s ease, box-shadow .35s ease;
+  transition: background .45s ease, box-shadow .45s ease;
 }
 
 .selector-item {
@@ -329,6 +329,7 @@ a, button { font: inherit; }
   --item-scale: .8;
   --item-opacity: .4;
   --item-y: 0px;
+  --item-blur: 0px;
   position: absolute;
   right: 0;
   top: 50%;
@@ -345,16 +346,10 @@ a, button { font: inherit; }
   grid-template-rows: auto auto;
   column-gap: 12px;
   transform-origin: right center;
-  transform: translateY(calc(-50% + var(--item-y))) scale(var(--item-scale));
+  transform: translate3d(0, calc(-50% + var(--item-y)), 0) scale(var(--item-scale));
   opacity: var(--item-opacity);
-  transition:
-    transform .34s cubic-bezier(.2,.8,.2,1),
-    width .34s cubic-bezier(.2,.8,.2,1),
-    opacity .25s ease,
-    min-height .34s cubic-bezier(.2,.8,.2,1),
-    background .25s ease,
-    border-color .25s ease,
-    box-shadow .25s ease;
+  filter: blur(var(--item-blur));
+  will-change: transform, width, opacity;
   overflow: hidden;
 }
 
@@ -365,10 +360,10 @@ a, button { font: inherit; }
   width: 3px;
   background: var(--accent);
   opacity: 0;
+  transition: opacity .18s ease;
 }
 
 .selector-item:hover {
-  opacity: 1 !important;
   border-color: rgba(var(--accent-rgb), .42);
 }
 
@@ -395,6 +390,7 @@ a, button { font: inherit; }
   font-size: clamp(16px, 1.25vw, 22px);
   font-weight: 750;
   letter-spacing: -.03em;
+  transition: font-size .18s ease;
 }
 
 .selector-item.active .selector-title { font-size: clamp(22px, 1.65vw, 30px); }
@@ -446,9 +442,7 @@ a, button { font: inherit; }
   }
 
   .selector-item { right: 0; }
-
   .selector-focus-line { right: -8px; }
-
   .selector-help { right: 8px; bottom: 4px; }
 
   .description {
