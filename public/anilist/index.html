@@ -1,1 +1,141 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AniList Pull — Sajo Hub</title><link rel="stylesheet" href="/section.css"><style>:root{--accent:#69e5ff;--rgb:105,229,255}</style></head><body><div class="wrap"><div class="top"><a class="back" href="/">← HUB</a><span class="tag">MEDIA / TRACKING</span></div><main><h1>AniList Pull</h1><p>Your AniList data will live here — current anime, manga, scores, stats and whatever else we decide to pull.</p><div class="status">page shell online · content next</div><div class="line"></div></main></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07131f" />
+  <title>AniList / fumblingknight — Sajo Hub</title>
+  <link rel="stylesheet" href="/anilist/anilist.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="hub-back" href="/" aria-label="Back to HUB">← HUB</a>
+      <span class="slash">/</span>
+      <a class="profile-link" id="profileLink" href="https://anilist.co/user/fumblingknight/" target="_blank" rel="noreferrer">
+        <span>ANILIST</span>
+        <span class="profile-name" id="profileName">fumblingknight</span>
+        <span class="external">↗</span>
+      </a>
+    </div>
+
+    <div class="account-mini" id="accountMini">
+      <div class="account-copy">
+        <strong id="accountStatus">loading profile</strong>
+        <span id="accountMeta">connecting to AniList</span>
+      </div>
+      <div class="avatar skeleton" id="avatar"></div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro">
+      <div>
+        <p class="eyebrow">PERSONAL MEDIA CONTROL PANEL</p>
+        <h1>Your week,<br><span>not the algorithm.</span></h1>
+      </div>
+      <div class="intro-stats" id="introStats">
+        <div class="stat"><span>watching</span><strong>—</strong></div>
+        <div class="stat"><span>reading</span><strong>—</strong></div>
+        <div class="stat"><span>mean score</span><strong>—</strong></div>
+      </div>
+    </section>
+
+    <section class="panel calendar-panel">
+      <div class="section-head calendar-head">
+        <div>
+          <p class="eyebrow">ANIME + MANGA</p>
+          <h2>Calendar</h2>
+          <p class="section-note">Anime uses AniList airing times. Manga shows logged chapters, learned cadence, and schedules you pin.</p>
+        </div>
+        <div class="calendar-controls">
+          <button class="icon-btn" id="prevWeek" aria-label="Previous week">‹</button>
+          <button class="week-label" id="todayWeek">THIS WEEK</button>
+          <button class="icon-btn" id="nextWeek" aria-label="Next week">›</button>
+          <button class="icon-btn settings-btn" id="scheduleSettings" aria-label="Manga calendar settings">⚙</button>
+        </div>
+      </div>
+
+      <div class="calendar-status-row">
+        <span class="week-range" id="weekRange">—</span>
+        <div class="legend">
+          <span><i class="dot anime"></i>airing</span>
+          <span><i class="dot manga"></i>manga</span>
+          <span><i class="dot estimate"></i>estimated</span>
+        </div>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid" aria-live="polite">
+        <div class="calendar-loading">Building your week…</div>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="panel progress-panel">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">CURRENT LIST</p>
+            <h2>In progress</h2>
+          </div>
+          <div class="segmented" id="progressFilters">
+            <button class="active" data-filter="ALL">All</button>
+            <button data-filter="ANIME">Anime</button>
+            <button data-filter="MANGA">Manga</button>
+          </div>
+        </div>
+        <div class="progress-strip" id="progressStrip">
+          <div class="strip-loading">Pulling your list…</div>
+        </div>
+      </section>
+
+      <section class="panel activity-panel">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">ONLY YOU</p>
+            <h2>Recent activity</h2>
+          </div>
+          <a class="quiet-link" href="https://anilist.co/user/fumblingknight/" target="_blank" rel="noreferrer">profile ↗</a>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div class="activity-loading">Reading your activity feed…</div>
+        </div>
+        <button class="more-btn" id="moreActivity" hidden>Show more</button>
+      </section>
+    </div>
+
+    <section class="manga-pulse" id="mangaPulseSection">
+      <div class="section-head compact-head">
+        <div>
+          <p class="eyebrow">MANGA PULSE</p>
+          <h2>Time since your last chapter</h2>
+        </div>
+        <span class="quiet-label">based on your AniList activity</span>
+      </div>
+      <div class="pulse-strip" id="mangaPulse"></div>
+    </section>
+  </main>
+
+  <aside class="schedule-drawer" id="scheduleDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <p class="eyebrow">MANGA CALENDAR</p>
+        <h3>Pin release days</h3>
+      </div>
+      <button class="drawer-close" id="closeSchedule" aria-label="Close">×</button>
+    </div>
+    <p class="drawer-copy">AniList does not provide manga chapter schedules. Pin known weekly/biweekly release days here; observed chapter updates stay separate and are never presented as confirmed releases.</p>
+    <div class="schedule-list" id="scheduleList"></div>
+    <div class="drawer-foot">
+      <span>Saved on this browser for now.</span>
+      <button id="saveSchedules">Save schedules</button>
+    </div>
+  </aside>
+  <div class="drawer-scrim" id="drawerScrim"></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/anilist/anilist.js"></script>
+</body>
+</html>
