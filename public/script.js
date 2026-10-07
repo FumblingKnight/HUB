@@ -184,12 +184,6 @@ document.addEventListener("keydown", event => {
   }
 });
 
-items.forEach((item, index) => {
-  item.addEventListener("mouseenter", () => {
-    if (Math.abs(index - position) < 1.25) target = index;
-  });
-});
-
 function setDrawer(open) {
   drawer.classList.toggle("open", open);
   scrim.classList.toggle("show", open);
