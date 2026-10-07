@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a0c" />
+  <meta name="theme-color" content="#08090d" />
   <title>Sajo Hub</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop-orb orb-a"></div>
+    <div class="backdrop-orb orb-b"></div>
+    <div class="grid"></div>
+  </div>
   <div class="grain" aria-hidden="true"></div>
 
   <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
@@ -20,13 +25,13 @@
       <button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button>
     </div>
     <nav class="drawer-nav">
-      <a href="#anilist">AniList Pull</a>
-      <a href="#brain">Second Brain</a>
-      <a href="#projects">Projects</a>
-      <a href="#lab">Experiments</a>
-      <a href="#about">About</a>
+      <a href="/anilist/">AniList Pull</a>
+      <a href="/brain/">Second Brain</a>
+      <a href="/projects/">Projects</a>
+      <a href="/experiments/">Experiments</a>
+      <a href="/about/">About</a>
     </nav>
-    <p class="drawer-note">A small portal for the things I make, track and obsess over.</p>
+    <p class="drawer-note">A front door for the things I make, track and keep.</p>
   </aside>
   <div class="scrim" id="scrim"></div>
 
@@ -37,60 +42,56 @@
     </header>
 
     <section class="stage" aria-live="polite">
-      <div class="ambient-ring ring-one"></div>
-      <div class="ambient-ring ring-two"></div>
       <div class="stage-copy">
         <p class="kicker" id="kicker">MEDIA / TRACKING</p>
         <h2 id="pageTitle">AniList Pull</h2>
-        <p id="pageHint">A live view of what I’m watching, reading and rating.</p>
-        <a class="enter-link" id="enterLink" href="#anilist">
-          open page
+        <p id="pageHint">Everything I’m watching and reading, pulled into my own view.</p>
+        <a class="enter-link" id="enterLink" href="/anilist/">
+          open selected
           <span aria-hidden="true">↗</span>
         </a>
       </div>
     </section>
 
-    <section class="description" id="description">
+    <section class="description">
       <span class="description-index" id="descriptionIndex">01</span>
-      <p id="descriptionText">
-        Pull my AniList data into one clean dashboard — current shows, manga, scores and stats.
-      </p>
+      <p id="descriptionText">AniList data, current media, scores and stats without living inside AniList itself.</p>
     </section>
 
     <nav class="selector" id="selector" aria-label="Hub sections">
-      <div class="selector-rail" aria-hidden="true"></div>
+      <div class="selector-focus-line" aria-hidden="true"></div>
 
-      <button class="selector-item active" data-index="0" data-accent="cyan">
+      <a class="selector-item" href="/anilist/" data-index="0">
         <span class="selector-number">01</span>
         <span class="selector-title">AniList Pull</span>
         <span class="selector-sub">media tracker</span>
-      </button>
+      </a>
 
-      <button class="selector-item" data-index="1" data-accent="violet">
+      <a class="selector-item" href="/brain/" data-index="1">
         <span class="selector-number">02</span>
         <span class="selector-title">Second Brain</span>
         <span class="selector-sub">notes / knowledge</span>
-      </button>
+      </a>
 
-      <button class="selector-item" data-index="2" data-accent="orange">
+      <a class="selector-item" href="/projects/" data-index="2">
         <span class="selector-number">03</span>
         <span class="selector-title">Projects</span>
         <span class="selector-sub">things I build</span>
-      </button>
+      </a>
 
-      <button class="selector-item" data-index="3" data-accent="lime">
+      <a class="selector-item" href="/experiments/" data-index="3">
         <span class="selector-number">04</span>
         <span class="selector-title">Experiments</span>
         <span class="selector-sub">small weird stuff</span>
-      </button>
+      </a>
 
-      <button class="selector-item" data-index="4" data-accent="red">
+      <a class="selector-item" href="/about/" data-index="4">
         <span class="selector-number">05</span>
         <span class="selector-title">About</span>
         <span class="selector-sub">me / links</span>
-      </button>
+      </a>
 
-      <div class="selector-help">↑ ↓ select · enter open</div>
+      <div class="selector-help">scroll / two-finger swipe to select · click to open</div>
     </nav>
   </main>
 
