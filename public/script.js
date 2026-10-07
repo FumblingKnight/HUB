@@ -71,7 +71,6 @@ const scrim = document.getElementById("scrim");
 
 let position = 0;
 let target = 0;
-let velocity = 0;
 let activeIndex = 0;
 let wheelEndTimer = null;
 let lastFrame = performance.now();
@@ -130,19 +129,16 @@ function renderItems() {
 }
 
 function animate(now) {
-  const dt = Math.min((now - lastFrame) / 16.667, 2);
+  const dtSeconds = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
 
-  const spring = 0.17;
-  const damping = 0.69;
+  // Fast, non-oscillating damping: follows the trackpad immediately,
+  // then eases into the nearest slot without pendulum wobble.
+  const follow = 1 - Math.exp(-20 * dtSeconds);
+  position += (target - position) * follow;
 
-  const force = (target - position) * spring;
-  velocity = (velocity + force * dt) * Math.pow(damping, dt);
-  position += velocity * dt;
-
-  if (Math.abs(target - position) < 0.0015 && Math.abs(velocity) < 0.0015) {
+  if (Math.abs(target - position) < 0.001) {
     position = target;
-    velocity = 0;
   }
 
   renderItems();
@@ -164,10 +160,10 @@ window.addEventListener("wheel", event => {
   const modeMultiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 120 : 1;
   const delta = dominant * modeMultiplier;
 
-  target = clamp(target + delta * 0.0024, 0, pages.length - 1);
+  target = clamp(target + delta * 0.0032, 0, pages.length - 1);
 
   clearTimeout(wheelEndTimer);
-  wheelEndTimer = setTimeout(snapToNearest, 110);
+  wheelEndTimer = setTimeout(snapToNearest, 75);
 }, { passive: false });
 
 document.addEventListener("keydown", event => {
