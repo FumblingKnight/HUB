@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <title>Sajo Hub</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <span class="eyebrow">SAJO / HUB</span>
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button>
+    </div>
+    <nav class="drawer-nav">
+      <a href="#anilist">AniList Pull</a>
+      <a href="#brain">Second Brain</a>
+      <a href="#projects">Projects</a>
+      <a href="#lab">Experiments</a>
+      <a href="#about">About</a>
+    </nav>
+    <p class="drawer-note">A small portal for the things I make, track and obsess over.</p>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <main class="shell">
+    <header class="brand">
+      <p class="eyebrow">PERSONAL SYSTEM / 2026</p>
+      <h1>HUB<span class="dot">.</span></h1>
+    </header>
+
+    <section class="stage" aria-live="polite">
+      <div class="ambient-ring ring-one"></div>
+      <div class="ambient-ring ring-two"></div>
+      <div class="stage-copy">
+        <p class="kicker" id="kicker">MEDIA / TRACKING</p>
+        <h2 id="pageTitle">AniList Pull</h2>
+        <p id="pageHint">A live view of what I’m watching, reading and rating.</p>
+        <a class="enter-link" id="enterLink" href="#anilist">
+          open page
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="description" id="description">
+      <span class="description-index" id="descriptionIndex">01</span>
+      <p id="descriptionText">
+        Pull my AniList data into one clean dashboard — current shows, manga, scores and stats.
+      </p>
+    </section>
+
+    <nav class="selector" id="selector" aria-label="Hub sections">
+      <div class="selector-rail" aria-hidden="true"></div>
+
+      <button class="selector-item active" data-index="0" data-accent="cyan">
+        <span class="selector-number">01</span>
+        <span class="selector-title">AniList Pull</span>
+        <span class="selector-sub">media tracker</span>
+      </button>
+
+      <button class="selector-item" data-index="1" data-accent="violet">
+        <span class="selector-number">02</span>
+        <span class="selector-title">Second Brain</span>
+        <span class="selector-sub">notes / knowledge</span>
+      </button>
+
+      <button class="selector-item" data-index="2" data-accent="orange">
+        <span class="selector-number">03</span>
+        <span class="selector-title">Projects</span>
+        <span class="selector-sub">things I build</span>
+      </button>
+
+      <button class="selector-item" data-index="3" data-accent="lime">
+        <span class="selector-number">04</span>
+        <span class="selector-title">Experiments</span>
+        <span class="selector-sub">small weird stuff</span>
+      </button>
+
+      <button class="selector-item" data-index="4" data-accent="red">
+        <span class="selector-number">05</span>
+        <span class="selector-title">About</span>
+        <span class="selector-sub">me / links</span>
+      </button>
+
+      <div class="selector-help">↑ ↓ select · enter open</div>
+    </nav>
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>
