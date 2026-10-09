@@ -112,7 +112,6 @@ function setView(view){
 }
 $("#refresh").addEventListener("click",fetchData);
 $("#loadMore").addEventListener("click",()=>{st.visible+=6;renderFeed()});
-$("#statusTabs-unused"); // no legacy filter node
 $$(".primary-tab").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
 $$(".filter").forEach(b=>b.addEventListener("click",()=>{st.filter=b.dataset.filter;st.visible=6;$$(".filter").forEach(x=>{const sel=x===b;x.classList.toggle("active",sel);x.setAttribute("aria-pressed",String(sel))});renderFeed()}));
 $("#search").addEventListener("input",e=>{st.query=e.target.value.trim().toLowerCase();st.visible=6;renderFeed()});
