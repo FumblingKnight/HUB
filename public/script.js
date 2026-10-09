@@ -44,6 +44,17 @@ const pages = [
     themeB: "22,46,22"
   },
   {
+    title: "Protest Timeline",
+    kicker: "CIVIC / EVENTS",
+    hint: "A timestamped record of developments, eyewitness accounts and verified reporting.",
+    description: "Follow events as they unfold, with separate entries, evidence links and transparent verification labels.",
+    href: "/protest/",
+    accent: "#ffcf70",
+    rgb: "255,207,112",
+    themeA: "95,69,25",
+    themeB: "43,32,17"
+  },
+  {
     title: "About",
     kicker: "PROFILE / LINKS",
     hint: "The short version of who made all of this.",
