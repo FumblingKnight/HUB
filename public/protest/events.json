@@ -8,7 +8,7 @@
     "event_status": "planned",
     "verified_as_of": "2026-10-09T15:32:02.302Z",
     "last_checked_at": "2026-10-09T15:32:02.302Z",
-    "published_at": "2026-10-09T15:32:02.302Z",
+    "published_at": "2026-10-09T15:40:26.948Z",
     "update_frequency_minutes": 60,
     "notice": "The gathering is planned for October 10. Police have declined permission. Reports of preparations are verified, but today's claims, tomorrow's attendance and exact outcomes require independent verification.",
     "methodology": "Individual developments are tracked by event ID and source. Publication times are not substituted for event times. An attributed claim does not become confirmed simply because several publications repeat it. Reddit discussions are analysed separately."
@@ -165,9 +165,9 @@
     },
     {
       "id": "Event 06",
-      "date": "2026-10-09",
+      "date": "2026-10-08",
       "event_time": null,
-      "event_time_display": "Oct 9 · reported 16:40 IST; incident Oct 8",
+      "event_time_display": "Oct 8 · incident time unknown · reported Oct 9 16:40 IST",
       "category": "Detentions",
       "title": "Person detained over Jantar Mantar protest posters",
       "status": "confirmed",
@@ -342,6 +342,10 @@
     {
       "at": "2026-10-09T15:32:02.302Z",
       "action": "Source audit; added verified source URLs, event-specific evidence and separate Reddit discussion desk."
+    },
+    {
+      "at": "2026-10-09T15:40:26.948Z",
+      "action": "Corrected Event 06 grouping to the date of the detention, not the subsequent article publication date."
     }
   ]
 }
