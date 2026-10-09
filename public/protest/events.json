@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "meta": {
     "title": "Jantar Mantar / October 10",
     "location": "New Delhi, India",
@@ -11,14 +11,12 @@
     "published_at": "2026-10-09T15:40:26.948Z",
     "update_frequency_minutes": 60,
     "notice": "The gathering is planned for October 10. Police have declined permission. Reports of preparations are verified, but today's claims, tomorrow's attendance and exact outcomes require independent verification.",
-    "methodology": "Individual developments are tracked by event ID and source. Publication times are not substituted for event times. An attributed claim does not become confirmed simply because several publications repeat it. Reddit discussions are analysed separately."
+    "methodology": "Timeline clock shows verified occurrence time first; otherwise an explicitly labelled REPORT time or SCHEDULED time. When none is available, only a date is shown. Reddit discussions and organiser allegations are distinct from independently established events."
   },
   "events": [
     {
       "id": "Event 01",
       "date": "2026-10-02",
-      "event_time": null,
-      "event_time_display": "Oct 2 · late evening · exact time unknown",
       "category": "Organisers",
       "title": "CJP announces an October 10 return to Jantar Mantar",
       "status": "confirmed",
@@ -43,13 +41,15 @@
           "note": "Oct 3"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": "2026-10-03T08:20:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": "2026-10-02"
     },
     {
       "id": "Event 02",
       "date": "2026-10-08",
-      "event_time": null,
-      "event_time_display": "Oct 8 · reported 19:08 IST",
       "category": "Policing",
       "title": "Additional women personnel and student accommodation checks planned",
       "status": "confirmed",
@@ -68,13 +68,15 @@
           "note": "Updated Oct 8 19:08 IST"
         }
       ],
-      "priority": "standard"
+      "priority": "standard",
+      "occurred_at": null,
+      "reported_at": "2026-10-08T19:08:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 03",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · report updated 14:28 IST",
       "category": "Policing",
       "title": "Police plan 37 blocking points and detention centres across 15 districts",
       "status": "confirmed",
@@ -99,13 +101,15 @@
           "note": "Oct 9"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T14:28:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 04",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · reported 12:30 IST",
       "category": "Legal / access",
       "title": "Police refuse protest permission, citing late notice and safety concerns",
       "status": "confirmed",
@@ -130,13 +134,15 @@
           "note": "Oct 9"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T12:30:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 05",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · report time not established",
       "category": "Detention claims",
       "title": "CJP says over 10,000 members and affiliates were detained",
       "status": "unverified",
@@ -161,13 +167,15 @@
           "note": "Oct 9"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": null,
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 06",
       "date": "2026-10-08",
-      "event_time": null,
-      "event_time_display": "Oct 8 · incident time unknown · reported Oct 9 16:40 IST",
       "category": "Detentions",
       "title": "Person detained over Jantar Mantar protest posters",
       "status": "confirmed",
@@ -186,13 +194,15 @@
           "note": "Updated Oct 9 16:40 IST"
         }
       ],
-      "priority": "standard"
+      "priority": "standard",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T16:40:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": "2026-10-08"
     },
     {
       "id": "Event 07",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · announced; 21:00 IST restriction start",
       "category": "Transit",
       "title": "57 Metro station access closures and train cancellations announced",
       "status": "confirmed",
@@ -217,13 +227,15 @@
           "note": "Oct 9"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": null,
+      "scheduled_at": "2026-10-09T21:00:00+05:30",
+      "occurred_on": null
     },
     {
       "id": "Event 08",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · reported 10:28 IST",
       "category": "Organiser statement",
       "title": "Ashutosh Ranka urges police to avoid force against students",
       "status": "confirmed",
@@ -241,13 +253,15 @@
           "note": "Oct 9 10:28 IST"
         }
       ],
-      "priority": "standard"
+      "priority": "standard",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T10:28:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 09",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · reported 13:47 IST",
       "category": "Organiser statement",
       "title": "Dipke says march will proceed despite the police refusal",
       "status": "confirmed",
@@ -265,13 +279,15 @@
           "note": "Oct 9 13:47 IST"
         }
       ],
-      "priority": "major"
+      "priority": "major",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T13:47:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     },
     {
       "id": "Event 10",
       "date": "2026-10-09",
-      "event_time": null,
-      "event_time_display": "Oct 9 · reported 11:02 IST",
       "category": "Counter-demonstration",
       "title": "Separate group stages a counter-protest at Janpath",
       "status": "confirmed",
@@ -289,7 +305,11 @@
           "note": "Oct 9 11:02 IST"
         }
       ],
-      "priority": "standard"
+      "priority": "standard",
+      "occurred_at": null,
+      "reported_at": "2026-10-09T11:02:00+05:30",
+      "scheduled_at": null,
+      "occurred_on": null
     }
   ],
   "discussions": [
@@ -346,6 +366,10 @@
     {
       "at": "2026-10-09T15:40:26.948Z",
       "action": "Corrected Event 06 grouping to the date of the detention, not the subsequent article publication date."
+    },
+    {
+      "at": "2026-10-09T15:50:33.972Z",
+      "action": "Migrated loosely formatted time captions to v3: occurred_at, reported_at, scheduled_at, occurred_on. No unverified incident clock was invented."
     }
   ]
 }
