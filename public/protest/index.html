@@ -1,88 +1,73 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f7f6f2">
-  <meta name="description" content="An evidence-led record of the October 10 Jantar Mantar protest, with distinct event times, reporting times, and direct sources.">
-  <title>Jantar Mantar | Sajo Fieldnotes</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/protest/site.css">
-  <script defer src="/protest/app.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1017">
+<meta name="description" content="An evidence-led, regularly updated timeline of developments surrounding the October 10 Jantar Mantar protest.">
+<title>Jantar Mantar — Timeline | Sajo Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/protest/site.css">
+<script src="/protest/app.js" defer></script>
 </head>
 <body>
 <div class="site">
   <header class="topbar">
-    <a href="/" class="identity">sajo<span class="slash">/</span>hub</a>
-    <div class="brand-note">FIELDNOTES <span>—</span> INDEPENDENT EVENT RECORD</div>
-    <a href="/" class="exit">BACK TO HUB <span>↗</span></a>
+    <a class="brand" href="/">SAJO<span>/</span>HUB</a>
+    <div class="bar-center"><span class="tiny-accent"></span> FIELD NOTES <span class="dot-sep">·</span> INDIA</div>
+    <a class="back" href="/">← BACK TO HUB</a>
   </header>
   <main>
-    <section class="hero" aria-labelledby="pageTitle">
-      <div class="hero-main">
-        <div class="eyebrow"><span class="accent-dash"></span> REPORT 001 <span class="faint">/</span> NEW DELHI <span class="faint">/</span> OCTOBER 2026</div>
-        <h1 id="pageTitle">Jantar <i>Mantar.</i></h1>
-        <p class="hero-lead">A timeline of what happened, what's claimed, and what can actually be verified.</p>
-        <p class="hero-sub">News reporting, official statements and community discussion—kept in context, never confused with one another.</p>
-        <div class="hero-chips"><span class="state-label" id="eventStatus"><span class="state-dot"></span> PLANNED EVENT</span><span class="muted-chip">TIMES IN IST</span><span class="muted-chip">SOURCES ON EVERY ENTRY</span></div>
-      </div>
-      <div class="hero-aside">
-        <span class="aside-kicker">THE CURRENT PICTURE</span>
-        <p class="situation" id="situation">Organisers are planning a demonstration for October 10, while police have declined permission.</p>
-        <div class="updated-meta"><span>LAST RESEARCHED <b id="lastChecked">—</b></span><span>DATA PUBLISHED <b id="lastPublished">—</b></span></div>
-        <span class="fine-print">Scheduled research: hourly. A published report is not a continuous livestream.</span>
+    <section class="intro">
+      <div class="eyebrow">CIVIC EVENTS <span class="small-rule"></span> NEW DELHI <span class="muted-slash">/</span> OCT 2026</div>
+      <div class="title-line"><h1>Jantar Mantar<span class="title-stop">.</span></h1><span class="edition">REPORT 001<br>10 OCT 2026</span></div>
+      <p class="subtitle">A clear record of developments around the planned October 10 demonstration — sourced, timestamped and updated as evidence emerges.</p>
+      <div class="status-strip">
+        <span class="event-status"><span class="status-dot"></span><span id="eventStatus">PLANNED EVENT</span></span>
+        <span id="lastChecked">Last researched —</span>
+        <span class="strip-right">TIMES IN IST <span class="dot-sep">•</span> HOURLY RESEARCH</span>
       </div>
     </section>
-    <section class="overview" aria-label="Record at a glance">
-      <div><span class="big-number" id="metricTotal">—</span><span class="overview-label">Developments</span></div>
-      <div><span class="big-number" id="metricConfirmed">—</span><span class="overview-label">Documented</span></div>
-      <div><span class="big-number" id="metricSources">—</span><span class="overview-label">Distinct sources</span></div>
-      <div><span class="big-number" id="metricCommunity">—</span><span class="overview-label">Community threads</span></div>
+    <section class="snapshot" aria-label="The latest important developments">
+      <div class="snapshot-head"><span class="section-kicker">THE BRIEF</span><span class="head-note">THE ESSENTIALS, AT A GLANCE</span></div>
+      <div class="snapshot-grid" id="highlights"><div class="loading">Loading important developments…</div></div>
+      <div class="snapshot-foot"><span id="situation">Awaiting the latest source-backed situation report.</span><span id="lastPublished"></span></div>
     </section>
-    <div class="editorial-note"><strong>How this record works.</strong> A timestamp marked <b>REPORTED</b> is when coverage was published, not necessarily when the underlying event occurred. An allegation remains an allegation even when many outlets repeat it. <a href="#standards">Read the methodology ↗</a></div>
-    <section class="content-head">
-      <div><span class="section-number">01 / THE RECORD</span><h2>Chronology<span class="period">.</span></h2><p>Distinct developments. Original sources. Evidence behind each summary.</p></div>
-      <div class="update-indicator"><span id="fetchState">LOADING DATA</span><button id="refresh" aria-label="Refresh timeline" title="Refresh from published data">↻ Refresh</button></div>
-    </section>
-    <div class="columns">
-      <section class="primary" aria-label="Timeline of developments">
-        <div class="filters">
-          <div class="filter-set" id="statusTabs">
-            <button class="filter active" data-status="all" aria-pressed="true">All <span id="tabAll"></span></button>
-            <button class="filter" data-status="confirmed" aria-pressed="false">Documented</button>
-            <button class="filter" data-status="unverified" aria-pressed="false">Open claims</button>
+    <section class="record" id="record">
+      <div class="record-header">
+        <div><span class="section-kicker">THE RECORD</span><h2>Updates <span id="eventCount" class="count"></span></h2></div>
+        <div class="refresh-tools"><span id="fetchState" aria-live="polite">LOADING</span><button id="refresh" class="refresh" type="button" aria-label="Refresh published reports">↻ Refresh</button></div>
+      </div>
+      <div class="primary-tabs" role="tablist" aria-label="Choose a feed">
+        <button type="button" class="primary-tab active" id="timelineTab" role="tab" aria-selected="true" aria-controls="timelinePanel" data-view="timeline">Timeline <span id="timelineCount"></span></button>
+        <button type="button" class="primary-tab" id="communityTab" role="tab" aria-selected="false" aria-controls="communityPanel" data-view="community">Reddit &amp; reactions <span id="communityCount"></span></button>
+      </div>
+      <div id="timelinePanel" role="tabpanel" aria-labelledby="timelineTab">
+        <div class="feed-controls">
+          <div class="feed-filter" role="group" aria-label="Filter developments">
+            <button class="filter active" type="button" data-filter="all" aria-pressed="true">All updates</button>
+            <button class="filter" type="button" data-filter="key" aria-pressed="false">Key moments</button>
+            <button class="filter" type="button" data-filter="claims" aria-pressed="false">Open claims</button>
           </div>
-          <div class="filter-tools">
-            <input id="search" type="search" placeholder="Search events" aria-label="Search events">
-            <select id="order" aria-label="Sort events"><option value="newest">Latest first</option><option value="oldest">Earliest first</option></select>
-          </div>
+          <div class="feed-search"><label class="sr-only" for="search">Search event updates</label><input id="search" type="search" placeholder="Search updates" autocomplete="off"><label class="sr-only" for="order">Timeline order</label><select id="order"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div>
         </div>
-        <div id="feed" class="timeline" aria-live="polite"><p class="empty">Loading published record…</p></div>
-        <div class="timeline-end">END OF CURRENT RECORD <span>✳</span></div>
-      </section>
-      <aside class="secondary">
-        <section class="sidebar-panel community-desk" aria-labelledby="communityHead">
-          <div class="sidebar-index">02 / COMMUNITY DESK</div>
-          <h2 id="communityHead">On the <i>ground.</i></h2>
-          <p class="aside-desc">What people are sharing and debating. These links are leads and reactions, not automatic verification.</p>
-          <div id="discussions" class="discussions">Loading discussion…</div>
-          <p class="sidebar-foot">Threads may contain inaccurate claims. The summaries identify the evidence limitations.</p>
-        </section>
-        <section class="sidebar-panel standards-panel" id="standards">
-          <div class="sidebar-index">03 / READING GUIDE</div>
-          <h2>Evidence <i>first.</i></h2>
-          <div class="key-row"><b class="status confirmed">Documented</b><p>An occurrence, statement or official decision is supported by reporting. Allegations within it are not automatically true.</p></div>
-          <div class="key-row"><b class="status corroborated">Corroborated</b><p>The underlying detail is supported by independent evidence.</p></div>
-          <div class="key-row"><b class="status unverified">Unverified</b><p>An attributed report or allegation lacks adequate independent confirmation.</p></div>
-          <div class="key-row"><b class="status disputed">Disputed</b><p>Material facts are contested or evidence conflicts.</p></div>
-          <p class="method" id="methodology"></p>
-        </section>
-      </aside>
-    </div>
-    <section class="signoff"><span class="section-number">SAJO / FIELDNOTES</span><h2>Keep the record.<br><i>Question the claim.</i></h2><p>Updated when evidence changes. No artificial hourly entries, no implied eyewitness verification, and no affiliation with organisers or political parties.</p></section>
+        <div class="feed" id="feed" aria-live="polite"><p class="loading">Loading published timeline…</p></div>
+        <button id="loadMore" class="load-more" type="button" hidden>Show earlier updates <span>↓</span></button>
+        <p class="end-note" id="endNote">Publication times are labelled. No invented hourly updates.</p>
+      </div>
+      <div id="communityPanel" role="tabpanel" aria-labelledby="communityTab" hidden>
+        <div class="community-header"><h3>Conversation, not confirmation.</h3><p>Reddit threads, posts and eyewitness leads are shown separately from verified developments. Their caveats travel with them.</p></div>
+        <div id="discussions" class="discussions"></div>
+      </div>
+    </section>
+    <details class="method-panel" id="standards">
+      <summary>How we verify and timestamp updates <span>+</span></summary>
+      <div class="method-body"><p id="methodology">All information is attributed. Multiple websites repeating a claim do not make it verified.</p>
+      <div class="legend"><span><b class="legend-dot verified"></b> Documented: report of a statement or event</span><span><b class="legend-dot corroborated"></b> Corroborated: independent evidence</span><span><b class="legend-dot uncertain"></b> Unverified: allegation needing confirmation</span><span><b class="legend-dot contested"></b> Disputed: conflicting evidence</span></div>
+      <p><b>EVENT</b> is an occurrence time. <b>REPORTED</b> is the source’s publication time. <b>SCHEDULED</b> is a planned action, not evidence it happened. Missing exact times remain date-only.</p></div>
+    </details>
   </main>
-  <footer><span>SAJO HUB · 2026</span><span>AN INDEPENDENT SOURCED RECORD</span><a href="#pageTitle">BACK TO TOP ↑</a></footer>
+  <footer><span>SAJO / HUB <span class="faint">© 2026</span></span><span>INDEPENDENT RECORD · NOT AFFILIATED WITH ORGANISERS</span><a href="#record">BACK TO UPDATES ↑</a></footer>
 </div>
 </body>
 </html>
