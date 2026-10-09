@@ -1,86 +1,347 @@
 {
-  "updated_at_ist": "2026-10-09 20:50",
-  "notice": "First sourced briefing published. Updates are researched hourly; GitHub publication is attempted on each task run and may be delayed or unavailable. Claims attributed to organisers are not independently verified.",
+  "schema_version": 2,
+  "meta": {
+    "title": "Jantar Mantar / October 10",
+    "location": "New Delhi, India",
+    "timezone": "Asia/Kolkata",
+    "scheduled_for": "2026-10-10",
+    "event_status": "planned",
+    "verified_as_of": "2026-10-09T15:32:02.302Z",
+    "last_checked_at": "2026-10-09T15:32:02.302Z",
+    "published_at": "2026-10-09T15:32:02.302Z",
+    "update_frequency_minutes": 60,
+    "notice": "The gathering is planned for October 10. Police have declined permission. Reports of preparations are verified, but today's claims, tomorrow's attendance and exact outcomes require independent verification.",
+    "methodology": "Individual developments are tracked by event ID and source. Publication times are not substituted for event times. An attributed claim does not become confirmed simply because several publications repeat it. Reddit discussions are analysed separately."
+  },
   "events": [
     {
       "id": "Event 01",
+      "date": "2026-10-02",
       "event_time": null,
-      "event_time_display": "Oct 3 · Announcement (time not verified)",
-      "category": "Organiser announcement",
-      "title": "October 10 Jantar Mantar protest announced",
+      "event_time_display": "Oct 2 · late evening · exact time unknown",
+      "category": "Organisers",
+      "title": "CJP announces an October 10 return to Jantar Mantar",
       "status": "confirmed",
-      "description": "CJP founder Abhijeet Dipke announced plans to protest at Jantar Mantar on October 10, calling for Chief Election Commissioner Gyanesh Kumar to resign. The demonstration was described as peaceful.",
-      "context": "Confirmed as an announcement, not confirmation that tomorrow's demonstration has begun.",
+      "description": "CJP founder Abhijeet Dipke announced a proposed October 10 march to Jantar Mantar demanding Chief Election Commissioner Gyanesh Kumar’s resignation over the electoral-roll revision controversy.",
+      "context": "The announcement followed the October 2 Mumbai demonstration. It establishes the plan, not the crowd size or outcome of the October 10 protest.",
+      "evidence": [
+        "Dipke's appeal was conditional on the chief election commissioner not resigning.",
+        "He described the proposed rally as peaceful and invited participants concerned about electoral integrity.",
+        "The announcement was reported October 3; the precise time of the original statement was not independently established."
+      ],
       "sources": [
         {
-          "label": "Times of India · Oct 3",
-          "url": "https://timesofindia.indiatimes.com/city/mumbai/cockroaches-to-march-to-delhi-on-october-10-if-gyanesh-kumar-doesnt-resign-cjps-abhijeet-dipke-announces-new-jantar-mantar-protest/articleshow/134650476.cms"
+          "label": "Times of India · announcement",
+          "url": "https://timesofindia.indiatimes.com/city/mumbai/cockroaches-to-march-to-delhi-on-october-10-if-gyanesh-kumar-doesnt-resign-cjps-abhijeet-dipke-announces-new-jantar-mantar-protest/articleshow/134650476.cms",
+          "type": "report",
+          "note": "Oct 3, 08:20 IST"
+        },
+        {
+          "label": "India Today · context",
+          "url": "https://www.indiatoday.in/india/story/cockroach-janta-party-cjp-delhi-jantar-mantar-protest-cec-gyanesh-kumar-3008537-2026-10-03",
+          "type": "report",
+          "note": "Oct 3"
         }
-      ]
+      ],
+      "priority": "major"
     },
     {
       "id": "Event 02",
+      "date": "2026-10-08",
       "event_time": null,
-      "event_time_display": "Oct 9 · Report time not established",
-      "category": "Police/security",
-      "title": "Delhi Police outlines extensive security arrangements",
+      "event_time_display": "Oct 8 · reported 19:08 IST",
+      "category": "Policing",
+      "title": "Additional women personnel and student accommodation checks planned",
       "status": "confirmed",
-      "description": "The Indian Express reports police preparations including 600 low-floor buses intended to transport detainees, body-worn cameras, and a 23-zone security structure ahead of the planned gathering.",
-      "context": "Details describe the reported police plan; they do not establish how many people will attend or be detained.",
+      "description": "Delhi Police officers told The Indian Express they expected 450–500 additional women paramilitary personnel; police were also contacting PG owners, RWAs and colleges ahead of the planned gathering.",
+      "context": "This is reported police planning, not evidence that every proposed measure was implemented.",
+      "evidence": [
+        "The report places additional women personnel among a wider planned central-force deployment.",
+        "Officers said PG owners were being informed that BNSS Section 163 restrictions were in force.",
+        "Student housing and routes from neighbouring states were described as areas of police attention."
+      ],
       "sources": [
         {
-          "label": "Indian Express · Oct 9",
-          "url": "https://indianexpress.com/article/cities/delhi/cjp-protest-delhi-security-600-buses-body-cameras-10914521/"
+          "label": "Indian Express · on-the-ground reporting",
+          "url": "https://indianexpress.com/article/cities/delhi/delhi-police-october-10-jantar-mantar-cjp-protest-500-extra-women-personnel-10912841/",
+          "type": "report",
+          "note": "Updated Oct 8 19:08 IST"
         }
-      ]
+      ],
+      "priority": "standard"
     },
     {
       "id": "Event 03",
+      "date": "2026-10-09",
       "event_time": null,
-      "event_time_display": "Oct 9 · Report time not established",
-      "category": "Detention allegations",
-      "title": "Organisers allege pre-protest mass detentions",
-      "status": "unverified",
-      "description": "CJP alleges that more than 10,000 members or affiliates have been detained ahead of the demonstration.",
-      "context": "The figure is an organiser claim reported by The Guardian and has not been independently confirmed.",
+      "event_time_display": "Oct 9 · report updated 14:28 IST",
+      "category": "Policing",
+      "title": "Police plan 37 blocking points and detention centres across 15 districts",
+      "status": "confirmed",
+      "description": "The Indian Express reports that Delhi Police prepared 37 blocking points in New Delhi district and detention centres across the capital's 15 districts, aiming to intercept groups heading toward Jantar Mantar.",
+      "context": "Reported operational plan; statements about anticipated turnout or future detention counts are not established facts.",
+      "evidence": [
+        "Police sources described a change from tactics used during the July protests.",
+        "Hotels and guesthouses were reportedly asked to alert police about arriving protest participants.",
+        "Reuters separately reported nationwide deployment of thousands of police and paramilitary personnel, citing a government document it reviewed."
+      ],
       "sources": [
         {
-          "label": "The Guardian · Oct 9",
-          "url": "https://www.theguardian.com/world/2026/oct/09/india-dehli-cockroach-party-weekend-demonstration-mass-detention"
+          "label": "Indian Express · detailed deployment plan",
+          "url": "https://indianexpress.com/article/cities/delhi/37-blocking-points-15-detention-centres-delhi-police-plan-for-cjp-protest-cockroach-janta-party-october-10-protest-jantar-mantar-anurag-kumar-10913669/",
+          "type": "report",
+          "note": "Oct 9 14:28 IST"
+        },
+        {
+          "label": "Reuters · deployment reporting",
+          "url": "https://www.reuters.com/world/india/indian-youth-leader-says-protest-will-go-ahead-despite-detentions-2026-10-09/",
+          "type": "wire",
+          "note": "Oct 9"
         }
-      ]
+      ],
+      "priority": "major"
     },
     {
       "id": "Event 04",
+      "date": "2026-10-09",
       "event_time": null,
-      "event_time_display": "Oct 9 · Statement time not established",
-      "category": "Organiser response",
-      "title": "CJP spokesperson appeals to police ahead of rally",
+      "event_time_display": "Oct 9 · reported 12:30 IST",
+      "category": "Legal / access",
+      "title": "Police refuse protest permission, citing late notice and safety concerns",
       "status": "confirmed",
-      "description": "CJP spokesperson Ashutosh Ranka issued a public message appealing to police not to use force against students at the planned demonstration.",
-      "context": "Verified as a reported statement, not evidence of a confrontation taking place.",
+      "description": "Delhi Police said permission was not granted for the October 10 assembly at Jantar Mantar. A senior police representative cited the timing of the application and prior alleged violations of protest conditions.",
+      "context": "This confirms the police decision and its stated rationale; it does not resolve legal disputes over restrictions or endorse either side's position.",
+      "evidence": [
+        "According to the police account, a letter was received on October 7, fewer than the ten days' notice they said was required.",
+        "Police said restrictions under Section 163 of the Bharatiya Nagarik Suraksha Sanhita apply in New Delhi district.",
+        "Organisers have said they intend to proceed regardless."
+      ],
       "sources": [
         {
-          "label": "Times of India · Oct 9",
-          "url": "https://timesofindia.indiatimes.com/india/how-can-you-raise-hands-against-children-cjp-sends-message-to-police-day-before-october-10-delhi-protest/articleshow/134806603.cms"
+          "label": "Jansatta · police press briefing",
+          "url": "https://www.jansatta.com/national/cjp-protest-jantar-mantar-permission-not-granted-delhi-police-informed-late/4737781/",
+          "type": "report",
+          "note": "Oct 9 12:30 IST"
+        },
+        {
+          "label": "Reuters · denial and response",
+          "url": "https://www.reuters.com/world/india/indian-youth-leader-says-protest-will-go-ahead-despite-detentions-2026-10-09/",
+          "type": "wire",
+          "note": "Oct 9"
         }
-      ]
+      ],
+      "priority": "major"
     },
     {
       "id": "Event 05",
+      "date": "2026-10-09",
       "event_time": null,
-      "event_time_display": "Oct 9 · Report time not established",
-      "category": "Transport and access",
-      "title": "Metro and traffic restrictions reported",
-      "status": "confirmed",
-      "description": "Financial Express reports announced restrictions affecting Delhi Metro access and potential traffic diversions in central Delhi ahead of the planned protest.",
-      "context": "Check Delhi Metro and police's official live travel advisories for real-time operational confirmation.",
+      "event_time_display": "Oct 9 · report time not established",
+      "category": "Detention claims",
+      "title": "CJP says over 10,000 members and affiliates were detained",
+      "status": "unverified",
+      "description": "CJP alleges that more than 10,000 of its members and allied activists were detained across India before the Saturday demonstration.",
+      "context": "The total has not been independently verified. Multiple reports relaying the same organiser figure do not constitute independent confirmation.",
+      "evidence": [
+        "Reuters reported the movement's claim and separately described some activist detentions; Reuters said it could not independently verify circulated videos.",
+        "The Guardian also attributed the nationwide figure to CJP.",
+        "Do not display the figure as a confirmed arrest or detention total."
+      ],
       "sources": [
         {
-          "label": "Financial Express · Oct 9",
-          "url": "https://www.financialexpress.com/india-news/cjp-protest-in-delhi-date-place-timings-traffic-diversions-metro-updates-jantar-mantar-whats-affected/4357362/"
+          "label": "Reuters · attribution and caveats",
+          "url": "https://www.reuters.com/business/media-telecom/indian-opposition-protest-police-action-against-lawmakers-push-poll-chiefs-2026-10-08/",
+          "type": "wire",
+          "note": "Oct 8"
+        },
+        {
+          "label": "The Guardian · organiser allegation",
+          "url": "https://www.theguardian.com/world/2026/oct/09/india-dehli-cockroach-party-weekend-demonstration-mass-detention",
+          "type": "report",
+          "note": "Oct 9"
         }
-      ]
+      ],
+      "priority": "major"
+    },
+    {
+      "id": "Event 06",
+      "date": "2026-10-09",
+      "event_time": null,
+      "event_time_display": "Oct 9 · reported 16:40 IST; incident Oct 8",
+      "category": "Detentions",
+      "title": "Person detained over Jantar Mantar protest posters",
+      "status": "confirmed",
+      "description": "The Indian Express reports that police detained one person on Thursday after posters promoting the October 10 protest were allegedly distributed near a South Delhi college.",
+      "context": "Police sources described the detention and inquiry. Allegations of a wider conspiracy remain police claims, not findings by a court.",
+      "evidence": [
+        "Police sources said the person was taken to a station for questioning.",
+        "Student groups and opposition representatives separately alleged preventive detentions and visits to organisers' homes.",
+        "A police spokesperson said precautionary steps were being taken to prevent incidents."
+      ],
+      "sources": [
+        {
+          "label": "Indian Express · police and organiser accounts",
+          "url": "https://indianexpress.com/article/cities/delhi/jantar-mantar-chalo-posters-detained-in-delhi-cjp-aap-wider-abhijeet-dipke-aam-aadmi-party-cockroach-janta-party-10913800/",
+          "type": "report",
+          "note": "Updated Oct 9 16:40 IST"
+        }
+      ],
+      "priority": "standard"
+    },
+    {
+      "id": "Event 07",
+      "date": "2026-10-09",
+      "event_time": null,
+      "event_time_display": "Oct 9 · announced; 21:00 IST restriction start",
+      "category": "Transit",
+      "title": "57 Metro station access closures and train cancellations announced",
+      "status": "confirmed",
+      "description": "Authorities announced temporary access closures for 57 Metro stations starting Friday night, alongside cancellations affecting long-distance train services into Delhi.",
+      "context": "These are reported operational restrictions. Individual gates and routes may change; verify actual service status with the transport operator before travelling.",
+      "evidence": [
+        "Reuters attributes cancellations and station restrictions to authorities.",
+        "Jansatta reports 21:00 IST on October 9 as the start for temporary Metro station access closures.",
+        "Online posts predicting prolonged electricity blackouts or citywide internet shutdowns should not be treated as established by these transit reports."
+      ],
+      "sources": [
+        {
+          "label": "Reuters · transport restrictions",
+          "url": "https://www.reuters.com/world/india/indian-youth-leader-says-protest-will-go-ahead-despite-detentions-2026-10-09/",
+          "type": "wire",
+          "note": "Oct 9"
+        },
+        {
+          "label": "Jansatta · 57 Metro stations",
+          "url": "https://www.jansatta.com/national/delhi-metro-57-stations-closed-dmrc-letter-delhi-police-cjp-protest/4737916/",
+          "type": "report",
+          "note": "Oct 9"
+        }
+      ],
+      "priority": "major"
+    },
+    {
+      "id": "Event 08",
+      "date": "2026-10-09",
+      "event_time": null,
+      "event_time_display": "Oct 9 · reported 10:28 IST",
+      "category": "Organiser statement",
+      "title": "Ashutosh Ranka urges police to avoid force against students",
+      "status": "confirmed",
+      "description": "CJP spokesperson Ashutosh Ranka published an appeal asking police personnel not to use force against student protesters and referencing previous clashes.",
+      "context": "Confirmed as an organiser's statement; the allegations within it about past police conduct are not automatically verified.",
+      "evidence": [
+        "Ranka invoked historical comparisons to ask officers to reflect on the consequences of their actions.",
+        "He said the movement intended to remain nonviolent and reach Jantar Mantar on October 10."
+      ],
+      "sources": [
+        {
+          "label": "Times of India · full statement context",
+          "url": "https://timesofindia.indiatimes.com/india/how-can-you-raise-hands-against-children-cjp-sends-message-to-police-day-before-october-10-delhi-protest/articleshow/134806603.cms",
+          "type": "report",
+          "note": "Oct 9 10:28 IST"
+        }
+      ],
+      "priority": "standard"
+    },
+    {
+      "id": "Event 09",
+      "date": "2026-10-09",
+      "event_time": null,
+      "event_time_display": "Oct 9 · reported 13:47 IST",
+      "category": "Organiser statement",
+      "title": "Dipke says march will proceed despite the police refusal",
+      "status": "confirmed",
+      "description": "Abhijeet Dipke publicly reiterated that CJP would proceed with the October 10 protest even though Delhi Police had declined permission, saying organisers were prepared for arrests.",
+      "context": "This documents a stated intention. It does not establish what will actually happen tomorrow.",
+      "evidence": [
+        "Dipke argued that transport restrictions would inconvenience ordinary commuters.",
+        "The police say restrictions are intended to preserve public order and safety."
+      ],
+      "sources": [
+        {
+          "label": "Times of India · Dipke's remarks",
+          "url": "https://timesofindia.indiatimes.com/city/delhi/arrest-me-detain-me-cjps-abhijeet-dipke-defies-delhi-police-ban-says-october-10-jantar-mantar-protest-will-go-ahead/articleshow/134823769.cms",
+          "type": "report",
+          "note": "Oct 9 13:47 IST"
+        }
+      ],
+      "priority": "major"
+    },
+    {
+      "id": "Event 10",
+      "date": "2026-10-09",
+      "event_time": null,
+      "event_time_display": "Oct 9 · reported 11:02 IST",
+      "category": "Counter-demonstration",
+      "title": "Separate group stages a counter-protest at Janpath",
+      "status": "confirmed",
+      "description": "The Times of India reports that roughly 200 people gathered at Janpath under the name 'Lal Hit Janata Party', objecting to alleged attacks on police and offensive language against the prime minister.",
+      "context": "The approximate count is the outlet's report, not an official attendance figure. This is a separate event, not a CJP gathering.",
+      "evidence": [
+        "The group's name was described as a satirical response to CJP.",
+        "A representative, Ayan Bhatnagar, condemned abusive language and alleged mistreatment of police personnel."
+      ],
+      "sources": [
+        {
+          "label": "Times of India · counter-demonstration",
+          "url": "https://timesofindia.indiatimes.com/city/delhi/to-counter-cjp-stir-lal-hit-janata-party-stages-protest-in-delhi/articleshow/134810337.cms",
+          "type": "report",
+          "note": "Oct 9 11:02 IST"
+        }
+      ],
+      "priority": "standard"
+    }
+  ],
+  "discussions": [
+    {
+      "id": "Community 01",
+      "date": "2026-10-09",
+      "community": "r/delhi",
+      "title": "Police monitoring of PG accommodation",
+      "url": "https://www.reddit.com/r/delhi/comments/1x1ej1g/delhi_police_intensify_monitoring_of_pg/",
+      "summary": "A thread links police accommodation checks to the Indian Express report. Commenters debate whether preventive measures are proportionate.",
+      "signal": "News discussion rather than verified first-person evidence. Comments are not a representative sample of Delhi residents.",
+      "related": "Event 02",
+      "kind": "news discussion"
+    },
+    {
+      "id": "Community 02",
+      "date": "2026-10-09",
+      "community": "r/delhi",
+      "title": "Warnings about disruption this weekend",
+      "url": "https://www.reddit.com/r/delhi/comments/1x1e3cj/prepare_yourself_for_the_upcoming_weekend_and_the/",
+      "summary": "A user speculates about metro closures, internet outages, possible blackouts and road restrictions. Responses express concern about disruption.",
+      "signal": "Several claims are predictions without documentation. Do not report power cuts or wider outages as fact.",
+      "related": "Event 07",
+      "kind": "unverified discussion"
+    },
+    {
+      "id": "Community 03",
+      "date": "2026-10-09",
+      "community": "r/delhi",
+      "title": "Discussion of the 10,000 detention allegation",
+      "url": "https://www.reddit.com/r/delhi/comments/1x1irc7/this_is_emergency_10000_detained_across_india/",
+      "summary": "A widely discussed post repeats CJP's mass-detention claim and reports of transport restrictions, with strongly worded reactions.",
+      "signal": "A Reddit post reiterating a number is not independent corroboration of it.",
+      "related": "Event 05",
+      "kind": "claim discussion"
+    },
+    {
+      "id": "Community 04",
+      "date": "2026-10-09",
+      "community": "r/unitedstatesofindia",
+      "title": "Rakesh Tikait participation video circulated",
+      "url": "https://www.reddit.com/r/unitedstatesofindia/comments/1x19nuj/rakesh_tikait_to_join_cjp_protest_on_10th_oct_cjp/",
+      "summary": "A discussion shares a video published by CJP claiming farmer leader Rakesh Tikait intends to join the October 10 protest.",
+      "signal": "Treat participation as an announced intention, not verified attendance; check the source video and any later eyewitness confirmation.",
+      "related": "Event 01",
+      "kind": "organiser content"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-10-09T15:32:02.302Z",
+      "action": "Source audit; added verified source URLs, event-specific evidence and separate Reddit discussion desk."
     }
   ]
 }
