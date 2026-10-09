@@ -1,0 +1,27 @@
+name: Protest timeline integrity
+
+on:
+  push:
+    paths:
+      - "public/protest/**"
+      - "scripts/validate-protest.mjs"
+      - ".github/workflows/validate-protest.yml"
+  pull_request:
+    paths:
+      - "public/protest/**"
+      - "scripts/validate-protest.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate timeline data and scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check frontend syntax
+        run: node --check public/protest/app.js
+      - name: Validate event ledger, links and source types
+        run: node scripts/validate-protest.mjs
