@@ -1,57 +1,93 @@
-# Jantar Mantar timeline — publication contract
+# Protest timeline — writer contract (schema v3)
 
-This directory is the **sole public data store** for the timeline at `/protest/`.
+**Canonical site:** `/protest/`. **Canonical data:** `public/protest/events.json`. Two ChatGPT tasks update the same JSON through the GitHub connector: researcher at HH:00 IST, editor at HH:05 IST. Website code in `index.html`, `site.css`, `app.js` is stable and should not be re-designed hourly.
 
-- `events.json`: canonical fact/event ledger and separate Reddit discussion desk.
-- `index.html`: presentation layout.
-- `site.css`: presentation styles.
-- `app.js`: frontend data reader, filters, deduplication, error handling.
+## The entire time rule
 
-## Data contract v2
+There are exactly **three machine-readable clocks**, each ISO 8601 with explicit +05:30 offset, or `null`:
 
-`schema_version: 2` and:
+| Field | Meaning | Example | What the website labels it |
+|---|---|---|---|
+| `occurred_at` | Confirmed time the incident **happened** | `2026-10-09T11:02:00+05:30` | EVENT TIME |
+| `reported_at` | Independently sourced **article/post publication** time | `2026-10-09T11:02:00+05:30` | REPORTED |
+| `scheduled_at` | Publicly **scheduled** future action, not confirmation it happened | `2026-10-10T10:00:00+05:30` | SCHEDULED |
+
+**NEVER copy a publication time into `occurred_at`.** When event clock unavailable but report clock known, use `occurred_at:null`, `reported_at:<timestamp>`. The left rail then displays `09 OCT · 11:02 · REPORTED`. Never write freeform strings like "Time unknown" or manually embed publication times into headline text. If all clocks are null, the rail displays `DATE ONLY`, never a made-up time.
+
+The mandatory `date` is the known event calendar day or the day reporting emerged if event day is not established (`YYYY-MM-DD`). If an incident happened on a different date than its article was published, put the known incident date in `occurred_on`, with exact incident time unknown. The UI marks `INCIDENT: 08 OCT` while correctly labelling `16:40 · REPORTED` for the linked article the next day. Do not infer exact clock time from vague phrases ("Thursday morning"). Frontend parses fields, **never** `event_time_display`; that legacy field was removed.
+
+## Data schema
 
 ```json
 {
+  "schema_version": 3,
   "meta": {
     "title": "Jantar Mantar / October 10",
     "location": "New Delhi, India",
     "timezone": "Asia/Kolkata",
     "scheduled_for": "2026-10-10",
     "event_status": "planned",
-    "last_checked_at": "2026-10-09T00:00:00.000Z",
-    "published_at": "2026-10-09T00:00:00.000Z",
-    "notice": "...",
-    "methodology": "..."
+    "last_checked_at": "2026-10-09T15:00:00.000Z",
+    "published_at": "2026-10-09T15:00:00.000Z",
+    "notice": "Short source-led status, attributed and without speculation",
+    "methodology": "Brief evidence standard"
   },
-  "events": [],
-  "discussions": [],
+  "events": [{
+    "id": "Event 11",
+    "date": "2026-10-09",
+    "occurred_at": null,
+    "reported_at": "2026-10-09T16:30:00+05:30",
+    "scheduled_at": null,
+    "occurred_on": null,
+    "category": "Police / security",
+    "title": "A short factual headline",
+    "status": "confirmed",
+    "description": "What is verifiably known and who says so.",
+    "context": "What is NOT established or disputed.",
+    "evidence": ["Sourced supporting note"],
+    "sources": [{
+      "label": "Publication · specific item",
+      "url": "https://example.com/real-article",
+      "type": "report",
+      "note": "Published Oct 9 16:30 IST"
+    }]
+  }],
+  "discussions": [{
+    "id": "Community 01",
+    "date": "2026-10-09",
+    "community": "r/delhi",
+    "title": "What is being discussed",
+    "url": "https://www.reddit.com/r/delhi/comments/actualid/",
+    "summary": "Actual thread content; no representative public-opinion inference.",
+    "signal": "Evidentiary caveat",
+    "kind": "news discussion",
+    "related": "Event 11"
+  }],
   "history": []
 }
 ```
 
-Every `events[]` item needs a **stable and unique** `id`, `date` (YYYY-MM-DD), `title`, `category`, `description`, `status`, and `sources` array. Optional: `event_time` (ISO8601 with offset *only when verifiable*; otherwise null), `event_time_display` (explicitly identify publication-time vs event-time), `context`, `evidence` (array of concise source-grounded strings), `priority` (`major` or `standard`). Valid statuses: `confirmed`, `corroborated`, `unverified`, `disputed`. **Confirmed means the described development occurred or statement was made, not that every allegation embedded in it is correct.**
+Actual source URLs MUST be direct checked https links, never invented. Use `status` from `confirmed,corroborated,unverified,disputed`. A documented **statement** is "confirmed" only as a statement, not for the truth of the embedded allegations. Organiser and police claims must be attributed, cross-checked where possible, and not adopted as fact. Neither Reddit upvotes nor five reports repeating a single claim establish independent confirmation. Do not assert formal ECI registration for any movement without official evidence.
 
-A source is `{"label":"Publisher / item","url":"https://...","type":"wire|report|primary|reddit|video","note":"publication time / caveat"}`. Use actual direct links only. Do not attach a topical homepage or fabricated deep URL.
+## Persistent update procedure
 
-`discussions[]` items need stable `id`, `date`, `community`, `title`, `url`, `summary`, `signal` (evidentiary caveat), `kind`, optional `related`. These are reader-relevant discussions, not confirmed protest events.
+1. FETCH the latest `events.json`, `README.md`, and current blob SHA from `FumblingKnight/HUB` every run. The JSON is the memory; never reconstruct it from chat/task summary.
+2. Check source links and identify truly new who/what/where/when events. For fresh evidence of an existing event, enrich the existing ID. Never create the same underlying story twice. Multiple independent developments in one hour mean separate items.
+3. Assign unique stable `Event NN` IDs and `Community NN` IDs, incrementing from the largest existing value; IDs never change. Preserve all other entries. Corrections belong in existing entries with a brief audit `history` record.
+4. For each new record explicitly fill all four structured time fields; if a time is not supported, use `null`. A report's publication clock goes ONLY in `reported_at`; a planned timetable goes ONLY in `scheduled_at`. Store times with +05:30 offset. `date` remains required.
+5. Before committing, validate JSON parseability; schema_version=3; unique IDs; required strings; dates; allowed status; clocks null or valid ISO+offset; all sources actual HTTPS URLs. Run or use equivalent checks from `scripts/validate-protest.mjs`.
+6. Re-fetch GitHub blob SHA before commit, use optimistic SHA update. On conflict refetch, merge non-overlapping work and retry once. NEVER clobber the other task's changes. Check resulting commit SHA.
+7. Primary hourly researcher updates `meta.last_checked_at` after a successful research pass even if quiet. Only update `meta.published_at` and append to `history` when meaningful content changes. Secondary HH:05 editor finds real Reddit threads, corrections and deeper context; no redundant commit if nothing changed.
+8. Avoid padding the timeline with invented entries or dramatic language. If the event status changes, verify before setting `active` or `concluded`. Retain date-specific uncertainty.
+9. Site performs data refresh every five minutes while open and on return. This only loads newly deployed JSON; GitHub write success does NOT guarantee Cloudflare deployment. If connector write fails, report failure, never claim the page updated.
+10. Keep the UI structural files unchanged on scheduled cycles unless a reproducible bug requires a targeted fix.
 
-## Editorial rules
+## Source hierarchy and limitations
 
-1. Read the *current* `events.json` and exact GitHub blob SHA before editing. Do not rely on cached chat history or recreate an older copy.
-2. Confirm a new fact with primary or credible reporting; attach precise working source links.
-3. Compare the underlying **who/what/when/where**, not titles alone. Update existing records when a report supplies new detail or contradicts an earlier version. New entries are only for distinct underlying developments. Keep IDs stable. Never renumber.
-4. Separate police statements, organiser claims, eyewitness accounts, Reddit commentary, and independent observations. No engagement, repost or headline counts are considered independent verification. Attribute political allegations to their speakers.
-5. Preserve every existing item and citation unless there is evidence it is false, redundant, or the link is broken; document corrections in `history`.
-6. Use Indian Standard Time for public display. NEVER invent time-of-day when only a publication date is available.
-7. The primary task checks news at HH:00. The secondary pass at HH:05 enriches evidence and discussions, avoiding duplicate entries or redundant website redesigns.
-8. On every primary check, update `meta.last_checked_at` to the actual time the research finished; only update `meta.published_at` and append to `history` on meaningful source/content changes. If the site is not deployed, do not imply it is.
-9. Before writing, validate all required fields, URL schemes, duplicate IDs, unique event+date pairs, and original JSON parseability. Use `update_file` with current SHA. On concurrent edit failure, refetch, merge and retry once; never force overwrite newer work.
-10. Do not fabricate events to populate empty hours. Do not delete `discussions[]` just because a later search missed the thread. Keep update history compact (e.g. last 40 changes); Git history preserves older revisions.
-11. Keep this publication strictly informational. Present police/organiser/opposition claims with context and uncertainty rather than endorsements. Never describe CJP as a formally ECI-registered electoral party without registration evidence.
+- Primary statements, official advisories and actual verified footage help establish the statement/observable incident; they do not automatically prove accusations.
+- Credible independent journalism provides additional corroboration and context.
+- Reddit threads, comments and viral clips have high value as leads and community perspectives, but are separately labelled and attributed. Do not manufacture quotes or extrapolate consensus.
+- Timestamps on a screenshot/video upload aren't necessarily when the recorded action happened.
+- On a quiet hourly research run, display the changed `last_checked_at`, NOT a fictional hourly entry.
 
-## UI deployment and monitoring
-
-The browser requests `/protest/events.json` with a fresh cache-busting query every five minutes while visible, and again when the tab regains focus. The response is validated and the UI recovers from transient fetch failures.
-
-Changes committed in GitHub do not necessarily mean Cloudflare has published them. Check actual website deployment separately. No notification delivery is required; the user reads the site directly.
+No notifications requested. User reads the GitHub-backed web page directly.
