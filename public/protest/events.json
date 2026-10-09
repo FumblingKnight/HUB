@@ -1,5 +1,86 @@
 {
-  "updated_at_ist": null,
-  "notice": "Verification pending. No independently verified entries have been published. This page is not automatically synchronized with ChatGPT tasks.",
-  "events": []
+  "updated_at_ist": "2026-10-09 20:50",
+  "notice": "First sourced briefing published. Updates are researched hourly; GitHub publication is attempted on each task run and may be delayed or unavailable. Claims attributed to organisers are not independently verified.",
+  "events": [
+    {
+      "id": "Event 01",
+      "event_time": null,
+      "event_time_display": "Oct 3 · Announcement (time not verified)",
+      "category": "Organiser announcement",
+      "title": "October 10 Jantar Mantar protest announced",
+      "status": "confirmed",
+      "description": "CJP founder Abhijeet Dipke announced plans to protest at Jantar Mantar on October 10, calling for Chief Election Commissioner Gyanesh Kumar to resign. The demonstration was described as peaceful.",
+      "context": "Confirmed as an announcement, not confirmation that tomorrow's demonstration has begun.",
+      "sources": [
+        {
+          "label": "Times of India · Oct 3",
+          "url": "https://timesofindia.indiatimes.com/city/mumbai/cockroaches-to-march-to-delhi-on-october-10-if-gyanesh-kumar-doesnt-resign-cjps-abhijeet-dipke-announces-new-jantar-mantar-protest/articleshow/134650476.cms"
+        }
+      ]
+    },
+    {
+      "id": "Event 02",
+      "event_time": null,
+      "event_time_display": "Oct 9 · Report time not established",
+      "category": "Police/security",
+      "title": "Delhi Police outlines extensive security arrangements",
+      "status": "confirmed",
+      "description": "The Indian Express reports police preparations including 600 low-floor buses intended to transport detainees, body-worn cameras, and a 23-zone security structure ahead of the planned gathering.",
+      "context": "Details describe the reported police plan; they do not establish how many people will attend or be detained.",
+      "sources": [
+        {
+          "label": "Indian Express · Oct 9",
+          "url": "https://indianexpress.com/article/cities/delhi/cjp-protest-delhi-security-600-buses-body-cameras-10914521/"
+        }
+      ]
+    },
+    {
+      "id": "Event 03",
+      "event_time": null,
+      "event_time_display": "Oct 9 · Report time not established",
+      "category": "Detention allegations",
+      "title": "Organisers allege pre-protest mass detentions",
+      "status": "unverified",
+      "description": "CJP alleges that more than 10,000 members or affiliates have been detained ahead of the demonstration.",
+      "context": "The figure is an organiser claim reported by The Guardian and has not been independently confirmed.",
+      "sources": [
+        {
+          "label": "The Guardian · Oct 9",
+          "url": "https://www.theguardian.com/world/2026/oct/09/india-dehli-cockroach-party-weekend-demonstration-mass-detention"
+        }
+      ]
+    },
+    {
+      "id": "Event 04",
+      "event_time": null,
+      "event_time_display": "Oct 9 · Statement time not established",
+      "category": "Organiser response",
+      "title": "CJP spokesperson appeals to police ahead of rally",
+      "status": "confirmed",
+      "description": "CJP spokesperson Ashutosh Ranka issued a public message appealing to police not to use force against students at the planned demonstration.",
+      "context": "Verified as a reported statement, not evidence of a confrontation taking place.",
+      "sources": [
+        {
+          "label": "Times of India · Oct 9",
+          "url": "https://timesofindia.indiatimes.com/india/how-can-you-raise-hands-against-children-cjp-sends-message-to-police-day-before-october-10-delhi-protest/articleshow/134806603.cms"
+        }
+      ]
+    },
+    {
+      "id": "Event 05",
+      "event_time": null,
+      "event_time_display": "Oct 9 · Report time not established",
+      "category": "Transport and access",
+      "title": "Metro and traffic restrictions reported",
+      "status": "confirmed",
+      "description": "Financial Express reports announced restrictions affecting Delhi Metro access and potential traffic diversions in central Delhi ahead of the planned protest.",
+      "context": "Check Delhi Metro and police's official live travel advisories for real-time operational confirmation.",
+      "sources": [
+        {
+          "label": "Financial Express · Oct 9",
+          "url": "https://www.financialexpress.com/india-news/cjp-protest-in-delhi-date-place-timings-traffic-diversions-metro-updates-jantar-mantar-whats-affected/4357362/"
+        }
+      ]
+    }
+  ]
 }
