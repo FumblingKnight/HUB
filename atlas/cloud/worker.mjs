@@ -104,6 +104,13 @@ export default {async fetch(req,env){
  }
  if(path==="/auth/login"&&req.method==="POST"){
   if(!isAuthConfigured(env))return error("ATLAS login not yet configured",503);
+  // A short password must never be checked without a cloud-side throttle.
+  // Fail closed when binding is missing or unavailable.
+  if(!env.LOGIN_LIMIT)return error("Login protection unavailable",503);
+  try{
+   const limit=await env.LOGIN_LIMIT.limit({key:"atlas-login-global"});
+   if(!limit.success)return error("Too many login attempts. Try again in a minute.",429);
+  }catch{return error("Login protection unavailable",503);}
   if(req.headers.get("origin")!==url.origin)return error("Cross-origin login blocked",403);
   if(!req.headers.get("content-type")?.startsWith("application/json"))return error("JSON required",415);
   if(Number(req.headers.get("content-length")||0)>600)return error("Login request too large",413);
