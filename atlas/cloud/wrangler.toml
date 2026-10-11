@@ -1,0 +1,12 @@
+name = "sajo-atlas"
+main = "./worker.mjs"
+compatibility_date = "2026-10-11"
+
+[vars]
+ATLAS_REPOSITORY = "FumblingKnight/Sajo-Atlas"
+
+[assets]
+directory = "../site"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "single-page-application"
