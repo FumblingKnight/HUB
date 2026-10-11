@@ -1,0 +1,122 @@
+import {reconcile,validateVault} from "../core.mjs";
+
+// Every route, including static assets, is fail-closed behind verified Cloudflare Access.
+const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
+ "content-type":"application/json; charset=utf-8","cache-control":"no-store, private",
+ "x-content-type-options":"nosniff"}});
+const error=(message,status=400)=>json({error:message},status);
+function decode64(value){
+ const x=atob(value.replace(/-/g,"+").replace(/_/g,"/"));
+ return Uint8Array.from(x,c=>c.charCodeAt(0));
+}
+function utf8Base64(value){
+ const bytes=new TextEncoder().encode(value);
+ let s="";
+ for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));
+ return btoa(s);
+}
+async function accessAllowed(req,env){
+ const team=String(env.CF_ACCESS_TEAM_DOMAIN||"").replace(/^https?:\/\//,"").replace(/\/$/,"");
+ const aud=env.CF_ACCESS_AUD;
+ const jwt=req.headers.get("cf-access-jwt-assertion");
+ if(!team.endsWith(".cloudflareaccess.com")||!aud||!jwt)return false;
+ const parts=jwt.split(".");
+ if(parts.length!==3)return false;
+ try{
+  const header=JSON.parse(new TextDecoder().decode(decode64(parts[0])));
+  const claims=JSON.parse(new TextDecoder().decode(decode64(parts[1])));
+  const now=Math.floor(Date.now()/1000);
+  if(header.alg!=="RS256"||!header.kid||claims.iss!=="https://"+team)return false;
+  if(!(Array.isArray(claims.aud)?claims.aud.includes(aud):claims.aud===aud))return false;
+  if(!Number.isFinite(claims.exp)||claims.exp<=now||(claims.nbf!==undefined&&claims.nbf>now))return false;
+  const cert=await fetch("https://"+team+"/cdn-cgi/access/certs");
+  if(!cert.ok)return false;
+  const keys=(await cert.json()).keys||[];
+  const jwk=keys.find(x=>x.kid===header.kid);
+  if(!jwk)return false;
+  const key=await crypto.subtle.importKey("jwk",jwk,
+   {name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
+  return await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,
+   decode64(parts[2]),new TextEncoder().encode(parts[0]+"."+parts[1]));
+ }catch{return false;}
+}
+function repoApi(env){
+ if(!/^[\w.-]+\/[\w.-]+$/.test(env.ATLAS_REPOSITORY||"")||!env.ATLAS_GITHUB_TOKEN)
+   throw Error("Private GitHub repository or access token not configured");
+ return "https://api.github.com/repos/"+env.ATLAS_REPOSITORY+"/contents/vault.json";
+}
+function githubHeaders(env){
+ return {"authorization":"Bearer "+env.ATLAS_GITHUB_TOKEN,"accept":"application/vnd.github+json",
+ "X-GitHub-Api-Version":"2022-11-28","user-agent":"Sajo-Atlas"};
+}
+async function readVault(env){
+ const r=await fetch(repoApi(env),{headers:githubHeaders(env)});
+ if(!r.ok)throw Error(r.status===404?"vault.json not found in private repository":"GitHub read failed: "+r.status);
+ const file=await r.json();
+ const graph=JSON.parse(new TextDecoder().decode(decode64(file.content.replace(/\s/g,""))));
+ validateVault(graph);
+ return {graph,sha:file.sha};
+}
+async function editVault(env,operation){
+ for(let i=0;i<3;i++){
+  const {graph,sha}=await readVault(env);
+  const result=operation(graph);
+  const headers={...githubHeaders(env),"content-type":"application/json"};
+  const body=JSON.stringify({message:"ATLAS librarian: "+result.commit,
+   content:utf8Base64(JSON.stringify(graph,null,2)+"\n"),sha});
+  const r=await fetch(repoApi(env),{method:"PUT",headers,body});
+  if(r.ok)return result.result;
+  if(r.status!==409&&r.status!==422)throw Error("GitHub write failed: "+r.status);
+ }
+ throw Error("Concurrent vault updates; please retry");
+}
+async function api(req,env,url){
+ if(!env.ATLAS_REPOSITORY||!env.ATLAS_GITHUB_TOKEN)
+  return error("Private vault is not connected yet",503);
+ if(url.pathname==="/api/graph"&&req.method==="GET")
+  return json((await readVault(env)).graph);
+ if(url.pathname==="/api/inbox"&&req.method==="POST"||url.pathname==="/api/entity"&&req.method==="POST"){
+  if(req.headers.get("origin")!==url.origin)return error("Cross-origin write blocked",403);
+  if(!req.headers.get("content-type")?.startsWith("application/json"))return error("JSON required",415);
+  if(Number(req.headers.get("content-length")||0)>12000)return error("Payload too large",413);
+  const raw=await req.text();
+  if(raw.length>12000)return error("Payload too large",413);
+  const data=JSON.parse(raw);
+  if(url.pathname==="/api/inbox"){
+   if(typeof data.text!=="string"||!data.text.trim()||data.text.length>8000)
+    return error("Note must be 1–8000 characters");
+   const result=await editVault(env,graph=>{
+    const record={id:crypto.randomUUID(),text:data.text.trim(),
+     status:"unprocessed",source:"atlas-web",createdAt:new Date().toISOString()};
+    graph.inbox.push(record);graph.updatedAt=record.createdAt;
+    return {commit:"capture note",result:{queued:true,processed:false,id:record.id}};
+   });
+   return json(result,201);
+  }
+  if(!data.draft||typeof data.draft!=="object")return error("Structured draft required");
+  const result=await editVault(env,graph=>{
+   const value=reconcile(graph,data.draft,{confirmEntityId:data.confirmEntityId||null});
+   return {commit:"reconcile page",result:value};
+  });
+  return json(result,result.action==="review"?202:200);
+ }
+ return error("Route not found",404);
+}
+export default {async fetch(req,env){
+ const url=new URL(req.url);
+ if(!env.CF_ACCESS_TEAM_DOMAIN||!env.CF_ACCESS_AUD)
+  return error("Locked until Cloudflare Access is configured",503);
+ if(!await accessAllowed(req,env))return error("Cloudflare Access login required",401);
+ try{
+  if(url.pathname.startsWith("/api/"))return await api(req,env,url);
+  if(req.method!=="GET"&&req.method!=="HEAD")return error("Method not allowed",405);
+  const asset=await env.ASSETS.fetch(req);
+  const headers=new Headers(asset.headers);
+  headers.set("cache-control","private, no-store");
+  headers.set("x-content-type-options","nosniff");
+  headers.set("referrer-policy","no-referrer");
+  headers.set("content-security-policy",
+   "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+  return new Response(asset.body,{status:asset.status,headers});
+ }catch(e){return error(String(e.message||e).slice(0,250),500);}
+}};
