@@ -10,3 +10,11 @@ directory = "../site"
 binding = "ASSETS"
 run_worker_first = true
 not_found_handling = "single-page-application"
+
+# One account-wide, per-location login budget limits password guessing.
+[[ratelimits]]
+name = "LOGIN_LIMIT"
+namespace_id = "92017011"
+[ratelimits.simple]
+limit = 8
+period = 60
