@@ -16,5 +16,8 @@ test("signed session is valid then expires",async()=>{
 });
 test("no forged token accepted",async()=>{
  const cookie=(await issueSession(pass)).split(";")[0];
- assert.equal(await verifySession(cookie.replace(/.$/,"0"),pass),false);
+ const parts=cookie.split(".");
+ const prefix=parts[1].charAt(0)==="A"?"B":"A";
+ const tampered=parts[0]+"."+prefix+parts[1].slice(1);
+ assert.equal(await verifySession(tampered,pass),false);
 });
