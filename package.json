@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "jarvis:bridge": "node jarvis/bridge.mjs",
+    "jarvis:test": "node --check jarvis/bridge.mjs && node --check public/jarvis/lab.js && node --test jarvis/bridge.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

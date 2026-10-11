@@ -1,0 +1,26 @@
+name: Validate JARVIS lab
+on:
+  pull_request:
+    paths:
+      - "jarvis/**"
+      - "public/jarvis/**"
+      - "public/experiments/index.html"
+      - "package.json"
+      - ".github/workflows/validate-jarvis.yml"
+  push:
+    paths:
+      - "jarvis/**"
+      - "public/jarvis/**"
+      - "package.json"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Bridge and privacy test
+        run: npm run jarvis:test
+      - name: Training script Python syntax
+        run: python -m py_compile jarvis/train.py
