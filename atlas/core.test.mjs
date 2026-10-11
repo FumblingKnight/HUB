@@ -12,7 +12,7 @@ test("exact match and alias merges into existing page",()=>{
 test("uncertain similar title queues review instead of duplicating",()=>{
  const v=emptyVault();
  reconcile(v,{title:"Formula One",kind:"sport"});
- const a=reconcile(v,{title:"Formula 1",kind:"sport"});
+ const a=reconcile(v,{title:"Formula One racing",kind:"sport"});
  assert.equal(a.action,"review");
  assert.equal(v.entities.length,1);
  assert.equal(v.reviews[0].kind,"entity-match");
