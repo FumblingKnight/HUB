@@ -3,9 +3,9 @@ import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
 import {isAuthConfigured,passwordMatches,issueSession,verifySession,expiredSession} from "./session.mjs";
 
 // Every route, including static assets, is fail-closed behind verified Cloudflare Access.
-const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
+const json=(value,status=200,extraHeaders={})=>new Response(JSON.stringify(value),{status,headers:{
  "content-type":"application/json; charset=utf-8","cache-control":"no-store, private",
- "x-content-type-options":"nosniff"}});
+ "x-content-type-options":"nosniff",...extraHeaders}});
 const error=(message,status=400)=>json({error:message},status);
 function decode64(value){
  const x=atob(value.replace(/-/g,"+").replace(/_/g,"/"));
