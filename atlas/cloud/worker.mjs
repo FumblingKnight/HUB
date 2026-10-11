@@ -1,4 +1,5 @@
 import {reconcile,validateVault} from "../core.mjs";
+import {mediaEndpoint} from "./media.mjs";
 
 // Every route, including static assets, is fail-closed behind verified Cloudflare Access.
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
@@ -73,6 +74,10 @@ async function editVault(env,operation){
 async function api(req,env,url){
  if(!env.ATLAS_REPOSITORY||!env.ATLAS_GITHUB_TOKEN)
   return error("Private vault is not connected yet",503);
+ if(url.pathname==="/api/config"&&req.method==="GET")
+  return json({mediaEnabled:Boolean(env.MEDIA),vaultConnected:true,limitImageBytes:8*1024*1024});
+ const media=await mediaEndpoint({request:req,env,url,readVault,editVault,json,error});
+ if(media)return media;
  if(url.pathname==="/api/graph"&&req.method==="GET")
   return json((await readVault(env)).graph);
  if(url.pathname==="/api/inbox"&&req.method==="POST"||url.pathname==="/api/entity"&&req.method==="POST"){
