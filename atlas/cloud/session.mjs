@@ -9,7 +9,10 @@ const decode=s=>{
  if(!/^[A-Za-z0-9_-]+$/.test(s))throw Error("Bad token");
  return Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
 };
-const good=s=>typeof s==="string"&&s.length>=24&&s.length<=4096;
+// Keep existing long passphrases valid; allow the user's shorter 9-character
+// letter+number+symbol choice, protected by a Worker rate-limit binding.
+const good=s=>typeof s==="string"&&s.length>=9&&s.length<=4096&&
+  (s.length>=24||(/[A-Za-z]/.test(s)&&/[0-9]/.test(s)&&/[^A-Za-z0-9]/.test(s)));
 export const isAuthConfigured=env=>good(env.ATLAS_LOGIN_PASSPHRASE);
 const digest=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",enc.encode(s)));
 async function signingKey(secret){
