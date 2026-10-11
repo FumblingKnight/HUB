@@ -1,6 +1,11 @@
 name: Deploy ATLAS private Worker
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "atlas/**"
+      - ".github/workflows/deploy-atlas.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
