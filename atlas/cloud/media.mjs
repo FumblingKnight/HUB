@@ -27,6 +27,9 @@ export async function mediaEndpoint({request,env,url,readVault,editVault,json,er
   const {graph}=await readVault(env);
   const entry=(graph.media||[]).find(m=>m.id===id);
   if(!entry)return error("Image not found",404);
+  if(!["image/png","image/jpeg","image/webp","image/gif"].includes(entry.mime)||
+     !["png","jpg","webp","gif"].includes(entry.ext)||
+     entry.key!=="images/"+entry.id+"."+entry.ext)return error("Invalid stored image metadata",500);
   const object=await env.MEDIA.get(entry.key);
   if(!object)return error("Image missing from storage",404);
   const headers=new Headers({
