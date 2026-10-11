@@ -1,5 +1,6 @@
 import {reconcile,validateVault} from "../core.mjs";
-import {mediaEndpoint} from "./media.mjs";
+import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
+import {isAuthConfigured,passwordMatches,issueSession,verifySession,expiredSession} from "./session.mjs";
 
 // Every route, including static assets, is fail-closed behind verified Cloudflare Access.
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{
@@ -15,31 +16,6 @@ function utf8Base64(value){
  let s="";
  for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));
  return btoa(s);
-}
-async function accessAllowed(req,env){
- const team=String(env.CF_ACCESS_TEAM_DOMAIN||"").replace(/^https?:\/\//,"").replace(/\/$/,"");
- const aud=env.CF_ACCESS_AUD;
- const jwt=req.headers.get("cf-access-jwt-assertion");
- if(!team.endsWith(".cloudflareaccess.com")||!aud||!jwt)return false;
- const parts=jwt.split(".");
- if(parts.length!==3)return false;
- try{
-  const header=JSON.parse(new TextDecoder().decode(decode64(parts[0])));
-  const claims=JSON.parse(new TextDecoder().decode(decode64(parts[1])));
-  const now=Math.floor(Date.now()/1000);
-  if(header.alg!=="RS256"||!header.kid||claims.iss!=="https://"+team)return false;
-  if(!(Array.isArray(claims.aud)?claims.aud.includes(aud):claims.aud===aud))return false;
-  if(!Number.isFinite(claims.exp)||claims.exp<=now||(claims.nbf!==undefined&&claims.nbf>now))return false;
-  const cert=await fetch("https://"+team+"/cdn-cgi/access/certs");
-  if(!cert.ok)return false;
-  const keys=(await cert.json()).keys||[];
-  const jwk=keys.find(x=>x.kid===header.kid);
-  if(!jwk)return false;
-  const key=await crypto.subtle.importKey("jwk",jwk,
-   {name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
-  return await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,
-   decode64(parts[2]),new TextEncoder().encode(parts[0]+"."+parts[1]));
- }catch{return false;}
 }
 function repoApi(env){
  if(!/^[\w.-]+\/[\w.-]+$/.test(env.ATLAS_REPOSITORY||"")||!env.ATLAS_GITHUB_TOKEN)
@@ -75,7 +51,7 @@ async function api(req,env,url){
  if(!env.ATLAS_REPOSITORY||!env.ATLAS_GITHUB_TOKEN)
   return error("Private vault is not connected yet",503);
  if(url.pathname==="/api/config"&&req.method==="GET")
-  return json({mediaEnabled:Boolean(env.MEDIA),vaultConnected:true,limitImageBytes:8*1024*1024});
+  return json({mediaEnabled:true,mediaBackend:"private-github",vaultConnected:true,limitImageBytes:MAX_IMAGE_BYTES});
  const media=await mediaEndpoint({request:req,env,url,readVault,editVault,json,error});
  if(media)return media;
  if(url.pathname==="/api/graph"&&req.method==="GET")
@@ -107,21 +83,46 @@ async function api(req,env,url){
  }
  return error("Route not found",404);
 }
+const loginAssetPaths=new Set(["/login","/login.html","/login.css","/login.js"]);
+const redirect=path=>new Response(null,{status:303,headers:{"location":path,"cache-control":"no-store"}});
+function shield(result){
+ const headers=new Headers(result.headers);
+ headers.set("cache-control","private, no-store");
+ headers.set("x-content-type-options","nosniff");
+ headers.set("referrer-policy","no-referrer");
+ headers.set("x-frame-options","DENY");
+ headers.set("content-security-policy",
+  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+ return new Response(result.body,{status:result.status,statusText:result.statusText,headers});
+}
 export default {async fetch(req,env){
- const url=new URL(req.url);
- if(!env.CF_ACCESS_TEAM_DOMAIN||!env.CF_ACCESS_AUD)
-  return error("Locked until Cloudflare Access is configured",503);
- if(!await accessAllowed(req,env))return error("Cloudflare Access login required",401);
+ const url=new URL(req.url),path=url.pathname;
+ // Only the three login assets are public. No vault data can leak through static files.
+ if(req.method==="GET"&&loginAssetPaths.has(path)){
+  const target=path==="/login"?"/login.html":path;
+  return shield(await env.ASSETS.fetch(new Request(new URL(target,url.origin),{method:"GET"})));
+ }
+ if(path==="/auth/login"&&req.method==="POST"){
+  if(!isAuthConfigured(env))return error("ATLAS login not yet configured",503);
+  if(req.headers.get("origin")!==url.origin)return error("Cross-origin login blocked",403);
+  if(!req.headers.get("content-type")?.startsWith("application/json"))return error("JSON required",415);
+  if(Number(req.headers.get("content-length")||0)>600)return error("Login request too large",413);
+  const raw=await req.text();if(raw.length>600)return error("Login request too large",413);
+  let body;try{body=JSON.parse(raw);}catch{return error("Invalid request",400);}
+  if(!await passwordMatches(body?.passphrase,env.ATLAS_LOGIN_PASSPHRASE))
+   return error("Invalid passphrase",401);
+  return json({authenticated:true},200,{"set-cookie":await issueSession(env.ATLAS_LOGIN_PASSPHRASE)});
+ }
+ if(path==="/auth/logout"&&req.method==="POST"){
+  if(req.headers.get("origin")!==url.origin)return error("Cross-origin logout blocked",403);
+  return json({loggedOut:true},200,{"set-cookie":expiredSession});
+ }
+ if(!isAuthConfigured(env))return error("ATLAS is locked until a login secret is configured",503);
+ if(!await verifySession(req.headers.get("cookie"),env.ATLAS_LOGIN_PASSPHRASE))
+  return path.startsWith("/api/")?error("Login required",401):redirect("/login");
  try{
-  if(url.pathname.startsWith("/api/"))return await api(req,env,url);
+  if(path.startsWith("/api/"))return await api(req,env,url);
   if(req.method!=="GET"&&req.method!=="HEAD")return error("Method not allowed",405);
-  const asset=await env.ASSETS.fetch(req);
-  const headers=new Headers(asset.headers);
-  headers.set("cache-control","private, no-store");
-  headers.set("x-content-type-options","nosniff");
-  headers.set("referrer-policy","no-referrer");
-  headers.set("content-security-policy",
-   "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
-  return new Response(asset.body,{status:asset.status,headers});
- }catch(e){return error(String(e.message||e).slice(0,250),500);}
+  return shield(await env.ASSETS.fetch(req));
+ }catch(e){return error(String(e?.message||"ATLAS request failed").slice(0,250),500);}
 }};

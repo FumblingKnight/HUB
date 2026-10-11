@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id);
 const SVG="http://www.w3.org/2000/svg";
-const state={graph:null,view:"library",selected:null,query:"",mediaEnabled:false};
+const state={graph:null,view:"library",selected:null,query:"",mediaEnabled:false,mediaLimit:700000};
 const add=(parent,tag,cls,text)=>{
  const e=document.createElement(tag);
  if(cls)e.className=cls;
@@ -104,17 +104,18 @@ function renderDetails(){
  captionInput.disabled=!state.mediaEnabled;
  const uploadBtn=add(uploader,"button","","Attach image ↗");
  uploadBtn.disabled=!state.mediaEnabled;
- if(!state.mediaEnabled)add(uploader,"div","mediahint","Image storage is not connected. Set up the private R2 MEDIA binding first.");
- else add(uploader,"div","mediahint","PNG, JPEG, WebP or GIF • Maximum 8 MiB per image.");
+ if(!state.mediaEnabled)add(uploader,"div","mediahint","Private GitHub storage not connected.");
+ else add(uploader,"div","mediahint","Files stored privately in GitHub. Browser compresses large photos; 700 KB per image.");
  uploadBtn.onclick=async()=>{
   const file=fileInput.files?.[0];
   if(!file)return alertMessage("Choose an image first.",true);
-  if(file.size>8*1024*1024)return alertMessage("Image exceeds 8 MiB. Compress it first.",true);
+  if(file.size>12*1024*1024)return alertMessage("Image exceeds 12 MiB. Compress it first.",true);
   uploadBtn.disabled=true;uploadBtn.textContent="Uploading…";
   const params=new URLSearchParams({entityId:e.id,alt:altInput.value,caption:captionInput.value});
   try{
+   const prepared=await optimizeImage(file,state.mediaLimit);
    const response=await fetch("/api/media?"+params.toString(),{method:"POST",
-    headers:{"content-type":file.type},body:file,credentials:"same-origin"});
+    headers:{"content-type":prepared.type},body:prepared,credentials:"same-origin"});
    const data=await response.json();
    if(!response.ok)throw Error(data.error||"Image upload failed");
    await refresh();alertMessage("Private image attached to "+e.title+".");
@@ -235,6 +236,7 @@ function renderGraph(){
 }
 async function refresh(){
  const response=await fetch("/api/graph",{credentials:"same-origin",cache:"no-store"});
+ if(response.status===401){location.replace("/login");return;}
  if(!response.ok){const data=await response.json().catch(()=>({}));
   throw Error(data.error||"Vault unavailable ("+response.status+")");}
  const data=await response.json();
@@ -243,7 +245,7 @@ async function refresh(){
  state.graph=data;
  try{
   const settings=await fetch("/api/config",{credentials:"same-origin",cache:"no-store"});
-  if(settings.ok)state.mediaEnabled=Boolean((await settings.json()).mediaEnabled);
+  if(settings.ok){const cfg=await settings.json();state.mediaEnabled=Boolean(cfg.mediaEnabled);state.mediaLimit=cfg.limitImageBytes||700000;}
  }catch{}
  if(state.selected&&!entity(state.selected))state.selected=null;
  if(!state.selected)state.selected=data.entities[0]?.id||null;
@@ -274,3 +276,33 @@ $("saveNote").onclick=async()=>{
  finally{button.disabled=false;button.textContent="Save to inbox ↗";}
 };
 refresh().catch(e=>{$("connection").textContent="Vault unavailable";alertMessage(e.message,true);});
+
+// Keep image bytes small and private; Git history grows with every new binary.
+async function optimizeImage(file,limit=700000){
+ if(file.size<=limit)return file;
+ if(file.type==="image/gif")throw Error("Animated GIF exceeds 700 KB; reduce it before uploading.");
+ if(!["image/png","image/jpeg","image/webp"].includes(file.type))throw Error("Choose PNG, JPEG, WebP or a small GIF.");
+ if(file.size>12*1024*1024)throw Error("Image is too large to process in the browser.");
+ const objectURL=URL.createObjectURL(file),image=new Image();
+ try{image.src=objectURL;await image.decode();}
+ finally{URL.revokeObjectURL(objectURL);}
+ const w=image.naturalWidth,h=image.naturalHeight;
+ if(!w||!h||w*h>40000000)throw Error("Image dimensions too large; resize first.");
+ const canvas=document.createElement("canvas");
+ for(const maxDim of [1900,1600,1280,1024,800,640]){
+  const scale=Math.min(1,maxDim/Math.max(w,h));
+  canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));
+  const ctx=canvas.getContext("2d");if(!ctx)throw Error("Browser image conversion unavailable.");
+  ctx.drawImage(image,0,0,canvas.width,canvas.height);
+  for(const q of [0.9,0.82,0.72,0.62]){
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",q));
+   if(!blob||blob.type!=="image/webp")throw Error("WebP conversion unsupported; resize manually.");
+   if(blob.size<=limit)return new File([blob],"atlas-image.webp",{type:"image/webp"});
+  }
+ }
+ throw Error("Could not compress image to 700 KB; reduce it manually.");
+}
+const logout=document.createElement("button");
+logout.className="atlas-logout";logout.type="button";logout.textContent="Log out";
+logout.onclick=async()=>{await fetch("/auth/logout",{method:"POST",credentials:"same-origin"});location.replace("/login");};
+document.querySelector(".topright")?.append(logout);
