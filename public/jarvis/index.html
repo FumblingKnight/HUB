@@ -1,54 +1,34 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090a10">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' http://127.0.0.1:8765; img-src 'self' data:; object-src 'none'; base-uri 'self'">
-<title>JARVIS / Neural Lab — Sajo Hub</title>
-<link rel="stylesheet" href="/jarvis/lab.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b12">
+<title>JARVIS Cloud Lab — Sajo Hub</title><link rel="stylesheet" href="/jarvis/lab.css">
 </head>
 <body>
-<div class="ambient" aria-hidden="true"></div>
-<header class="topbar"><a class="brand" href="/">SAJO<span> / HUB</span></a><div class="topright"><span class="eyebrow">EXPERIMENT 001</span><span class="status" id="status"><i></i>Not connected</span></div></header>
-<main class="layout">
-  <aside class="sidebar">
-    <p class="eyebrow">PERSONAL INTELLIGENCE</p><h1>JARVIS<span class="period">.</span></h1>
-    <p class="lede">A real experiment in neural adaptation. Powerful GPT reasoning on one path. A fine-tunable model on another. No pretend learning.</p>
-    <nav class="tabs" aria-label="Lab sections">
-      <button class="tab selected" type="button" data-tab="think"><span>01</span> THINK <small>ChatGPT Plus</small></button>
-      <button class="tab" type="button" data-tab="compare"><span>02</span> COMPARE <small>Base vs LoRA</small></button>
-      <button class="tab" type="button" data-tab="teach"><span>03</span> TEACH <small>Verified examples</small></button>
-    </nav>
-    <div class="sidebar-bottom"><span class="chip">PRIVATE-BY-DESIGN</span><p>Training examples stay on your Mac unless you explicitly export and upload them. The public website does not store conversations.</p></div>
-  </aside>
-  <section class="workspace">
-    <div class="connect card" id="connectCard">
-      <div><span class="eyebrow">LOCAL CONNECTION</span><h2>Pair with your bridge</h2><p>Run the local bridge, then enter its pairing token. The site cannot use your Plus account directly.</p></div>
-      <div class="pair"><input type="password" id="token" autocomplete="off" aria-label="Pairing token" placeholder="Paste bridge token"><button type="button" id="connectBtn" class="primary">Connect <span>↗</span></button></div>
-      <p class="micro" id="connectMessage">Setup: see the project README on GitHub. No API key goes into the browser.</p>
-    </div>
-    <section class="panel" id="thinkPanel" aria-labelledby="thinkTitle">
-      <div class="panel-heading"><div><span class="eyebrow">01 / REASONING</span><h2 id="thinkTitle">The capable brain.</h2><p>Your ChatGPT subscription through the official Codex CLI. This model does not update its weights.</p></div><span class="tag">GPT / FIXED WEIGHTS</span></div>
-      <form id="thinkForm" class="composer"><label for="thinkPrompt">ASK</label><textarea id="thinkPrompt" placeholder="Ask something. This request goes to your locally authenticated Codex CLI." maxlength="10000" rows="5" required></textarea><div class="composer-foot"><span>No automatic history or memory retrieval</span><button class="primary" type="submit">Run GPT <span>↗</span></button></div></form>
-      <div class="output" id="thinkOutput" role="status" aria-live="polite">Ready when the local bridge is connected.</div>
-    </section>
-    <section class="panel hidden" id="comparePanel" aria-labelledby="compareTitle">
-      <div class="panel-heading"><div><span class="eyebrow">02 / NEURAL A-B TEST</span><h2 id="compareTitle">Did it really learn?</h2><p>Same prompt, same base model. Only the second response applies your trained LoRA weights.</p></div><span class="tag">ACTUAL WEIGHT ADAPTATION</span></div>
-      <form id="compareForm" class="composer"><label for="comparePrompt">UNSEEN TEST PROMPT</label><textarea id="comparePrompt" maxlength="10000" rows="4" required placeholder="Use a question never included in the training examples."></textarea><div class="composer-foot"><span>The test sends no saved memory or rules.</span><button class="primary" type="submit">Run comparison <span>↗</span></button></div></form>
-      <div class="comparison"><article class="answer"><span class="eyebrow">BASE MODEL</span><div id="baseOutput">Not yet tested.</div></article><article class="answer learned"><span class="eyebrow">SAME MODEL + TRAINED LoRA</span><div id="loraOutput">Upload an adapter to Cloudflare to activate this lane.</div></article></div>
-    </section>
-    <section class="panel hidden" id="teachPanel" aria-labelledby="teachTitle">
-      <div class="panel-heading"><div><span class="eyebrow">03 / TRAINING SIGNAL</span><h2 id="teachTitle">Teach the weights.</h2><p>Only your verified examples become training data. This is not a file the answering model reads at inference time.</p></div><span class="tag">DATASET / NOT MEMORY</span></div>
-      <form id="teachForm" class="composer">
-        <label for="lessonInput">SITUATION / INPUT</label><textarea id="lessonInput" rows="3" maxlength="10000" required placeholder="What should the model respond to?"></textarea>
-        <label for="lessonAnswer">YOUR IDEAL ANSWER / BEHAVIOUR</label><textarea id="lessonAnswer" rows="4" maxlength="10000" required placeholder="Write the answer yourself. No unverified GPT output."></textarea>
-        <div class="composer-foot"><span id="lessonCount">0 verified examples</span><button class="primary" type="submit">Save training example <span>↗</span></button></div>
-      </form>
-      <div class="data-footer"><div><strong>Neural training happens separately.</strong><p>Export JSONL → fine-tune on a free GPU notebook → upload LoRA → test on unseen prompts. Saving an example alone does not teach a model.</p></div><button id="exportBtn" type="button" class="secondary">Export JSONL ↗</button></div>
-      <p class="micro" id="lessonMessage" aria-live="polite"></p>
-    </section>
-  </section>
+<div class="gridglow" aria-hidden="true"></div>
+<header class="topline"><a href="/" class="home">SAJO <span>/ HUB</span></a><div><span class="tiny">EXPERIMENT 001</span><span class="dotline">CLOUD / PRIVATE</span></div></header>
+<main class="wrap">
+<div class="intro">
+  <div class="kicker"><span class="live-dot"></span> NEURAL LAB / VERSION 0.2</div>
+  <h1>JARVIS<span>.</span><small>Cloud edition.</small></h1>
+  <p class="lede">GPT for reasoning. Your own trainable neural adapter for experiments. No Mac bridge, no local model, no fake memory-based learning.</p>
+  <div class="actions"><a class="mainbtn" href="https://chatgpt.com/plugins" target="_blank" rel="noopener noreferrer">Connect in ChatGPT <span>↗</span></a><a class="minorbtn" href="https://github.com/FumblingKnight/HUB/tree/main/jarvis" target="_blank" rel="noopener noreferrer">Source & setup ↗</a></div>
+</div>
+<div class="stats" aria-label="System boundaries">
+  <article><span class="statnum">01</span><h2>GPT / THINK</h2><p>Your current ChatGPT Plus runs the reasoning. Its weights stay fixed.</p></article>
+  <article><span class="statnum">02</span><h2>LoRA / LEARN</h2><p>A separately trained Gemma model internalizes verified examples into neural parameters.</p></article>
+  <article><span class="statnum">03</span><h2>CLOUDFLARE / RUN</h2><p>A remote tool server lets ChatGPT call the learned model without running code on your Mac.</p></article>
+</div>
+<section class="setup">
+  <div class="section-head"><span class="tiny">DEPLOYMENT PROTOCOL</span><h2>Get connected.</h2><p>Cloudflare account setup and plugin authorization are one-time steps. Nothing needs to run locally afterward.</p></div>
+  <div class="steps">
+    <article class="step"><span class="number">01</span><div><h3>Deploy cloud service</h3><p>Deploy <code>jarvis/cloud/</code> as a separate Cloudflare Worker. Configure the private plugin token as a Cloudflare secret.</p></div><span class="hint">GITHUB → CLOUDFLARE</span></article>
+    <article class="step"><span class="number">02</span><div><h3>Connect from ChatGPT</h3><p>Add the Worker’s <code>https://your-worker.workers.dev/mcp</code> endpoint as a custom MCP plugin, using the configured authentication.</p></div><span class="hint">CHATGPT PLUS</span></article>
+    <article class="step"><span class="number">03</span><div><h3>Prove actual learning</h3><p>Collect explicitly verified examples in private Cloudflare D1, fine-tune Gemma on a free Kaggle GPU, deploy LoRA and compare on new prompts.</p></div><span class="hint">KAGGLE → LoRA</span></article>
+  </div>
+</section>
+<section class="truth"><div class="truthline"><span class="tiny">NON-NEGOTIABLE TRUTH</span><h2>Two brains. Not one.</h2></div><p>ChatGPT cannot absorb the LoRA’s neural changes. The training modifies Gemma, not GPT. No AGENTS.md, vector retrieval, or smaller librarian pretending GPT learned. The free cloud GPU and Workers AI allowances are limited; continuous automated retraining is not supplied.</p></section>
 </main>
-<footer><span>JARVIS NEURAL LAB / v0.1</span><a href="https://github.com/FumblingKnight/HUB/tree/main/jarvis" target="_blank" rel="noopener noreferrer">SOURCE + SETUP ↗</a><span>NO AGENTS.MD. NO FAKE LEARNING.</span></footer>
-<script src="/jarvis/lab.js" defer></script>
+<footer><a href="/">← HUB</a><span>BUILT TO TEST REAL ADAPTATION, NOT SIMULATE IT.</span><a href="https://github.com/FumblingKnight/HUB/tree/main/jarvis" target="_blank" rel="noopener noreferrer">DOCUMENTATION ↗</a></footer>
 </body></html>

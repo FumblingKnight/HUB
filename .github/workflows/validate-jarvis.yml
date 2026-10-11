@@ -1,10 +1,9 @@
-name: Validate JARVIS lab
+name: Validate JARVIS cloud lab
 on:
   pull_request:
     paths:
       - "jarvis/**"
       - "public/jarvis/**"
-      - "public/experiments/index.html"
       - "package.json"
       - ".github/workflows/validate-jarvis.yml"
   push:
@@ -20,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Bridge and privacy test
+      - name: Test private MCP and neural inference
         run: npm run jarvis:test
-      - name: Training script Python syntax
+      - name: Training script syntax
         run: python -m py_compile jarvis/train.py
