@@ -1,0 +1,23 @@
+name: ATLAS validation
+on:
+  push:
+    paths:
+      - "atlas/**"
+      - ".github/workflows/validate-atlas.yml"
+  pull_request:
+    paths:
+      - "atlas/**"
+      - ".github/workflows/validate-atlas.yml"
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --check atlas/core.mjs
+      - run: node --check atlas/cloud/worker.mjs
+      - run: node --check atlas/site/app.js
+      - run: node --test atlas/core.test.mjs

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1017"><title>ATLAS — Personal Knowledge</title>
+<link rel="stylesheet" href="/styles.css"></head><body>
+<div class="ambient" aria-hidden="true"></div>
+<header class="topbar"><div class="identity"><span class="glyph">✳</span><span>ATLAS <small>/ PRIVATE LIBRARY</small></span></div>
+<div class="topright"><span class="pulse"></span><span id="connection">Connecting to private vault</span><span class="version">01 / GRAPH EDITION</span></div></header>
+<div class="layout">
+<aside class="sidebar">
+ <div class="sidehead">WORKSPACE <span>01</span></div>
+ <nav aria-label="Workspace"><button class="nav active" data-view="library"><span>◈</span> Library</button>
+ <button class="nav" data-view="graph"><span>⬡</span> Knowledge graph</button>
+ <button class="nav" data-view="inbox"><span>✎</span> Capture inbox <span class="count" id="inboxBadge">0</span></button></nav>
+ <div class="sidelower"><div class="aside-label">A LIVING SYSTEM</div><p>Facts. Relationships. Provenance. The connections survive beyond the conversation.</p><span class="aside-foot">PRIVATE • SOURCE CONTROLLED</span></div>
+</aside>
+<main class="content">
+ <section class="hero"><div class="eyebrow"><span class="line"></span> YOUR SECOND BRAIN / STRUCTURED KNOWLEDGE</div>
+ <h1>Everything connects<span>.</span></h1>
+ <p class="subhead">A navigable map of what you know, why you know it, and how ideas influence one another.</p></section>
+ <div class="stats"><div><span id="entityCount">—</span><small>KNOWLEDGE PAGES</small></div>
+ <div><span id="linkCount">—</span><small>MEANINGFUL LINKS</small></div>
+ <div><span id="sourceCount">—</span><small>TRACKED SOURCES</small></div>
+ <div><span id="reviewCount">—</span><small>NEED REVIEW</small></div></div>
+ <div class="notice" id="notice" role="status">Loading encrypted-in-transit private repository data…</div>
+ <section class="view" id="view-library">
+  <div class="sectionbar"><div><div class="eyebrow">01 / THE ENCYCLOPEDIA</div><h2>Knowledge library</h2></div><div class="querywrap"><span>⌕</span><input id="query" autocomplete="off" placeholder="Search entities, aliases, topics…" aria-label="Search knowledge"></div></div>
+  <div class="librarygrid">
+   <div class="panel listpanel"><div class="panelhead"><span>ENTITIES</span><span id="listCounter"></span></div><div class="items" id="items"></div></div>
+   <div class="panel detailpanel" id="detail"><div class="empty">Select a page to explore its connections.</div></div>
+  </div>
+ </section>
+ <section class="view hidden" id="view-graph">
+  <div class="sectionbar"><div><div class="eyebrow">02 / THE CONNECTIONS</div><h2>Relationship explorer</h2></div><div class="graphhint">Select a node to inspect its neighborhood</div></div>
+  <div class="panel graphpanel"><svg id="graphCanvas" viewBox="0 0 920 540" role="img" aria-label="Interactive knowledge graph"></svg></div>
+  <div id="graphDetail" class="panel graphdetail">Select any node to explore its page and strongest connections.</div>
+ </section>
+ <section class="view hidden" id="view-inbox">
+  <div class="sectionbar"><div><div class="eyebrow">03 / EVERYTHING BEGINS SOMEWHERE</div><h2>Capture an idea</h2></div></div>
+  <div class="inboxgrid"><div class="panel capture"><label for="captureText">UNSORTED INPUT</label>
+  <textarea id="captureText" rows="8" placeholder="A thought, a connection, a discovery, a correction. Don't organize it; that's the librarian's job."></textarea>
+  <div class="capturefoot"><small>This queues the text in your private vault. Automatic AI processing from this webpage is not connected yet.</small>
+  <button id="saveNote">Save to inbox ↗</button></div></div>
+  <div class="panel queued"><div class="panelhead">UNPROCESSED NOTES</div><div id="queueList"></div></div></div>
+ </section>
+ <footer>ATLAS / THE KNOWLEDGE IS YOURS <span>GIT VERSION HISTORY • PRIVATE CLOUDFLARE ACCESS</span></footer>
+</main>
+</div>
+<script type="module" src="/app.js"></script></body></html>
