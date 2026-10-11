@@ -23,12 +23,13 @@ const iso = () => new Date().toISOString();
 const uid = () => crypto.randomUUID();
 export function emptyVault(){
   return {schema:1,name:"ATLAS",createdAt:iso(),updatedAt:iso(),
-    entities:[],relations:[],sources:[],inbox:[],reviews:[],events:[]};
+    entities:[],relations:[],sources:[],media:[],inbox:[],reviews:[],events:[]};
 }
 export function validateVault(v){
   if (!v || v.schema !== 1 || !Array.isArray(v.entities) || !Array.isArray(v.relations)
     || !Array.isArray(v.sources) || !Array.isArray(v.inbox) || !Array.isArray(v.reviews)
     || !Array.isArray(v.events)) throw Error("Invalid or unsupported ATLAS vault");
+  if(v.media!==undefined&&!Array.isArray(v.media))throw Error("Invalid media index");
   const ids=new Set(v.entities.map(e=>e.id));
   if(ids.size!==v.entities.length) throw Error("Duplicate entity IDs");
   for(const r of v.relations) if(!ids.has(r.from)||!ids.has(r.to)) throw Error("Dangling relation");

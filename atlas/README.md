@@ -86,3 +86,38 @@ All routes (including UI assets) require a verified Cloudflare Access identity, 
 - Revisions currently have Git history and an in-graph event log. Advanced graph diffing, automatic contradiction adjudication and a review queue editor remain future work.
 - The private GitHub PAT has write authority to the vault. Protect and rotate it as you would any other secret.
 - No local Mac daemon is needed; this is a cloud-first architecture with a private Git backend.
+
+
+## Image and media architecture
+
+ATLAS distinguishes **knowledge** (versioned private Git), **binary assets** (private Cloudflare R2), and **derived indexes** (optional future D1). This prevents images from swelling the Git repository on every revision. Private image upload and authenticated viewing are implemented: users attach PNG, JPEG, WebP or GIF images up to 8 MiB to a selected encyclopedia page; the binary goes to R2 while only its immutable ID, key, file size, caption, alt text and page association go in \`vault.json\`. Reusing an image across pages can later be implemented as an additional association, without a second R2 object.
+
+**R2 setup is optional; text-only graph usage works without it.** In the Cloudflare dashboard:
+
+1. Open R2 Object Storage and create a **Standard-class PRIVATE** bucket named \`sajo-atlas-media\`. Do NOT turn on public access or an \`r2.dev\` public endpoint. Cloudflare may require enabling R2 for your account.
+2. In HUB's \`atlas/cloud/wrangler.toml\`, add:
+   \`\`\`toml
+   [[r2_buckets]]
+   binding = "MEDIA"
+   bucket_name = "sajo-atlas-media"
+   \`\`\`
+3. Commit this configuration to HUB and wait for the ATLAS deploy workflow; the Worker will gain the \`MEDIA\` binding. Binding R2 does **not** require S3 keys. If your account does not have R2 provisioned or your deployment token lacks R2 binding permissions, stop and leave media unconfigured rather than exposing a public bucket.
+4. In ATLAS, open a page and use the private Attach image control. File magic bytes are validated against content type; SVG/HTML uploads are rejected. Files remain inaccessible without Cloudflare Access authentication.
+
+All uploads are stored in the private R2 bucket and retrieved through \`GET /api/media/:id\` only after Access authorization. \`POST /api/media\` validates origin, entity existence, file length, MIME and image signature. The Worker deletes the new R2 object if metadata persistence fails.
+
+**Free-tier planning, checked October 2026:**
+
+- GitHub recommends small repos (ideally under 1 GB) and individual Git objects around 1 MB. GitHub REST Contents API supports normal JSON reads only up to 1 MB; therefore this first-version monolithic \`vault.json\` must be sharded before reaching that threshold. The LIBRARIAN.md protocol recommends planning this at ~500 KB.
+- Git LFS free allowance is 10 GiB storage and 10 GiB/month bandwidth on GitHub Free; unnecessary for this architecture.
+- R2 Standard free monthly allowance is 10 GB-month storage, 1 million Class A ops and 10 million Class B ops, with free Internet egress. **These are allowances, not guaranteed hard spending limits.** Set billing/budget alerts or a zero-dollar spending limit where available and monitor R2 usage.
+- D1 Free offers 5 GB total, 500 MB per database, 5 million rows read/day, 100,000 rows written/day. D1 is useful for a future derived graph/search index, not as the only source of truth.
+
+Official docs:
+- https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits
+- https://docs.github.com/en/rest/repos/contents
+- https://docs.github.com/en/billing/concepts/product-billing/git-lfs
+- https://developers.cloudflare.com/r2/pricing/
+- https://developers.cloudflare.com/r2/get-started/workers-api/
+- https://developers.cloudflare.com/d1/platform/limits/
+

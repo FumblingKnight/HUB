@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id);
 const SVG="http://www.w3.org/2000/svg";
-const state={graph:null,view:"library",selected:null,query:""};
+const state={graph:null,view:"library",selected:null,query:"",mediaEnabled:false};
 const add=(parent,tag,cls,text)=>{
  const e=document.createElement(tag);
  if(cls)e.className=cls;
@@ -75,6 +75,51 @@ function renderDetails(){
  add(root,"p","summary",e.summary||"No summary has been written yet.");
  if(e.aliases?.length){section(root,"OTHER NAMES");for(const name of e.aliases)add(root,"span","alias",name);}
  if(e.tags?.length){section(root,"TAGS");for(const name of e.tags)add(root,"span","tag",name);}
+ section(root,"PAGE IMAGES • "+(e.media?.length||0));
+ const gallery=add(root,"div","mediagrid");
+ for(const id of e.media||[]){
+  const record=(state.graph.media||[]).find(m=>m.id===id);
+  if(!record)continue;
+  const figure=add(gallery,"figure","mediafigure");
+  const img=add(figure,"img","");
+  img.src="/api/media/"+encodeURIComponent(record.id);
+  img.alt=record.alt||"Attached image";
+  img.loading="lazy";
+  add(figure,"figcaption","",record.caption||record.alt||"No caption");
+ }
+ const uploader=add(root,"div","mediaupload");
+ const fileInput=add(uploader,"input","");
+ fileInput.type="file";fileInput.accept="image/png,image/jpeg,image/webp,image/gif";
+ fileInput.setAttribute("aria-label","Select image to attach");
+ fileInput.disabled=!state.mediaEnabled;
+ const altInput=add(uploader,"input","");
+ altInput.placeholder="Describe image for search and accessibility";
+ altInput.setAttribute("aria-label","Image description");
+ altInput.maxLength=240;
+ altInput.disabled=!state.mediaEnabled;
+ const captionInput=add(uploader,"input","");
+ captionInput.placeholder="Optional caption or context";
+ captionInput.setAttribute("aria-label","Image caption");
+ captionInput.maxLength=700;
+ captionInput.disabled=!state.mediaEnabled;
+ const uploadBtn=add(uploader,"button","","Attach image ↗");
+ uploadBtn.disabled=!state.mediaEnabled;
+ if(!state.mediaEnabled)add(uploader,"div","mediahint","Image storage is not connected. Set up the private R2 MEDIA binding first.");
+ else add(uploader,"div","mediahint","PNG, JPEG, WebP or GIF • Maximum 8 MiB per image.");
+ uploadBtn.onclick=async()=>{
+  const file=fileInput.files?.[0];
+  if(!file)return alertMessage("Choose an image first.",true);
+  if(file.size>8*1024*1024)return alertMessage("Image exceeds 8 MiB. Compress it first.",true);
+  uploadBtn.disabled=true;uploadBtn.textContent="Uploading…";
+  const params=new URLSearchParams({entityId:e.id,alt:altInput.value,caption:captionInput.value});
+  try{
+   const response=await fetch("/api/media?"+params.toString(),{method:"POST",
+    headers:{"content-type":file.type},body:file,credentials:"same-origin"});
+   const data=await response.json();
+   if(!response.ok)throw Error(data.error||"Image upload failed");
+   await refresh();alertMessage("Private image attached to "+e.title+".");
+  }catch(err){alertMessage(err.message,true);uploadBtn.disabled=false;uploadBtn.textContent="Attach image ↗";}
+ };
  section(root,"DIRECT CONNECTIONS • "+edges(e.id).length);
  const links=edges(e.id).sort((a,b)=>(b.priority||0)-(a.priority||0));
  if(!links.length)add(root,"p","miniempty","No verified relationships yet.");
@@ -196,6 +241,10 @@ async function refresh(){
  if(data.schema!==1||!Array.isArray(data.entities)||!Array.isArray(data.relations))
   throw Error("Unsupported vault format");
  state.graph=data;
+ try{
+  const settings=await fetch("/api/config",{credentials:"same-origin",cache:"no-store"});
+  if(settings.ok)state.mediaEnabled=Boolean((await settings.json()).mediaEnabled);
+ }catch{}
  if(state.selected&&!entity(state.selected))state.selected=null;
  if(!state.selected)state.selected=data.entities[0]?.id||null;
  setStats();renderList();renderDetails();renderInbox();renderGraph();
