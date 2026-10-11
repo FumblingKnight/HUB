@@ -34,7 +34,7 @@ The GitHub connector currently cannot create repositories, so this is the one Gi
 
 ### 2. Deploy separate private cloud Worker
 
-Use HUB GitHub Actions → **Deploy ATLAS private Worker** → Run workflow (branch main). Existing `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are reused. This deploys `sajo-atlas` as a **new** Worker; it does not modify HUB or JARVIS.
+Merging the ATLAS code to HUB main **automatically deploys** its separate Worker through GitHub Actions. You can also use HUB GitHub Actions → **Deploy ATLAS private Worker** → Run workflow to redeploy manually. Existing `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are reused. This deploys `sajo-atlas` as a **new** Worker; it does not modify HUB or JARVIS.
 
 Its endpoint will be `https://sajo-atlas.thefumblingknight.workers.dev` if that account subdomain remains unchanged. **The deployed Worker initially returns HTTP 503**, deliberately.
 
