@@ -19,5 +19,6 @@ jobs:
           node-version: "22"
       - run: node --check atlas/core.mjs
       - run: node --check atlas/cloud/worker.mjs
+      - run: node --check atlas/cloud/media.mjs
       - run: node --check atlas/site/app.js
-      - run: node --test atlas/core.test.mjs
+      - run: node --test atlas/core.test.mjs atlas/cloud/media.test.mjs
