@@ -13,18 +13,18 @@
   <div class="kicker"><span class="live-dot"></span> NEURAL LAB / VERSION 0.2</div>
   <h1>JARVIS<span>.</span><small>Cloud edition.</small></h1>
   <p class="lede">GPT for reasoning. Your own trainable neural adapter for experiments. No Mac bridge, no local model, no fake memory-based learning.</p>
-  <div class="actions"><a class="mainbtn" href="https://chatgpt.com/plugins" target="_blank" rel="noopener noreferrer">Connect in ChatGPT <span>↗</span></a><a class="minorbtn" href="https://github.com/FumblingKnight/HUB/tree/main/jarvis" target="_blank" rel="noopener noreferrer">Source & setup ↗</a></div>
+  <div class="actions"><a class="mainbtn" href="https://help.openai.com/en/articles/12584461-developer-mode-and-full-mcp-connectors-in-chatgpt" target="_blank" rel="noopener noreferrer">ChatGPT Plus limitation <span>↗</span></a><a class="minorbtn" href="https://github.com/FumblingKnight/HUB/tree/main/jarvis" target="_blank" rel="noopener noreferrer">Source & setup ↗</a></div>
 </div>
 <div class="stats" aria-label="System boundaries">
   <article><span class="statnum">01</span><h2>GPT / THINK</h2><p>Your current ChatGPT Plus runs the reasoning. Its weights stay fixed.</p></article>
   <article><span class="statnum">02</span><h2>LoRA / LEARN</h2><p>A separately trained Gemma model internalizes verified examples into neural parameters.</p></article>
-  <article><span class="statnum">03</span><h2>CLOUDFLARE / RUN</h2><p>A remote tool server lets ChatGPT call the learned model without running code on your Mac.</p></article>
+  <article><span class="statnum">03</span><h2>CLOUDFLARE / RUN</h2><p>A cloud-hosted MCP service exists, but custom MCP connectivity is not available on ChatGPT Plus.</p></article>
 </div>
 <section class="setup">
-  <div class="section-head"><span class="tiny">DEPLOYMENT PROTOCOL</span><h2>Get connected.</h2><p>Cloudflare account setup and plugin authorization are one-time steps. Nothing needs to run locally afterward.</p></div>
+  <div class="section-head"><span class="tiny">DEPLOYMENT PROTOCOL</span><h2>Get connected.</h2><p>Cloudflare deployment is done. ChatGPT Plus custom MCP connection is not supported; this research prototype is not yet a usable Plus integration.</p></div>
   <div class="steps">
     <article class="step"><span class="number">01</span><div><h3>Deploy cloud service</h3><p>Deploy <code>jarvis/cloud/</code> as a separate Cloudflare Worker. Configure the private plugin token as a Cloudflare secret.</p></div><span class="hint">GITHUB → CLOUDFLARE</span></article>
-    <article class="step"><span class="number">02</span><div><h3>Connect from ChatGPT</h3><p>Add the Worker’s <code>https://your-worker.workers.dev/mcp</code> endpoint as a custom MCP plugin, using the configured authentication.</p></div><span class="hint">CHATGPT PLUS</span></article>
+    <article class="step"><span class="number">02</span><div><h3>Plus integration blocked</h3><p>ChatGPT Plus currently cannot install our custom MCP integration. Do not remove authentication to try to make it work.</p></div><span class="hint">UNAVAILABLE</span></article>
     <article class="step"><span class="number">03</span><div><h3>Prove actual learning</h3><p>Collect explicitly verified examples in private Cloudflare D1, fine-tune Gemma on a free Kaggle GPU, deploy LoRA and compare on new prompts.</p></div><span class="hint">KAGGLE → LoRA</span></article>
   </div>
 </section>
