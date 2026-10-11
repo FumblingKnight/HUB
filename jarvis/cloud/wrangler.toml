@@ -1,0 +1,14 @@
+name = "jarvis-neural-lab"
+main = "worker.mjs"
+compatibility_date = "2026-10-11"
+
+[ai]
+binding = "AI"
+
+# In Cloudflare dashboard, add secret JARVIS_PLUGIN_TOKEN.
+# Optionally set non-secret JARVIS_LORA_ID to your trained adapter name/id.
+# To enable private lesson storage, create a D1 database and uncomment below:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "jarvis-neural-data"
+# database_id = "REPLACE_WITH_YOUR_CLOUDFLARE_D1_ID"
