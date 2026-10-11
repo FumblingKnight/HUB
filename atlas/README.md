@@ -4,13 +4,13 @@ ATLAS stores structured knowledge in a **separate private GitHub repository** (`
 
 ## Current free / no-card configuration
 
-The deployed Cloudflare Worker uses a **single-user passphrase login**, with signed seven-day `Secure`, `HttpOnly`, `SameSite=Strict` session cookies. You do **not** need Cloudflare Zero Trust, R2, GitHub OAuth or a local Mac process. This is suitable for a personal site with a long random secret; it does not offer phishing-resistant two-factor authentication, and a strong unguessable password is essential.
+The deployed Cloudflare Worker uses a **single-user passphrase login**, with signed seven-day `Secure`, `HttpOnly`, `SameSite=Strict` session cookies. You do **not** need Cloudflare Zero Trust, R2, GitHub OAuth or a local Mac process. This is suitable for a personal site with a strong passphrase; it does not offer phishing-resistant two-factor authentication, and a strong unguessable password is essential.
 
 ### Remaining two one-time Worker secrets
 
 In [Cloudflare dashboard](https://dash.cloudflare.com/) open **Workers & Pages → sajo-atlas → Settings → Variables and Secrets**.
 
-1. Add **Secret** `ATLAS_LOGIN_PASSPHRASE`. Generate a UNIQUE random password (32 or more random characters recommended; minimum 24), and keep it in your password manager. Do not share it in chat or put it in GitHub.
+1. Add **Secret** `ATLAS_LOGIN_PASSPHRASE`. Generate a UNIQUE random password (32 or more random characters recommended; minimum 9 with at least one letter, one digit and one special character), and keep it in your password manager. Do not share it in chat or put it in GitHub.
 2. Add **Secret** `ATLAS_GITHUB_TOKEN`. Generate a [fine-grained GitHub personal access token](https://github.com/settings/personal-access-tokens/new) for the **FumblingKnight** owner, select repository access **only** to private `Sajo-Atlas`, and choose **Repository permissions → Contents: Read and write**. Save the token in the same Cloudflare Secrets panel, not in Git or client JavaScript.
 
 Existing public configuration `ATLAS_REPOSITORY = "FumblingKnight/Sajo-Atlas"` must remain unchanged. Apply/Deploy the secrets as the Cloudflare UI requests. Then visit **https://sajo-atlas.thefumblingknight.workers.dev/login** and sign in with the passphrase.
@@ -61,4 +61,4 @@ Relevant files:
 
 ## Security caveat
 
-This simple passphrase-based authentication is a cost-free compromise, not an enterprise identity system. Choose a unique, long random passphrase, do not reuse credentials, and rotate secrets if exposed. The Cloudflare Worker handles only a personal knowledge vault and should not contain credentials or high-stakes secrets among page contents.
+A nine-character password is significantly easier to guess than a long random passphrase even with rate limiting; choose an unpredictable password and use a password manager. The Worker now rejects login requests above eight attempts per minute per Cloudflare location (approximately, because distributed rate limit counters are eventually consistent). This simple passphrase-based authentication is a cost-free compromise, not an enterprise identity system. Choose a unique, long random passphrase, do not reuse credentials, and rotate secrets if exposed. The Cloudflare Worker handles only a personal knowledge vault and should not contain credentials or high-stakes secrets among page contents.
