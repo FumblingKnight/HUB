@@ -1,84 +1,60 @@
-# JARVIS Neural Lab
+# JARVIS / cloud-only architecture
 
-An experimental two-path interface for ChatGPT Plus and **genuine** LoRA-based neural adaptation. Not AGENTS.md, vector memory, or a librarian.
+**No Mac bridge. No Mac-resident model. No API credits.**
 
-## Exactly what works
+## Architecture and hard limitation
 
-- THINK: ChatGPT Plus requests using the officially authenticated **Codex CLI**. Codex is oriented toward coding and is not identical to the GPT-6 ChatGPT chat UI. No GPT weights are updated.
-- TEACH: Explicit user-authored, verified example pairs stored privately on your Mac. Those are **training examples**, NOT retrieved to answer future queries.
-- COMPARE: same Cloudflare-hosted Gemma 2B model, first without and then with an actual LoRA trained using those examples. This is neural adaptation in the answering Gemma model, not in GPT.
-- Public site is only an interface. Plus subscription access requires a locally running bridge. No local LLM or GPU required on your Mac.
+Use ChatGPT **inside ChatGPT** as the capable reasoning model. Connect the Cloudflare Worker in this repo as a remote MCP plugin. The Worker hosts a *separate* Gemma 2B model that can apply your fine-tuned LoRA.
 
-## 1. Pair the website to ChatGPT Plus
+**GPT weights never change**. Neural adaptation occurs only in Gemma. The learned adapter does not get inserted as prompt memory into GPT. There is no AGENTS.md, RAG or always-running Mac process. The HUB website is a dashboard with setup guidance, not a backdoor to use ChatGPT Plus as a hosted website API.
 
-Requirements: Node 22+, ChatGPT Plus subscription and the official Codex CLI.
+Relevant docs:
+- https://developers.openai.com/plugins/deploy/connect-chatgpt
+- https://developers.openai.com/siwc/token-sharing-open-source (Plus in remotely hosted third-party apps is not the same as MCP inside ChatGPT)
+- https://developers.cloudflare.com/workers-ai/features/fine-tunes/loras/
+- https://developers.cloudflare.com/workers-ai/platform/pricing/
 
-    npm install -g @openai/codex
-    codex login
+## One-time cloud setup (no terminal needed)
 
-These steps must be performed locally by the subscription owner. Then from a checkout of this HUB repository:
+1. Create a separate **Cloudflare Worker** with this source at jarvis/cloud/worker.mjs, using its jarvis/cloud/wrangler.toml file. Alternatively, use **GitHub Actions → Deploy JARVIS Cloud → Run workflow**, after you add the repository secrets below. This does NOT modify the existing HUB worker.
 
-    npm run jarvis:bridge
+2. In **GitHub repository Settings → Secrets and variables → Actions**, add CLOUDFLARE_API_TOKEN (restricted deploy permission) and CLOUDFLARE_ACCOUNT_ID. On Cloudflare Worker settings, create a **secret** named JARVIS_PLUGIN_TOKEN: a long random secret you generate yourself. Never enter it in GitHub code or a public URL. The Worker **refuses every /mcp request until the secret is configured**.
 
-The local bridge listens ONLY at http://127.0.0.1:8765 and prints a random pairing token. Visit the JARVIS page on HUB and enter that token. It is intentionally not stored in browser localStorage or GitHub. A terminal/daemon process must remain running for the site to communicate with the bridge.
+3. Open Cloudflare Worker URL /health. It should say adapterDeployed:false and database:false on first setup. Public health reports **no personal information**.
 
-For local web development, run npm run dev and open http://127.0.0.1:8787/jarvis/ (or the port Wrangler prints).
+4. In **ChatGPT → Plugins → Add custom MCP server**, add your Worker HTTPS URL ending in /mcp, and configure the connection authentication for the bearer secret you configured. Check that the connection UI supports the chosen auth method for your workspace; **this step has not been verified against your account**. Do not select no-auth just to bypass it. Install the resulting private plugin.
 
-Security: commands are invoked with a read-only sandbox inside an empty temporary directory, no direct file-edit permissions. Keep the bridge pairing token private.
+5. Ask ChatGPT to run neural_training_status. For a base-versus-LoRA test, use compare_neural_models. Until you upload an actual LoRA, it correctly says *not trained*.
 
-## 2. Teach it using verified examples
+## Persistent training examples in Cloudflare, never GitHub
 
-Use TEACH and write your own input/ideal-answer pair. Examples are stored locally in ~/.jarvis-neural-lab/training.jsonl and never automatically injected into the model at inference time.
+To enable explicit example storage (optional until you're ready to train):
 
-To export, press Export JSONL. Saving a pair does not update weights. Collect varied examples (the script requires at least 12, but a much larger, high-quality set is needed for robust improvements).
+- Create a Cloudflare D1 database named jarvis-neural-data in Cloudflare dashboard.
+- Run the SQL from jarvis/cloud/schema.sql in its console.
+- Add its actual database_id to [[d1_databases]] in jarvis/cloud/wrangler.toml and uncomment the binding; redeploy.
+- Then ask ChatGPT to record a specific training example that you **explicitly approve**. The plugin will require user_confirmed=true. Nothing is silently collected.
+- Use export_training_batch to retrieve batches of JSONL when you explicitly start training. These are training records, NOT information used for GPT answers.
 
-## 3. Train with free cloud GPU time
+## Fine-tune without local compute
 
-Open a free Kaggle Notebook GPU runtime (availability and quota are NOT guaranteed), upload the private JSONL, and paste or upload jarvis/train.py.
+1. Use a free **Kaggle notebook GPU**, when quota and availability allow.
+2. Supply your private exported examples to the notebook; run jarvis/train.py as described in the file.
+3. Download the resulting adapter_config.json and adapter_model.safetensors (do not add private examples or adapters to this **public** repository).
+4. Upload them via Cloudflare's dashboard/CLI/REST API (the Cloudflare LoRA documentation gives the supported paths).
+5. Set **JARVIS_LORA_ID** as a Worker environment variable referencing that deployed adapter; redeploy if required.
+6. Ask ChatGPT to run compare_neural_models with new prompts. Compare the same base model with and without updated LoRA. Hold out unseen tests to measure whether the update generalizes.
 
-Run these two Kaggle notebook cells:
+Cloudflare's LoRA adapter hosting is currently beta and free; **AI inference still has a free daily cap**. Kaggle GPU is quota-limited. No unmetered always-on, automatic retraining service is promised.
 
-    !pip -q install "transformers>=4.45,<5" peft accelerate datasets safetensors sentencepiece
-    !TRAIN_JSONL=/kaggle/working/jarvis-training.jsonl python train.py
+## Deploy without a Mac terminal
 
-Accept the model license for google/gemma-2b-it on Hugging Face if requested.
+This repository includes .github/workflows/deploy-jarvis-cloud.yml. After the two GitHub Actions secrets are set, go to the GitHub **Actions** tab and manually run the workflow. It deploys a separate Worker named jarvis-neural-lab. Keep the private plugin token in the **Cloudflare Worker secret configuration**, not a GitHub Action input.
 
-The script uses unquantized Gemma 2B FP16 with a rank-8 LoRA trained on verified data. It produces adapter_config.json and adapter_model.safetensors in jarvis-adapter; holdout.jsonl contains examples EXCLUDED from training. Do not report learning success without tests on unseen examples. To train another version starting with your existing adapter, set PRIOR_ADAPTER to its folder in the Kaggle runtime.
+The Worker is a **private one-user MCP service**. Authentication is required on /mcp. Protect the D1 database and do not expose raw training data to the public website.
 
-Kaggle GPU allocation may fail or be slow; this is NOT a guaranteed free continuously running training service.
+## What remains unverified
 
-## 4. Deploy the trained adapter to Cloudflare
+The repo's CI verifies MCP JSON-RPC tool negotiation, authentication, Cloudflare inference invocation shape, and Python syntax. This does **not** verify your cloud deployment, ChatGPT plugin pairing, LoRA quality, or your account's free quotas.
 
-Cloudflare's LoRA beta supports the specific base @cf/google/gemma-2b-it-lora. The current beta has adapter requirements including a size cap and supported configuration.
-
-Use your own account, sign into Wrangler, then run:
-
-    npx wrangler login
-    npx wrangler ai finetune create @cf/google/gemma-2b-it-lora jarvis-v1 /path/to/jarvis-adapter
-    npx wrangler ai finetune list
-
-Use the new adapter ID or name; for each retraining version create a new upload/name. The Cloudflare beta does not edit an existing adapter in place.
-
-Set these LOCAL environment variables before restarting the bridge:
-
-    export CF_ACCOUNT_ID="your-account-id"
-    export CF_AI_TOKEN="your-private-Workers-AI-token"
-    export CF_LORA_ID="jarvis-v1"
-    npm run jarvis:bridge
-
-No tokens in a public repository or browser. Do not set CF_AI_TOKEN in public frontend JavaScript. The bridge proxies authenticated Cloudflare calls and returns answers.
-
-In COMPARE, use an unseen test input. The only neural difference is Gemma base vs Gemma + your learned LoRA.
-
-## Privacy and limitations
-
-- No conversation scraping or invisible training. Only examples explicitly saved in TEACH are collected.
-- Your verified examples stay on your computer until you deliberately upload them to Kaggle. Cloudflare processes inference requests, and third-party notebooks process what you upload.
-- No transfer of these learned weights into GPT itself is possible.
-- GPT and Gemma are separate systems. They share a visual interface but NOT internal intelligence.
-- Free Workers AI inference is quota-limited (currently 10,000 Neurons/day); free Kaggle GPU allocations may be unavailable.
-- You must perform login and account token setup yourself. GitHub access cannot authorize those credentials.
-- Do not expose the bridge to the internet or disable its local address, origin checks or pairing token.
-- Site may require Cloudflare deployment if not auto-deployed from GitHub.
-
-Official docs: https://developers.openai.com/siwc/token-sharing-open-source ; https://learn.chatgpt.com/docs/cli/reference ; https://developers.cloudflare.com/workers-ai/features/fine-tunes/loras/ ; https://developers.cloudflare.com/workers-ai/platform/pricing/ .
+If your ChatGPT plugin connection requires an OAuth discovery provider rather than a static bearer token, we must implement that provider or use an authorized hosting option. Never remove access controls to work around an authentication mismatch.
