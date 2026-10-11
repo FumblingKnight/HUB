@@ -105,7 +105,7 @@ export function reconcile(v,draft,{allowCreate=true,confirmEntityId=null}={}){
   const direct=confirmEntityId?v.entities.find(e=>e.id===confirmEntityId):lookup(v,draft.title);
   if(confirmEntityId&&!direct)throw Error("Requested entity ID does not exist");
   // A plausible but uncertain match should be reviewed, never silently merged.
-  if(!direct&&nearby.length&&nearby[0].score>=50){
+  if(!direct&&nearby.length&&nearby[0].score>=40){
     const review={id:uid(),kind:"entity-match",draft,options:nearby,createdAt:iso(),status:"pending"};
     v.reviews.push(review);v.updatedAt=iso();
     return {action:"review",reviewId:review.id,candidates:nearby};
