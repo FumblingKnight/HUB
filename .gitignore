@@ -1,0 +1,10 @@
+# Avoid leaking secrets or personal training data into public GitHub
+**/training.jsonl
+**/jarvis-training.jsonl
+**/bridge.token
+**/adapter_model.safetensors
+**/.env
+**/.env.*
+**/jarvis-adapter/
+**/.jarvis-neural-lab/
+node_modules/
