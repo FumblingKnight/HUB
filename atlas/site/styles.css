@@ -15,3 +15,6 @@
 .mediahint{color:#91aba3;font-size:11px;line-height:1.5}
 
 .atlas-logout{border:1px solid #4d7569;border-radius:6px;background:transparent;color:#b3dbc9;padding:8px 12px;font-size:11px;font-weight:650;margin-left:14px}.atlas-logout:hover{background:#203930}
+
+.mira-shortcut{display:block;color:#a4eacb;text-decoration:none;font-size:12px;font-weight:650;margin-bottom:18px;padding:10px 12px;border:1px solid #304d48;border-radius:9px;background:#14302b70}
+.mira-shortcut:hover{background:#1a4135;text-decoration:none}
