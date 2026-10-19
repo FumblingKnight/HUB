@@ -1,0 +1,27 @@
+name: Mira authenticated route smoke test
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-mira-live.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - name: Verify unauthenticated requests are denied in production
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://sajo-atlas.thefumblingknight.workers.dev'
+          page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/mira.html")
+          api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/signals")
+          js=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/mira.js")
+          login=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/login")
+          echo "mira_html_status=$page mira_api_status=$api mira_js_status=$js login_status=$login"
+          test "$page" = "303"
+          test "$api" = "401"
+          test "$js" = "303"
+          test "$login" = "200"
