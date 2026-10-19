@@ -1,6 +1,7 @@
 import {reconcile,validateVault} from "../core.mjs";
 import {searchVaultContext} from "../retrieve-context.mjs";
 import {readMiraSignals} from "./mira-signals.mjs";
+import {readMiraProjectStatus} from "./mira-status.mjs";
 import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
 import {isAuthConfigured,passwordMatches,issueSession,verifySession,expiredSession} from "./session.mjs";
 
@@ -52,6 +53,8 @@ async function editVault(env,operation){
 async function api(req,env,url){
  if(!env.ATLAS_REPOSITORY||!env.ATLAS_GITHUB_TOKEN)
   return error("Private vault is not connected yet",503);
+ if(url.pathname==="/api/mira/status"&&req.method==="GET")
+  return json(await readMiraProjectStatus(env));
  if(url.pathname==="/api/mira/signals"&&req.method==="GET")
   return json(await readMiraSignals(env));
  if(url.pathname==="/api/config"&&req.method==="GET")
