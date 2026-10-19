@@ -23,8 +23,12 @@ jobs:
           memory_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/context.html")
           memory_api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/context?q=Mira")
           memory_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/context.js")
+          status_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/status.html")
+          status_api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/status")
+          status_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/status.js")
           echo "mira_html_status=$page mira_api_status=$api mira_js_status=$js login_status=$login"
           echo "memory_page_status=$memory_page memory_api_status=$memory_api memory_script_status=$memory_script"
+          echo "status_page_status=$status_page status_api_status=$status_api status_script_status=$status_script"
           test "$page" = "303"
           test "$api" = "401"
           test "$js" = "303"
@@ -32,3 +36,6 @@ jobs:
           test "$memory_page" = "303"
           test "$memory_api" = "401"
           test "$memory_script" = "303"
+          test "$status_page" = "303"
+          test "$status_api" = "401"
+          test "$status_script" = "303"
