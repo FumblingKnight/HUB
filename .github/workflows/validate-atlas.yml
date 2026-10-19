@@ -24,6 +24,7 @@ jobs:
       - run: node --check atlas/cloud/media.mjs
       - run: node --check atlas/site/app.js
       - run: node --check atlas/site/mira.js
+      - run: node --check atlas/site/context.js
       - run: node --check atlas/cloud/mira-signals.mjs
       - run: node --check atlas/retrieve-context.mjs
       - run: node --test atlas/retrieve-context.test.mjs
