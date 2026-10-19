@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1017"><title>Mira Memory — Private ATLAS recall</title>
+<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/context.css">
+</head><body>
+<div class="ambient" aria-hidden="true"></div>
+<header class="topbar"><a class="brand" href="/">✳ <span>ATLAS</span></a><span class="slash">/</span><strong>MIRA MEMORY</strong><div class="top-spacer"></div><a href="/mira.html">Signals ↗</a><span class="privacy">PRIVATE MEMORY</span></header>
+<main class="content">
+<section class="intro"><div class="eyebrow">MEMORY / EVIDENCE / CONTEXT</div><h1>Recall with context<span>.</span></h1><p>Search your private ATLAS knowledge graph. This retrieves saved pages and their sources; it is not a generative answer or ChatGPT memory injection.</p></section>
+<form id="recall" class="recall-form">
+<label for="memoryQuery">What do you want to find?</label>
+<div class="recall-controls"><input type="search" id="memoryQuery" name="q" required minlength="2" maxlength="220" value="Project Mira" autocomplete="off"><button type="submit">Retrieve context ↗</button></div>
+</form>
+<p id="memoryStatus" role="status" aria-live="polite" class="status">Ready to search.</p>
+<section id="memoryResults" class="memory-results" aria-label="Retrieved knowledge"></section>
+<footer>Only user-curated ATLAS entries are searched. Ambiguous or disputed claims remain unresolved. <a href="/">Return to ATLAS ↗</a></footer>
+</main><script type="module" src="/context.js"></script>
+</body></html>

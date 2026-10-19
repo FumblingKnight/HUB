@@ -1,4 +1,5 @@
 import {reconcile,validateVault} from "../core.mjs";
+import {searchVaultContext} from "../retrieve-context.mjs";
 import {readMiraSignals} from "./mira-signals.mjs";
 import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
 import {isAuthConfigured,passwordMatches,issueSession,verifySession,expiredSession} from "./session.mjs";
@@ -57,6 +58,15 @@ async function api(req,env,url){
   return json({mediaEnabled:true,mediaBackend:"private-github",vaultConnected:true,limitImageBytes:MAX_IMAGE_BYTES});
  const media=await mediaEndpoint({request:req,env,url,readVault,editVault,json,error});
  if(media)return media;
+ if(url.pathname==="/api/mira/context"&&req.method==="GET"){
+  const q=url.searchParams.get("q");
+  const limitParam=url.searchParams.get("limit");
+  const parsed=limitParam===null?5:Number(limitParam);
+  if(typeof q!=="string"||q.trim().length<2||q.length>220||!Number.isInteger(parsed)||parsed<1||parsed>10)
+   return error("Query must be 2–220 characters and limit 1–10",400);
+  try{return json(searchVaultContext((await readVault(env)).graph,q,{limit:parsed}));}
+  catch(e){if(/Query|Limit|searchable/.test(String(e.message)))return error(String(e.message),400);throw e;}
+ }
  if(url.pathname==="/api/graph"&&req.method==="GET")
   return json((await readVault(env)).graph);
  if(url.pathname==="/api/inbox"&&req.method==="POST"||url.pathname==="/api/entity"&&req.method==="POST"){
