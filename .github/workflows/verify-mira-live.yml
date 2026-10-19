@@ -20,8 +20,15 @@ jobs:
           api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/signals")
           js=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/mira.js")
           login=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/login")
+          memory_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/context.html")
+          memory_api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/context?q=Mira")
+          memory_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/context.js")
           echo "mira_html_status=$page mira_api_status=$api mira_js_status=$js login_status=$login"
+          echo "memory_page_status=$memory_page memory_api_status=$memory_api memory_script_status=$memory_script"
           test "$page" = "303"
           test "$api" = "401"
           test "$js" = "303"
           test "$login" = "200"
+          test "$memory_page" = "303"
+          test "$memory_api" = "401"
+          test "$memory_script" = "303"
