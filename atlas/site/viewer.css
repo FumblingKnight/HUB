@@ -193,3 +193,13 @@ body.viewer-ui .empty{color:var(--m-subtle)}
  body.viewer-ui.atlas-page .detailpanel{min-height:300px;padding:20px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.mira-nav-item,body.viewer-ui .signal,body.viewer-ui button{transition:none!important;transform:none!important}}
+
+body.viewer-ui .status-evidence-disclosure{margin-top:39px;border:1px solid var(--m-border);background:var(--m-panel);border-radius:17px;overflow:hidden}
+body.viewer-ui .status-evidence-disclosure>summary{cursor:pointer;list-style:none;min-height:58px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:15px;font-size:15px;font-weight:670}
+body.viewer-ui .status-evidence-disclosure>summary::-webkit-details-marker{display:none}
+body.viewer-ui .status-evidence-disclosure>summary:after{content:"⌄";font-size:21px;color:#b6b9e0}
+body.viewer-ui .status-evidence-disclosure[open]>summary:after{content:"⌃"}
+body.viewer-ui .status-evidence-disclosure>summary span{margin-left:auto;font-size:12px;color:var(--m-subtle);font-weight:450}
+body.viewer-ui .status-evidence-disclosure>.audit{margin:0;padding:20px;border-top:1px solid var(--m-hairline)}
+body.viewer-ui .status-evidence-disclosure .status-card{background:#20222a}
+body.viewer-ui .status-evidence-disclosure>summary:focus-visible{outline:2px solid #c6c8ff;outline-offset:-3px}
