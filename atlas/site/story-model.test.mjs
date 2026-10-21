@@ -46,3 +46,14 @@ test("web views have internal story deep links and required protected site asset
  const feed=await readFile(new URL("./mira.html",import.meta.url),"utf8");
  assert.match(feed,/\/mira-reader\.js/);assert.match(feed,/\/signals-reader\.css/);
 });
+
+test("a shared topic ID does not collapse distinct events",()=>{
+ const events=groupStories([
+  {...base,story_id:"reddit-rss",topic_id:"reddit-platform"},
+  {...official,story_id:"reddit-avatar",topic_id:"reddit-platform"},
+  {...base,id:"three",story_id:"anime-premiere",category:"anime",topic_id:"anime-cyberpunk"}
+ ]);
+ assert.equal(events.length,3);
+ assert.equal(events.filter(x=>x.topic_id==="reddit-platform").length,2);
+ assert.equal(events[0].count,1);
+});
