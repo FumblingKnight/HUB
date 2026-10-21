@@ -1,3 +1,4 @@
+import {readMiraWatchHealth} from "./mira-health.mjs";
 // Read-only, login-protected projection of Project Mira private execution state.
 const MAX_BYTES=140_000;
 const value=(x,n=240)=>String(x??"").slice(0,n);
@@ -15,8 +16,10 @@ export async function readMiraProjectStatus(env,fetcher=fetch){
   state=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
  }catch{throw Error("Malformed private checkpoint");}
  if(state?.schema_version!==1||state.project!=="Mira"||!Array.isArray(state.milestones)||!Array.isArray(state.verified)||!Array.isArray(state.outstanding_user_approvals))throw Error("Unsupported Mira checkpoint format");
+ let watch_health;
+ try{watch_health=await readMiraWatchHealth(env,fetcher);}catch{watch_health={status:"unavailable",explanation:"No verified watch health record is accessible",stale:true,last_run_at:null};}
  return {
-  schema_version:1,project:"Mira",updated_ist:value(state.updated_ist,45),checkpoint_status:value(state.checkpoint_status,200),
+  schema_version:1,project:"Mira",watch_health,updated_ist:value(state.updated_ist,45),checkpoint_status:value(state.checkpoint_status,200),
   milestones:state.milestones.slice(0,25).map(m=>({id:value(m.id,20),title:value(m.title,160),status:value(m.status,160)})),
   deferred_actions:state.outstanding_user_approvals.filter(x=>x.status==="pending_user_later").slice(0,24).map(x=>({id:value(x.id,20),task:value(x.task,450),status:value(x.status,60),required_now:Boolean(x.required_now)})),
   verified:state.verified.slice(-7).map(x=>({claim:value(x.claim,280),evidence:value(x.evidence,550)})),
