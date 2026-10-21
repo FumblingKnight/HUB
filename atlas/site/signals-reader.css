@@ -72,3 +72,5 @@ body.viewer-ui .topic-sibling{flex:1;min-width:min(310px,100%);display:flex;gap:
 body.viewer-ui .topic-sibling:hover{background:#343648}
 .topic-sibling-arrow{color:#c9cbfe;font-size:18px;flex-shrink:0}
 @media(max-width:720px){.topic-bundle{align-items:stretch;flex-direction:column}.topic-bundle-caption{padding-left:3px}}
+
+.topic-bundle[hidden],.signals-feature-area[hidden]{display:none!important}
