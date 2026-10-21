@@ -2,14 +2,37 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0c10"><title>Mira Signals — Private discoveries</title>
-<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/viewer.css"><script src="/viewer-shell.js" defer></script></head><body>
+<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/signals-reader.css"><link rel="stylesheet" href="/viewer.css"><script src="/viewer-shell.js" defer></script></head><body>
 <div class="ambient" aria-hidden="true"></div>
 <header class="topbar"><a class="brand" href="/">✳ <span>ATLAS</span></a><span class="slash">/</span><strong>MIRA SIGNALS</strong><div class="top-spacer"></div><a href="/context.html">Memory ↗</a><a href="/status.html">Status ↗</a><span class="privacy">PRIVATE SOURCE FEED</span></header>
-<main class="content">
-<section class="intro"><div class="eyebrow">AWARENESS / SIGNAL OVER NOISE</div><h1>Worth noticing<span>.</span></h1><p>Discoveries that might matter to you, with evidence and original links. A saved feed—not a claim of continuous monitoring.</p></section>
-<section class="summary" aria-label="Feed status"><div><small>DISCOVERIES</small><strong id="total">—</strong></div><div><small>LAST UPDATED</small><strong id="updated">—</strong></div><div><small>LAST AUTOMATED WATCH</small><strong id="watch">Not verified</strong></div></section>
-<section class="toolbar" aria-label="Filters"><div class="filter-list" id="filters"><button type="button" data-category="all" aria-pressed="true">All signals</button><button type="button" data-category="reddit" aria-pressed="false">Reddit</button><button type="button" data-category="discord" aria-pressed="false">Discord</button><button type="button" data-category="anime" aria-pressed="false">Anime</button><button type="button" data-category="ai" aria-pressed="false">AI</button><button type="button" data-category="opportunities" aria-pressed="false">Opportunities</button></div><label><span class="sr-only">Search signals</span><input id="search" type="search" placeholder="Find a discovery…" autocomplete="off"></label><button id="refresh" type="button">Refresh ↻</button></section>
-<p class="status" id="status" role="status" aria-live="polite">Connecting to the private feed…</p>
-<section id="feed" class="feed" aria-label="Source-linked discoveries"></section>
-<footer>Every item is a lead, not a guarantee. Verify time-sensitive claims at the source. <a href="/">Return to ATLAS ↗</a></footer>
+<main class="content signals-library">
+ <section class="signals-intro">
+  <div class="eyebrow">MIRA / DISCOVERIES</div>
+  <div class="signals-heading"><div><h1>Worth your <span>attention.</span></h1><p>One story, all the important context. Explore the news, original evidence, and community perspectives without reading the same announcement five times.</p></div>
+   <div class="signals-asof"><span class="signals-live-dot" aria-hidden="true"></span><span>Private, source-linked briefing</span></div></div>
+ </section>
+ <div class="signals-toolbar">
+   <div class="signals-main-tabs" id="filters" aria-label="Filter stories" role="group">
+    <button type="button" aria-pressed="true" data-category="all">For you</button>
+    <button type="button" aria-pressed="false" data-category="reddit">Reddit</button>
+    <button type="button" aria-pressed="false" data-category="discord">Discord</button>
+    <button type="button" aria-pressed="false" data-category="anime">Anime</button>
+    <button type="button" aria-pressed="false" data-category="ai">Technology</button>
+    <button type="button" aria-pressed="false" data-category="opportunities">Opportunities</button>
+   </div>
+   <div class="signals-tools"><label class="signals-search"><span aria-hidden="true">⌕</span><span class="sr-only">Search stories</span><input type="search" id="search" placeholder="Search stories" autocomplete="off"/></label><button type="button" id="refresh" aria-label="Refresh saved feed">↻ Refresh</button></div>
+ </div>
+ <div class="signals-read-state">
+  <div><strong id="total">—</strong> <span>distinct stories</span> · <span id="status" aria-live="polite" role="status">Loading verified news…</span></div>
+  <div><span>Feed: <strong id="updated">—</strong></span><span>Curated check: <strong id="watch">—</strong></span></div>
+ </div>
+ <section aria-labelledby="lead-title" id="featured-area" class="signals-feature-area">
+  <div class="signals-section-top"><div><div class="eyebrow">THE LEAD STORY</div><h2 id="lead-title">The bigger picture</h2></div></div>
+  <div id="featured" class="signals-featured"></div>
+ </section>
+ <section aria-labelledby="more-title" class="signals-stories-area">
+  <div class="signals-section-top"><div><div class="eyebrow">EXPLORE</div><h2 id="more-title">More worth reading</h2></div><a href="/home.html">Back to Home ↗</a></div>
+  <div id="feed" class="signals-story-grid" aria-label="Distinct source-backed stories"></div>
+ </section>
+ <footer class="signals-foot">Sources are linked and attributed. Community posts are opinions or observations, not verification. Outdated opportunities are archived rather than shown as current.</footer>
 </main><script type="module" src="/mira.js"></script></body></html>
