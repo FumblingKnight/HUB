@@ -8,7 +8,7 @@
  --bg:var(--m-bg);--panel:var(--m-panel);--surface:var(--m-panel);--line:var(--m-border);
  --border:var(--m-border);--soft:var(--m-muted);--muted:var(--m-muted);
  --text:var(--m-text);--mint:var(--m-accent);--accent:var(--m-accent);
- --soft:var(--m-panel);color-scheme:dark;
+ color-scheme:dark;
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif;
 }
 html{scroll-behavior:smooth}
