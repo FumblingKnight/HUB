@@ -30,6 +30,11 @@ jobs:
           home_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/home.js")
           home_theme=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer.css")
           nav_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer-shell.js")
+          story_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story.html")
+          story_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story.js")
+          story_model=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story-model.mjs")
+          reader_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/mira-reader.js")
+          story_style=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story-page.css")
           echo "mira_html_status=$page mira_api_status=$api mira_js_status=$js login_status=$login"
           echo "memory_page_status=$memory_page memory_api_status=$memory_api memory_script_status=$memory_script"
           echo "status_page_status=$status_page status_api_status=$status_api status_script_status=$status_script"
@@ -48,5 +53,11 @@ jobs:
           test "$home_script" = "303"
           test "$home_theme" = "303"
           test "$nav_script" = "303"
+          echo "story=$story_page story_js=$story_script model=$story_model reader=$reader_script style=$story_style"
+          test "$story_page" = "303"
+          test "$story_script" = "303"
+          test "$story_model" = "303"
+          test "$reader_script" = "303"
+          test "$story_style" = "303"
 
 # Verified with Mira health widget deployment; probes remain anonymous and read-only.
