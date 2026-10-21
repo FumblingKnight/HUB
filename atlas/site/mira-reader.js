@@ -42,6 +42,19 @@ function card(story,lead=false){
  el.append(a);
  return el;
 }
+function renderCategories(){
+ const root=$("filters");root.replaceChildren();
+ const present=new Set(state.stories.map(x=>x.category));
+ const sequence=["all","world","science","anime","manga","music","gaming","ai","technology","culture","business","health","sports","reddit","discord","opportunities"];
+ const label={all:"For you",world:"World",science:"Science",anime:"Anime",manga:"Manga",music:"Music",gaming:"Games",ai:"Technology",technology:"Tech",culture:"Culture",business:"Business",health:"Health",sports:"Sports",reddit:"Reddit",discord:"Discord",opportunities:"Opportunities"};
+ const categories=["all",...sequence.filter(x=>x!=="all"&&present.has(x)),...[...present].filter(x=>!sequence.includes(x))];
+ if(!categories.includes(state.category))state.category="all";
+ for(const category of categories){
+  const btn=make("button","",label[category]||pretty(category));btn.type="button";
+  btn.dataset.category=category;btn.setAttribute("aria-pressed",String(category===state.category));
+  root.append(btn);
+ }
+}
 function paint(){
  const visible=state.stories.filter(s=>
   (state.category==="all"||s.category===state.category)&&
@@ -83,6 +96,7 @@ async function load(){
   const data=await response.json();
   if(!Array.isArray(data.items))throw Error("Unexpected response from the saved feed");
   state.items=data.items;state.stories=groupStories(data.items);
+  renderCategories();
   $("total").textContent=String(state.stories.length);
   $("updated").textContent=when(data.updated_ist);
   $("watch").textContent=data.last_watch_run?when(data.last_watch_run):"Unverified";
