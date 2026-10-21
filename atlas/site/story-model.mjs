@@ -66,3 +66,14 @@ export function findStory(items,id,now=Date.now()){
 export function detailHref(id){
  return eventId({id})?"/story.html?id="+encodeURIComponent(id):null;
 }
+
+export function topicBundles(stories){
+ const bundles=[],byKey=new Map();
+ for(const story of Array.isArray(stories)?stories:[]){
+  const key=story.topic_id||story.story_id;
+  if(!key)continue;
+  if(!byKey.has(key)){const group={key,lead:story,others:[]};byKey.set(key,group);bundles.push(group);}
+  else byKey.get(key).others.push(story);
+ }
+ return bundles;
+}
