@@ -17,3 +17,15 @@ test('private Mira route cannot read repository without authenticated session',a
  assert.equal(response.status,401);
  const json=await response.json();assert.equal(json.error,'Login required');
 });
+
+test('source-linked timed lead preserves explicit expiration without changing its original source',async()=>{
+ const item={...base.items[0],expires_at:'2026-10-22T00:00:00+05:30',status:'archived'};
+ const result=await readMiraSignals(env,mock({...base,items:[item]}));
+ assert.equal(result.items[0].expires_at,'2026-10-22T00:00:00+05:30');
+ assert.equal(result.items[0].status,'archived');
+ assert.equal(result.items[0].source_url,item.source_url);
+});
+test('invalid expiry metadata does not become a valid deadline',async()=>{
+ const result=await readMiraSignals(env,mock({...base,items:[{...base.items[0],expires_at:'not-a-time'}]}));
+ assert.equal(result.items[0].expires_at,null);
+});
