@@ -58,6 +58,14 @@ export function projectDiscovery({status=null,request=null,candidates=null,now=D
    sources_total:Number.isInteger(validStatus?.sources_total)?validStatus.sources_total:null,
    new_candidates:Number.isInteger(validStatus?.new_candidates)?validStatus.new_candidates:null,
    total_candidates:Number.isInteger(validStatus?.total_candidates)?validStatus.total_candidates:null,
+   source_expansion:{
+    monitored_count:Number.isInteger(validStatus?.source_expansion?.active_sources)?Math.max(0,validStatus.source_expansion.active_sources):0,
+    admitted_this_run:Number.isInteger(validStatus?.source_expansion?.admissions)?Math.max(0,validStatus.source_expansion.admissions):0,
+    learned_sources:(Array.isArray(validStatus?.source_checks)?validStatus.source_checks:[]).filter(x=>
+     x.source==="nasa-aeronautics-official"||x.source==="anime-expo-official-news").map(x=>({
+       id:compact(x.source,70),status:x.status==="ok"?"ok":"error",candidates:Number(x.candidates)||0
+     })).slice(0,8)
+   },
    source_checks:Array.isArray(validStatus?.source_checks)?validStatus.source_checks.slice(0,24).map(x=>({
     source:compact(x.source,70),status:x.status==="ok"?"ok":"error",candidates:Number(x.candidates)||0
    })):[]},
