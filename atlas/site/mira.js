@@ -7,12 +7,15 @@ function paint(){
  const feed=$('feed');feed.replaceChildren();
  if(!visible.length){feed.append(node('p','empty','No discoveries match these filters.'));return;}
  for(const item of visible){
-  const card=node('article','signal'),head=node('div','signal-head');
+  const ended=Boolean(item.expires_at&&Number.isFinite(Date.parse(item.expires_at))&&Date.now()>=Date.parse(item.expires_at));
+  const card=node('article',ended?'signal signal-ended':'signal'),head=node('div','signal-head');
   head.append(node('span','category',item.category||'other'),node('span','metadata','Discovered '+safeDate(item.discovered_ist)));
   const title=node('h2','',item.title),desc=node('p','description',item.summary||''),meta=node('div','meta');
   meta.append(node('span','','Evidence: '+(item.confidence||'unverified')));
-  if(item.urgency>=2)meta.append(node('span','urgent','Time-sensitive'));
-  if(item.action)card.append(head,title,desc,node('p','action',item.action),meta);
+  if(ended)meta.append(node('span','ended','Event ended'));
+  else if(item.urgency>=2)meta.append(node('span','urgent','Time-sensitive'));
+  const actionText=ended&&item.status!=='archived'?'This time-limited opportunity has passed. Check the original source for any new dates.':item.action;
+  if(actionText)card.append(head,title,desc,node('p','action',actionText),meta);
   else card.append(head,title,desc,meta);
   const footer=node('div','source');
   footer.append(node('span','',item.source_name||'Original source'));
@@ -28,7 +31,8 @@ async function load(){
   if(!response.ok)throw Error('Could not load private feed (HTTP '+response.status+').');
   const data=await response.json();
   if(!Array.isArray(data.items))throw Error('Feed response is invalid.');
-  state.items=data.items.sort((a,b)=>String(b.discovered_ist||'').localeCompare(String(a.discovered_ist||'')));
+  const isEnded=x=>Boolean(x.expires_at&&Number.isFinite(Date.parse(x.expires_at))&&Date.now()>=Date.parse(x.expires_at));
+  state.items=data.items.sort((a,b)=>Number(isEnded(a))-Number(isEnded(b))||String(b.discovered_ist||'').localeCompare(String(a.discovered_ist||'')));
   $('total').textContent=String(state.items.length);
   $('updated').textContent=safeDate(data.updated_ist);
   $('watch').textContent=data.last_watch_run?safeDate(data.last_watch_run):'Not yet verified';
