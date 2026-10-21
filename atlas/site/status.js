@@ -18,6 +18,17 @@ async function load(){
   $("lastUpdate").textContent=data.updated_ist||"Not recorded";
   $("pendingCount").textContent=String(data.deferred_actions.length);
   $("statusMessage").textContent="Retrieved latest private checkpoint · "+(data.blocked_on_user?"A user decision is currently blocking work":"Independent engineering can continue");
+  const operational=$("watchHealth");operational.replaceChildren();
+  const watch=data.watch_health||{status:"unavailable",explanation:"Cloud status unavailable"};
+  const last=watch.last_run_at?new Date(watch.last_run_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"}):"Not recorded";
+  const statusText=String(watch.status||"unavailable").toUpperCase();
+  const detail=String(watch.explanation||"")+
+    " · Last check: "+last+
+    " · Candidates: "+(watch.total_candidates??"unknown")+
+    " · Newly staged: "+(watch.new_candidates??0)+
+    (watch.source_error_count?" · Source errors: "+watch.source_error_count:"");
+  addCard(operational,"Official developer-source collector — "+statusText,detail,
+    watch.status==="healthy"?"done":(watch.status==="failed"||watch.status==="stale")?"pending":"");
   const milestones=$("milestones"),pending=$("pending"),evidence=$("evidence");
   milestones.replaceChildren();pending.replaceChildren();evidence.replaceChildren();
   for(const m of data.milestones)addCard(milestones,m.title,label(m.status),m.status==="completed"?"done":"");
