@@ -23,6 +23,10 @@ jobs:
       - run: node --check atlas/cloud/github-media.mjs
       - run: node --check atlas/cloud/media.mjs
       - run: node --check atlas/site/app.js
+      - run: node --check atlas/site/viewer-shell.js
+      - run: node --check atlas/site/home.js
+      - run: node --check atlas/site/login.js
+      - run: node --test atlas/site/viewer-ui.test.mjs
       - run: node --check atlas/site/mira.js
       - run: node --check atlas/site/context.js
       - run: node --check atlas/site/status.js
