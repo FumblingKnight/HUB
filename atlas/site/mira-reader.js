@@ -58,7 +58,18 @@ function paint(){
   return;
  }
  featured.append(card(visible[0],true));
- const rest=visible.slice(1);
+ const topic=$("topic-bundle"),lead=visible[0];
+ const siblings=lead.topic_id?visible.slice(1).filter(x=>x.topic_id===lead.topic_id):[];
+ topic.hidden=!siblings.length;topic.replaceChildren();
+ if(siblings.length){
+  topic.append(make("span","topic-bundle-caption","MORE IN "+String(lead.category||"THIS TOPIC").toUpperCase()));
+  for(const related of siblings){
+   const a=make("a","topic-sibling");a.href=detailHref(related.story_id);
+   a.append(make("span","topic-sibling-title",related.title),make("span","topic-sibling-arrow","↗"));
+   topic.append(a);
+  }
+ }
+ const rest=visible.slice(1).filter(x=>!siblings.includes(x));
  if(!rest.length){
   feed.append(make("div","signals-empty","You're caught up on this selection. More stories appear here after they're verified and saved."));
  }else for(const story of rest)feed.append(card(story));
