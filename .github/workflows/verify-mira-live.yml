@@ -39,3 +39,5 @@ jobs:
           test "$status_page" = "303"
           test "$status_api" = "401"
           test "$status_script" = "303"
+
+# Verified with Mira health widget deployment; probes remain anonymous and read-only.
