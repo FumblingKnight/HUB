@@ -18,6 +18,18 @@ async function load(){
   $("lastUpdate").textContent=data.updated_ist||"Not recorded";
   $("pendingCount").textContent=String(data.deferred_actions.length);
   $("statusMessage").textContent="Retrieved latest private checkpoint · "+(data.blocked_on_user?"A user decision is currently blocking work":"Independent engineering can continue");
+  const workBox=$("workClaim");workBox.replaceChildren();
+  const owner=data.work_claim||{status:"unavailable",caveat:"Work ownership unknown"};
+  const active=owner.status==="active",idle=owner.status==="idle";
+  const trigger=data.work_trigger_enabled?"Configured enabled":"Not confirmed enabled";
+  const workLabel=active?"CLAIMED":idle?"IDLE":"UNKNOWN";
+  let workDetail="GitHub PR event trigger: "+trigger+". ";
+  if(active)workDetail+="Claimed by PR #"+(owner.active_pr||"unknown")+" since "+(owner.acquired_at||"unknown")+". Do not submit a second matching Work job.";
+  else if(idle)workDetail+="The GitHub ownership claim is available. ";
+  else workDetail+="Cannot confirm whether another job owns the claim. Do not create new Work jobs until verified. ";
+  if(owner.last_result)workDetail+=" Latest completed PR #"+owner.last_result.pr+" — "+owner.last_result.outcome+".";
+  workDetail+=" A claim status is not native ChatGPT run liveness.";
+  addCard(workBox,"Work handoff — "+workLabel,workDetail,active||!idle?"pending":"done");
   const operational=$("watchHealth");operational.replaceChildren();
   const watch=data.watch_health||{status:"unavailable",explanation:"Cloud status unavailable"};
   const last=watch.last_run_at?new Date(watch.last_run_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"}):"Not recorded";
