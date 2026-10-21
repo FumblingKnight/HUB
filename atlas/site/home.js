@@ -1,3 +1,4 @@
+import {groupStories,detailHref,safeImage} from "./story-model.mjs";
 // Read-only Mira Home. No assumed fresh news, no raw personal records, no hidden background actions.
 const byId=id=>document.getElementById(id);
 const node=(name,cls,content)=>{const n=document.createElement(name);if(cls)n.className=cls;if(content!==undefined)n.textContent=String(content);return n;};
@@ -24,9 +25,14 @@ function story(item,i){
  meta.append(node("span","",category.charAt(0).toUpperCase()+category.slice(1)));
  if(item.urgency>=2)meta.append(node("span","","Time-sensitive"));
  if(time)meta.append(node("span","home-story-date",time));
+ if(item.image_url&&safeImage(item.image_url)){
+  const media=node("a","home-story-media");media.href=detailHref(item.story_id);
+  const img=node("img");img.src=safeImage(item.image_url);img.alt=item.image_alt||"Official related media";img.loading="lazy";img.referrerPolicy="no-referrer";
+  media.append(img);card.append(media);
+ }
  card.append(meta,node("div","home-story-title",item.title),node("p","home-story-desc",item.summary||""));
- const action=node("a","home-story-action","Read original source ↗");
- action.href=verifiedUrl(item.source_url);action.rel="noopener noreferrer";action.target="_blank";
+ const action=node("a","home-story-action","Read story · "+item.coverage.length+" sources ↗");
+ action.href=detailHref(item.story_id);
  card.append(action);
  return card;
 }
@@ -36,7 +42,7 @@ async function loadBriefing(){
   const response=await fetch("/api/mira/signals",{credentials:"same-origin",cache:"no-store"});
   if(response.status===401){location.assign("/login");return;}
   if(!response.ok)throw Error("Feed temporarily unavailable");
-  const data=await response.json(),items=freshItems(data);
+  const data=await response.json(),items=freshItems({...data,items:groupStories(data.items)});
   container.replaceChildren();
   const date=data.updated_ist||"not recorded";
   if(items.length===0){
@@ -47,7 +53,7 @@ async function loadBriefing(){
    return;
   }
   for(const item of items.slice(0,3))container.append(story(item));
-  summary.textContent=items.length+" current saved "+(items.length===1?"discovery":"discoveries")+" · Feed last updated "+date+". Not a live news search.";
+  summary.textContent=items.length+" distinct current "+(items.length===1?"story":"stories")+" · Saved feed updated "+date+". No live search is implied.";
  }catch(e){
   const empty=node("div","home-feed-empty");
   empty.append(node("h3","","Unable to load the private feed."),node("p","","Your saved discoveries are still available when the connection returns."));
