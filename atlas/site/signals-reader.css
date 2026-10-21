@@ -89,3 +89,9 @@ body.viewer-ui .topic-sibling:hover{background:#343648}
 body.viewer-ui .radar-lead-link{font-size:12px;font-weight:670;color:#c2c4f0!important;margin-top:auto}
 .radar-disclaimer{font-size:12px;color:#8c8e99;line-height:1.65;margin:19px 0 0}
 @media(max-width:680px){.radar-grid{grid-template-columns:1fr}.radar-section .signals-section-top{align-items:flex-start;flex-direction:column;gap:7px}.radar-health{text-align:left}}
+
+.radar-learned{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 14px;margin:0 0 18px;padding:14px 17px;
+ border:1px solid #ffffff16;background:#1a1d25;border-radius:14px;font-size:12px;line-height:1.55}
+.radar-learned:empty{display:none}
+.radar-learned-title{font-weight:670;color:#d5d6f2}
+.radar-learned-names{color:#a7c4b8}

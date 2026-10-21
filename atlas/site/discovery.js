@@ -12,6 +12,13 @@ function render(result){
  el("radar-status").textContent=(refresh.pending?"Search requested · awaiting cloud runner. ":"")+
   "Last code search: "+scanTime+" · "+coverage+
   ". "+(leads.length?"Showing recent unreviewed links.":"No unreviewed links available yet.");
+ const learned=el("radar-learned"),exp=scan.source_expansion||{},list=Array.isArray(exp.learned_sources)?exp.learned_sources:[];
+ learned.replaceChildren();
+ if(list.length){
+  const title=make("span","radar-learned-title","Sources Mira discovered and code accepted");
+  const names=make("span","radar-learned-names",list.map(x=>x.name+(x.status==="ok"?" ✓":" · awaiting verification")).join(" · "));
+  learned.append(title,names);
+ }
  const container=el("radar-leads");container.replaceChildren();
  for(const lead of leads.slice(0,12)){
   const card=make("article","radar-lead");

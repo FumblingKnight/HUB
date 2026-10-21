@@ -1,7 +1,7 @@
 // Private World Radar API: requests and health for code-based GitHub event searches.
 // No AI is called by this endpoint, and staged candidates are explicitly unreviewed.
 const REPO="FumblingKnight/Sajo-Atlas",ROOT="https://api.github.com/repos/"+REPO+"/contents/";
-const REQUEST="mira/radar/request.json",STATUS="mira/radar/status.json",CANDIDATES="mira/radar/candidates.json";
+const REQUEST="mira/radar/request.json",STATUS="mira/radar/status.json",CANDIDATES="mira/radar/candidates.json",REGISTRY="mira/radar/source-registry.json";
 const HEADERS=token=>({authorization:"Bearer "+token,accept:"application/vnd.github+json","x-github-api-version":"2022-11-28","user-agent":"Mira-World-Radar-UI"});
 const MAX_BYTES=390_000,COOLDOWN_MS=15*60*1000;
 const compact=(v,n=200)=>String(v??"").replace(/[\u0000-\u001f]+/g," ").trim().slice(0,n);
@@ -43,7 +43,7 @@ export function selectDiverseLeads(items,limit=12){
  for(const x of base){if(picked.length>=limit)break;accept(x,3,3);}
  return picked.slice(0,limit);
 }
-export function projectDiscovery({status=null,request=null,candidates=null,now=Date.now()}={}){
+export function projectDiscovery({status=null,request=null,candidates=null,registry=null,now=Date.now()}={}){
  const validStatus=status?.schema_version===1&&status?.component==="mira_world_radar"&&
   ["healthy","degraded","failed"].includes(status.status)?status:null;
  const validRequest=request?.schema_version===1&&request?.component==="mira_radar_refresh"?request:null;
@@ -58,6 +58,17 @@ export function projectDiscovery({status=null,request=null,candidates=null,now=D
    sources_total:Number.isInteger(validStatus?.sources_total)?validStatus.sources_total:null,
    new_candidates:Number.isInteger(validStatus?.new_candidates)?validStatus.new_candidates:null,
    total_candidates:Number.isInteger(validStatus?.total_candidates)?validStatus.total_candidates:null,
+   source_expansion:{
+    monitored_count:Number.isInteger(validStatus?.source_expansion?.active_sources)?Math.max(0,validStatus.source_expansion.active_sources):0,
+    admitted_this_run:Number.isInteger(validStatus?.source_expansion?.admissions)?Math.max(0,validStatus.source_expansion.admissions):0,
+    learned_sources:(registry?.schema_version===1&&Array.isArray(registry.active)?registry.active:[])
+      .filter(x=>x.source_status==="active"&&/^[a-z][a-z0-9-]{3,55}$/.test(x.id||""))
+      .slice(0,16).map(x=>({
+       id:compact(x.id,60),name:compact(x.name,100),
+       status:(validStatus?.source_checks||[]).some(y=>y.source===x.id&&y.status==="ok")?"ok":"not_verified",
+       category:compact(x.category,45)
+      }))
+   },
    source_checks:Array.isArray(validStatus?.source_checks)?validStatus.source_checks.slice(0,24).map(x=>({
     source:compact(x.source,70),status:x.status==="ok"?"ok":"error",candidates:Number(x.candidates)||0
    })):[]},
@@ -74,12 +85,13 @@ export function projectDiscovery({status=null,request=null,candidates=null,now=D
 }
 export async function readDiscovery(env,fetcher=fetch){
  const token=safeConfig(env);
- const [status,request,candidates]=await Promise.all([
+ const [status,request,candidates,registry]=await Promise.all([
   getBlob(token,STATUS,fetcher).catch(()=>({data:null})),
   getBlob(token,REQUEST,fetcher).catch(()=>({data:null})),
-  getBlob(token,CANDIDATES,fetcher).catch(()=>({data:null}))
+  getBlob(token,CANDIDATES,fetcher).catch(()=>({data:null})),
+  getBlob(token,REGISTRY,fetcher).catch(()=>({data:null}))
  ]);
- return projectDiscovery({status:status.data,request:request.data,candidates:candidates.data});
+ return projectDiscovery({status:status.data,request:request.data,candidates:candidates.data,registry:registry.data});
 }
 export async function queueDiscovery(env,{fetcher=fetch,now=new Date().toISOString()}={}){
  const token=safeConfig(env);if(!Number.isFinite(Date.parse(now)))throw Error("Invalid request date");
