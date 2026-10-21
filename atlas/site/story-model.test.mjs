@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {groupStories,findStory,detailHref,validLink,safeImage,normalizeCoverage} from "./story-model.mjs";
+import {groupStories,topicBundles,findStory,detailHref,validLink,safeImage,normalizeCoverage} from "./story-model.mjs";
 import {readFile} from "node:fs/promises";
 const base={id:"one",story_id:"event-42",title:"A major announcement",category:"reddit",summary:"Original",source_url:"https://reddit.com/r/example",source_kind:"community",relevance:2,urgency:1,coverage:[{url:"https://www.reddit.com/r/example",label:"Real discussion",type:"community",note:"Evidence"}]};
 const official={...base,id:"two",title:"A different angle on the same event",source_url:"https://example.org/story",source_kind:"reporting",coverage:[{url:"https://example.org/story",label:"Independent coverage",type:"reporting"}]};
@@ -56,4 +56,17 @@ test("a shared topic ID does not collapse distinct events",()=>{
  assert.equal(events.length,3);
  assert.equal(events.filter(x=>x.topic_id==="reddit-platform").length,2);
  assert.equal(events[0].count,1);
+});
+
+test("home topic bundles group multiple distinct stories but preserve their separate links",()=>{
+ const input=groupStories([
+  {...base,story_id:"platform-1",topic_id:"reddit-platform"},
+  {...official,story_id:"platform-2",topic_id:"reddit-platform"},
+  {...base,id:"anime-1",story_id:"premiere",topic_id:"anime-premiere",category:"anime"}
+ ]);
+ const bundles=topicBundles(input);
+ assert.equal(bundles.length,2);
+ const reddit=bundles.find(b=>b.key==="reddit-platform");
+ assert.equal(reddit.others.length,1);
+ assert.notEqual(reddit.lead.story_id,reddit.others[0].story_id);
 });
