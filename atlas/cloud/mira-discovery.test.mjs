@@ -67,3 +67,16 @@ test("discovery inbox preserves topical diversity and demotes preprints when str
  assert.equal(selected.filter(x=>x.category==="science").length,3);
  assert.ok(!selected.some(x=>x.id==="bad"));
 });
+
+test("adaptive source list is shown from private registry, not static assumptions",()=>{
+ const registry={schema_version:1,active:[
+  {id:"new-independent-press",name:"Future publication",source_status:"active",category:"culture"},
+  {id:"inactive-source",name:"No longer used",source_status:"disabled",category:"news"}]};
+ const status={schema_version:1,component:"mira_world_radar",status:"healthy",source_checks:[
+  {source:"new-independent-press",status:"ok",candidates:1}],
+  source_expansion:{active_sources:1,admissions:1}};
+ const out=projectDiscovery({status,registry});
+ assert.equal(out.scan.source_expansion.learned_sources.length,1);
+ assert.equal(out.scan.source_expansion.learned_sources[0].name,"Future publication");
+ assert.equal(out.scan.source_expansion.learned_sources[0].status,"ok");
+});
