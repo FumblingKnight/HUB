@@ -46,4 +46,6 @@ async function recall(){
  }catch(e){status.textContent=e.message||"Memory retrieval unavailable";}
 }
 form.addEventListener("submit",e=>{e.preventDefault();recall();});
+const incoming=new URLSearchParams(location.search).get("q");
+if(incoming&&incoming.trim().length>=2&&incoming.length<=220)query.value=incoming.trim();
 recall();

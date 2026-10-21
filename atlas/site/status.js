@@ -13,7 +13,7 @@ async function load(){
   if(res.status===401){location.assign("/login");return;}
   const data=await res.json();if(!res.ok)throw Error(data.error||"Private project status unavailable");
   if(!Array.isArray(data.milestones)||!Array.isArray(data.deferred_actions))throw Error("Invalid project status data");
-  $("projectStatus").textContent=label(data.checkpoint_status).slice(0,70);
+  $("projectStatus").textContent=String(data.checkpoint_status||"").includes("operational")?"Core systems operational":label(data.checkpoint_status).slice(0,70);
   $("projectStatus").title=data.checkpoint_status;
   $("lastUpdate").textContent=data.updated_ist||"Not recorded";
   $("pendingCount").textContent=String(data.deferred_actions.length);
@@ -43,7 +43,14 @@ async function load(){
     watch.status==="healthy"?"done":(watch.status==="failed"||watch.status==="stale")?"pending":"");
   const milestones=$("milestones"),pending=$("pending"),evidence=$("evidence");
   milestones.replaceChildren();pending.replaceChildren();evidence.replaceChildren();
-  for(const m of data.milestones)addCard(milestones,m.title,label(m.status),m.status==="completed"?"done":"");
+  const milestoneText={
+   P0:"Private recovery checkpoints are ready.",
+   P1:"Cloud code recovery and event-triggered Work are tested. Native ChatGPT self-resume is not available.",
+   P2:"Private knowledge lookup is live. Automatic retrieval in every chat is not enabled.",
+   P3:"Private discovery and project pages are available. Broad World Radar is still being designed.",
+   P4:"Real code recovery and Work claim/release passed; overlapping AI jobs remain untested."
+  };
+  for(const m of data.milestones)addCard(milestones,m.title,milestoneText[m.id]||label(m.status),m.status==="completed"?"done":"");
   if(!data.deferred_actions.length)addCard(pending,"Nothing pending","No deferred user actions are recorded.");
   for(const a of data.deferred_actions)addCard(pending,a.id+" · "+a.task,a.required_now?"Needed before the next blocked operation":"Deferred — no action needed right now","pending");
   if(!data.verified?.length)addCard(evidence,"No verification records","Evidence has not yet been saved.");

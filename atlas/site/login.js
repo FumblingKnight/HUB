@@ -10,6 +10,6 @@ form.addEventListener("submit",async event=>{
   const data=await response.json();
   if(!response.ok)throw Error(data.error||"Cannot log in");
   document.getElementById("passphrase").value="";
-  location.replace("/");
+  location.replace("/home.html");
  }catch(e){status.textContent=e.message;button.disabled=false;}
 });

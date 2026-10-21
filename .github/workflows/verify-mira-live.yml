@@ -26,6 +26,10 @@ jobs:
           status_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/status.html")
           status_api=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/status")
           status_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/status.js")
+          home_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/home.html")
+          home_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/home.js")
+          home_theme=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer.css")
+          nav_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer-shell.js")
           echo "mira_html_status=$page mira_api_status=$api mira_js_status=$js login_status=$login"
           echo "memory_page_status=$memory_page memory_api_status=$memory_api memory_script_status=$memory_script"
           echo "status_page_status=$status_page status_api_status=$status_api status_script_status=$status_script"
@@ -39,5 +43,10 @@ jobs:
           test "$status_page" = "303"
           test "$status_api" = "401"
           test "$status_script" = "303"
+          echo "home_page_status=$home_page home_script_status=$home_script home_theme_status=$home_theme nav_status=$nav_script"
+          test "$home_page" = "303"
+          test "$home_script" = "303"
+          test "$home_theme" = "303"
+          test "$nav_script" = "303"
 
 # Verified with Mira health widget deployment; probes remain anonymous and read-only.
