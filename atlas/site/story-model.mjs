@@ -28,8 +28,8 @@ export function normalizeCoverage(item){
   all.push({url,label:String(entry?.label||new URL(url).hostname.replace(/^www\./,"")).slice(0,150),
     kind:type,note:String(entry?.note||"").slice(0,600)});
  };
- add({url:item.source_url,label:item.source_name||"Original report",type:item.source_kind||"official"});
  for(const s of (Array.isArray(item.coverage)?item.coverage:[]))add(s);
+ add({url:item.source_url,label:item.source_name||"Original report",type:item.source_kind||"official"});
  for(const s of (Array.isArray(item.additional_sources)?item.additional_sources:[]))add(s);
  return all;
 }
