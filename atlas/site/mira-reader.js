@@ -100,5 +100,5 @@ $("filters").addEventListener("click",e=>{
  paint();
 });
 $("search").addEventListener("input",e=>{state.query=e.target.value.trim().toLowerCase();paint();});
-$("refresh").addEventListener("click",load);
+// The discover.js component owns Search for updates; it dispatches a NEW code search.
 load();
