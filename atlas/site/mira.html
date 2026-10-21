@@ -20,7 +20,7 @@
     <button type="button" aria-pressed="false" data-category="ai">Technology</button>
     <button type="button" aria-pressed="false" data-category="opportunities">Opportunities</button>
    </div>
-   <div class="signals-tools"><label class="signals-search"><span aria-hidden="true">⌕</span><span class="sr-only">Search stories</span><input type="search" id="search" placeholder="Search stories" autocomplete="off"/></label><button type="button" id="refresh" aria-label="Refresh saved feed">↻ Refresh</button></div>
+   <div class="signals-tools"><label class="signals-search"><span aria-hidden="true">⌕</span><span class="sr-only">Search stories</span><input type="search" id="search" placeholder="Search stories" autocomplete="off"/></label><button type="button" id="refresh" aria-label="Run new public news search">↻ Search for updates</button></div>
  </div>
  <div class="signals-read-state">
   <div><strong id="total">—</strong> <span>distinct stories</span> · <span id="status" aria-live="polite" role="status">Loading verified news…</span></div>
@@ -35,5 +35,14 @@
   <div class="signals-section-top"><div><div class="eyebrow">EXPLORE</div><h2 id="more-title">More worth reading</h2></div><a href="/home.html">Back to Home ↗</a></div>
   <div id="feed" class="signals-story-grid" aria-label="Distinct source-backed stories"></div>
  </section>
- <footer class="signals-foot">Sources are linked and attributed. Community posts are opinions or observations, not verification. Outdated opportunities are archived rather than shown as current.</footer>
-</main><script type="module" src="/mira-reader.js"></script></body></html>
+ <section class="radar-section" aria-labelledby="radar-heading">
+ <div class="signals-section-top">
+  <div><div class="eyebrow">LIVE DISCOVERY / NOT YET VERIFIED</div><h2 id="radar-heading">New leads from the world</h2></div>
+  <span id="radar-health" class="radar-health">Reading collector status…</span>
+ </div>
+ <p id="radar-status" class="radar-caption" role="status" aria-live="polite">Code-driven search results will appear here, separate from Mira's checked stories.</p>
+ <div id="radar-leads" class="radar-grid"></div>
+ <p class="radar-disclaimer">These are links found by code, not AI-reviewed reporting. Check original publishers before trusting a claim. Mira's scheduled editorial check is separate.</p>
+</section>
+<footer class="signals-foot">Sources are linked and attributed. Community posts are opinions or observations, not verification. Outdated opportunities are archived rather than shown as current.</footer>
+</main><script type="module" src="/mira-reader.js"></script><script type="module" src="/discovery.js"></script></body></html>

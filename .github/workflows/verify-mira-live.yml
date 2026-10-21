@@ -31,6 +31,8 @@ jobs:
           home_theme=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer.css")
           nav_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/viewer-shell.js")
           story_page=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story.html")
+          discovery_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/discovery.js")
+          discovery_get=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/mira/discover")
           story_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story.js")
           story_model=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/story-model.mjs")
           reader_script=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "$base/mira-reader.js")
@@ -55,6 +57,9 @@ jobs:
           test "$nav_script" = "303"
           echo "story=$story_page story_js=$story_script model=$story_model reader=$reader_script style=$story_style"
           test "$story_page" = "303"
+          echo "radar_script=$discovery_script radar_api_anonymous=$discovery_get"
+          test "$discovery_script" = "303"
+          test "$discovery_get" = "401"
           test "$story_script" = "303"
           test "$story_model" = "303"
           test "$reader_script" = "303"

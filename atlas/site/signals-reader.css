@@ -74,3 +74,18 @@ body.viewer-ui .topic-sibling:hover{background:#343648}
 @media(max-width:720px){.topic-bundle{align-items:stretch;flex-direction:column}.topic-bundle-caption{padding-left:3px}}
 
 .topic-bundle[hidden],.signals-feature-area[hidden]{display:none!important}
+
+/* Distinguish freshly collected unverified leads from editor-reviewed stories. */
+.radar-section{border-top:1px solid #ffffff16;margin-top:38px;padding-top:32px}
+.radar-section .signals-section-top{align-items:center}
+.radar-health{font-size:12px;color:#abb5bb;max-width:200px;text-align:right}
+.radar-caption{font-size:13px;color:#a5a6b4;line-height:1.65;margin:6px 0 21px}
+.radar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.radar-lead{padding:19px 21px;background:#181920;border:1px solid #ffffff15;border-radius:17px;display:flex;flex-direction:column;gap:11px;min-width:0}
+.radar-lead-top{display:flex;justify-content:space-between;gap:9px;font-size:11px;color:#a7a9b7}
+.radar-lead-top span:first-child{color:#c7c5e9;font-weight:670}
+.radar-lead h3{font-size:17px;font-weight:660;letter-spacing:-.025em;line-height:1.35;margin:0;color:#e6e6ee}
+.radar-lead p{font-size:12px;color:#9fa1ac;line-height:1.58;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body.viewer-ui .radar-lead-link{font-size:12px;font-weight:670;color:#c2c4f0!important;margin-top:auto}
+.radar-disclaimer{font-size:12px;color:#8c8e99;line-height:1.65;margin:19px 0 0}
+@media(max-width:680px){.radar-grid{grid-template-columns:1fr}.radar-section .signals-section-top{align-items:flex-start;flex-direction:column;gap:7px}.radar-health{text-align:left}}
