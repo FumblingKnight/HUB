@@ -1,6 +1,7 @@
 import {reconcile,validateVault} from "../core.mjs";
 import {searchVaultContext} from "../retrieve-context.mjs";
 import {readMiraSignals} from "./mira-signals.mjs";
+import {readDiscovery,queueDiscovery} from "./mira-discovery.mjs";
 import {readMiraProjectStatus} from "./mira-status.mjs";
 import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
 import {isAuthConfigured,passwordMatches,issueSession,verifySession,expiredSession} from "./session.mjs";
@@ -57,6 +58,15 @@ async function api(req,env,url){
   return json(await readMiraProjectStatus(env));
  if(url.pathname==="/api/mira/signals"&&req.method==="GET")
   return json(await readMiraSignals(env));
+ if(url.pathname==="/api/mira/discover"&&req.method==="GET")
+  return json(await readDiscovery(env));
+ if(url.pathname==="/api/mira/discover"&&req.method==="POST"){
+  if(req.headers.get("origin")!==url.origin)return error("Cross-origin discovery request blocked",403);
+  if(!req.headers.get("content-type")?.startsWith("application/json"))return error("JSON required",415);
+  if(Number(req.headers.get("content-length")||0)>256)return error("Request too large",413);
+  if((await req.text()).length>256)return error("Request too large",413);
+  return json(await queueDiscovery(env),202);
+ }
  if(url.pathname==="/api/config"&&req.method==="GET")
   return json({mediaEnabled:true,mediaBackend:"private-github",vaultConnected:true,limitImageBytes:MAX_IMAGE_BYTES});
  const media=await mediaEndpoint({request:req,env,url,readVault,editVault,json,error});
