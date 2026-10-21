@@ -33,7 +33,8 @@ export async function readMiraSignals(env,fetcher=fetch){
   const imageUrl=image&&new URL(image).hostname==='i.ytimg.com'&&/^\/vi\/[a-zA-Z0-9_-]{11}\/(hqdefault|maxresdefault|mqdefault)\.jpg$/.test(new URL(image).pathname)?image:null;
   const bulletList=Array.isArray(item.key_points)?item.key_points.slice(0,8).map(x=>String(x).slice(0,350)):[];
   return {id:item.id.slice(0,140),story_id:/^[a-z0-9][a-z0-9_-]{1,139}$/i.test(String(item.story_id||''))?item.story_id:item.id.slice(0,140),
-    source_kind:['official','reporting','community','other'].includes(item.source_kind)?item.source_kind:'official',
+    topic_id:/^[a-z0-9][a-z0-9_-]{1,139}$/i.test(String(item.topic_id||''))?item.topic_id:null,
+    source_kind:['official','reporting','community','other'].includes(item.source_kind)?item.source_kind :'other',
     coverage:cleanCoverage,additional_sources:extra,key_points:bulletList,
     why_it_matters:String(item.why_it_matters||'').slice(0,1500),
     background:String(item.background||'').slice(0,2400),
