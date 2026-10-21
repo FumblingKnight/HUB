@@ -1,4 +1,4 @@
-import {findStory,validLink,safeImage} from "./story-model.mjs";
+import {findStory,groupStories,detailHref,validLink,safeImage} from "./story-model.mjs";
 const $=id=>document.getElementById(id);
 const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=String(value);return el;};
 const date=s=>{
@@ -21,7 +21,7 @@ function linkRow(entry){
  a.append(make("span","story-source-go","↗"));
  return a;
 }
-function loadArticle(story){
+function loadArticle(story,neighbors=[]){
  document.title=story.title+" — Mira Signals";
  const label=String(story.category||"Discovery").replace(/^./,x=>x.toUpperCase());
  setText("story-eyebrow",label+" / "+(story.ended?"PAST EVENT":"THE CURRENT RECORD"));
@@ -43,6 +43,14 @@ function loadArticle(story){
  for(const p of points.slice(0,8))$("story-points").append(make("li","",p));
  if(story.why_it_matters){$("story-why-panel").hidden=false;setText("story-why",story.why_it_matters);}
  if(story.background){$("story-background-panel").hidden=false;setText("story-background",story.background);}
+ if(neighbors.length){
+  $("story-neighbors-panel").hidden=false;
+  for(const other of neighbors){
+   const a=make("a","story-source-row");a.href=detailHref(other.story_id);
+   a.append(make("span","story-source-label",other.title),make("span","story-source-desc","Separate event in "+String(other.category||"this topic")),make("span","story-source-go","↗"));
+   $("story-neighbors").append(a);
+  }
+ }
  const official=story.coverage.filter(x=>x.kind==="official");
  const community=story.coverage.filter(x=>x.kind==="community");
  const related=story.coverage.filter(x=>x.kind==="reporting"||x.kind==="other");
@@ -71,7 +79,8 @@ async function start(){
   const data=await response.json();
   const story=findStory(data.items,id);
   if(!story)throw Error("This story is no longer in the saved archive.");
-  loadArticle(story);
+  const peers=story.topic_id?groupStories(data.items).filter(x=>x.topic_id===story.topic_id&&x.story_id!==story.story_id):[];
+  loadArticle(story,peers);
  }catch(e){$("story-status").textContent=e.message||"Unable to open story";}
 }
 start();
