@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c10"><meta name="description" content="Your private Mira dashboard: curated discoveries, memory, and project progress.">
+<title>Mira — Your space</title>
+<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/viewer.css"><link rel="stylesheet" href="/home.css">
+<script src="/viewer-shell.js" defer></script>
+</head><body>
+<div class="ambient" aria-hidden="true"></div>
+<main class="content home-content" id="main">
+ <div class="home-topline"><span class="home-privacy"><span class="home-live-dot" aria-hidden="true"></span> Personal workspace</span><span id="today" class="home-date"></span></div>
+ <section class="home-hero" aria-label="Mira overview">
+   <div class="home-eyebrow">GOOD TO SEE YOU</div>
+   <h1>Your world,<br><span>at a glance.</span></h1>
+   <p>Discoveries worth your attention. Your knowledge close at hand. The projects moving forward, without the noise.</p>
+   <a class="home-primary" href="/mira.html">Explore your Signals <span aria-hidden="true">↗</span></a>
+ </section>
+ <section class="home-section" aria-labelledby="featured-heading">
+   <div class="home-section-top">
+    <div><p class="home-overline">01 / THE BRIEFING</p><h2 id="featured-heading">Worth your attention</h2></div>
+    <a class="home-more" href="/mira.html">View all discoveries <span aria-hidden="true">↗</span></a>
+   </div>
+   <p id="briefing-status" class="home-feed-status" role="status" aria-live="polite">Reading your private Signals feed…</p>
+   <div class="home-discoveries" id="briefing-list" aria-label="Curated discoveries"></div>
+ </section>
+ <section class="home-section" aria-labelledby="shortcuts-heading">
+  <div class="home-section-top">
+   <div><p class="home-overline">02 / YOUR LIBRARY</p><h2 id="shortcuts-heading">Pick up anywhere.</h2></div>
+  </div>
+  <div class="home-doors">
+    <a href="/context.html" class="home-door">
+      <span class="home-door-symbol" aria-hidden="true">▤</span>
+      <span class="home-door-title">Memory</span>
+      <span class="home-door-note">Find something you know, with its original context.</span>
+      <span class="home-door-arrow" aria-hidden="true">↗</span>
+    </a>
+    <a href="/" class="home-door">
+      <span class="home-door-symbol" aria-hidden="true">▦</span>
+      <span class="home-door-title">Knowledge library</span>
+      <span class="home-door-note">Browse connections, ideas, and sources.</span>
+      <span class="home-door-arrow" aria-hidden="true">↗</span>
+    </a>
+    <a href="/status.html" class="home-door">
+      <span class="home-door-symbol" aria-hidden="true">◫</span>
+      <span class="home-door-title">Project Mira</span>
+      <span class="home-door-note">See verified progress and anything needing attention.</span>
+      <span class="home-door-arrow" aria-hidden="true">↗</span>
+    </a>
+  </div>
+ </section>
+ <section class="home-bottom" aria-label="System context">
+  <div class="home-bottom-heading"><span class="home-overline">A QUIET CHECK-IN</span><h2>Things are moving.</h2><p id="project-note">Checking your most recent project checkpoint…</p></div>
+  <div class="home-indicators">
+   <div><span class="home-indicator-label">Cloud watch</span><span id="cloud-watch">Checking…</span></div>
+   <div><span class="home-indicator-label">Work ownership</span><span id="work-state">Checking…</span></div>
+   <div><span class="home-indicator-label">Pending actions</span><span id="actions-count">—</span></div>
+  </div>
+ </section>
+ <footer>Only verified saved data is shown. Open <a href="/status.html">Project Status</a> for evidence and freshness details. <span class="home-signature">Made for you, by Mira.</span></footer>
+</main>
+<script type="module" src="/home.js"></script>
+</body></html>
