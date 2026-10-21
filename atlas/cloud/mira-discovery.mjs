@@ -21,6 +21,28 @@ async function getBlob(token,path,fetcher){
  data=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));}catch{throw Error("Radar metadata malformed");}
  return {sha:item.sha,data};
 }
+// An unreviewed discovery inbox, not a recommendation engine. Show a cross-topic
+// sample rather than the first twelve RSS entries from one publisher.
+export function selectDiverseLeads(items,limit=12){
+ const base=items.filter(x=>x.status==="unreviewed"&&safeUrl(x.source_url))
+  .map(x=>{
+   const title=String(x.title||"").toLowerCase();
+   const heuristic=/critical|security|compromis|breach|exploit|vulnerab|credential|urgent/.test(title)?30:0;
+   const score=Number.isFinite(Number(x.priority_hint))?Number(x.priority_hint):38+heuristic-(x.source_id?.includes("arxiv")?15:0);
+   return {...x,display_priority:Math.max(0,Math.min(100,score))};
+  }).sort((a,b)=>b.display_priority-a.display_priority||
+   Date.parse(b.published_at||0)-Date.parse(a.published_at||0));
+ const countCat=new Map(),countSrc=new Map(),picked=[];
+ const accept=(x,catLimit,srcLimit)=>{
+  if(picked.includes(x)||(countCat.get(x.category)||0)>=catLimit||(countSrc.get(x.source_id)||0)>=srcLimit)return false;
+  picked.push(x);countCat.set(x.category,(countCat.get(x.category)||0)+1);
+  countSrc.set(x.source_id,(countSrc.get(x.source_id)||0)+1);return true;
+ };
+ // One strong lead from as many categories as possible, then additional leads.
+ for(const x of base)if(!countCat.has(x.category))accept(x,1,2);
+ for(const x of base){if(picked.length>=limit)break;accept(x,3,3);}
+ return picked.slice(0,limit);
+}
 export function projectDiscovery({status=null,request=null,candidates=null,now=Date.now()}={}){
  const validStatus=status?.schema_version===1&&status?.component==="mira_world_radar"&&
   ["healthy","degraded","failed"].includes(status.status)?status:null;
@@ -36,15 +58,16 @@ export function projectDiscovery({status=null,request=null,candidates=null,now=D
    sources_total:Number.isInteger(validStatus?.sources_total)?validStatus.sources_total:null,
    new_candidates:Number.isInteger(validStatus?.new_candidates)?validStatus.new_candidates:null,
    total_candidates:Number.isInteger(validStatus?.total_candidates)?validStatus.total_candidates:null,
-   source_checks:Array.isArray(validStatus?.source_checks)?validStatus.source_checks.slice(0,10).map(x=>({
+   source_checks:Array.isArray(validStatus?.source_checks)?validStatus.source_checks.slice(0,24).map(x=>({
     source:compact(x.source,70),status:x.status==="ok"?"ok":"error",candidates:Number(x.candidates)||0
    })):[]},
    refresh:{requested_at:requestAt,pending,request_id:validRequest?.request_id||null},
    // This is a SOURCE LEAD inbox, not a curated/fact-checked news feed.
-   leads:items.slice(0,70).filter(x=>x.status==="unreviewed"&&safeUrl(x.source_url)).slice(0,24).map(x=>({
+   leads:selectDiverseLeads(items,12).map(x=>({
     id:compact(x.id,120),title:compact(x.title,240),summary:compact(x.summary,380),
     category:compact(x.category,45),source_name:compact(x.source_name,90),
     source_url:safeUrl(x.source_url),published_at:compact(x.published_at,45),
+    priority_hint:x.display_priority,triage_kind:"code heuristic only — NOT AI verified",
     confidence:"Unreviewed lead — verify original reporting"
    }))
  };

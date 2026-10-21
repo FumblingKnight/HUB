@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {projectDiscovery,queueDiscovery,readDiscovery} from "./mira-discovery.mjs";
+import {projectDiscovery,selectDiverseLeads,queueDiscovery,readDiscovery} from "./mira-discovery.mjs";
 import worker from "./worker.mjs";
 const env={ATLAS_REPOSITORY:"FumblingKnight/Sajo-Atlas",ATLAS_GITHUB_TOKEN:"mock"};
 function makeBlob(data){const content=JSON.stringify(data);return {sha:"current-sha",size:content.length,encoding:"base64",content:Buffer.from(content).toString("base64")};}
@@ -53,4 +53,17 @@ test("anonymous POST and GET discovery remain blocked by original ATLAS auth",as
   const res=await worker.fetch(req,{ATLAS_LOGIN_PASSPHRASE:"LongValidSecretPassphraseABC123!"});
   assert.equal(res.status,401);
  }
+});
+
+test("discovery inbox preserves topical diversity and demotes preprints when stronger news is available",()=>{
+ const items=[
+  ...Array.from({length:10},(_,i)=>({id:"s"+i,category:"science",source_id:"science-arxiv",title:"Preprint "+i,source_url:"https://arxiv.org/abs/"+i,status:"unreviewed",priority_hint:20,published_at:"2026-10-21T11:00:00Z"})),
+  {id:"php",category:"technology",source_id:"technology-hn",title:"PHP critical security release",source_url:"https://php.net",status:"unreviewed",priority_hint:75,published_at:"2026-10-21T12:00:00Z"},
+  {id:"culture",category:"culture",source_id:"culture-news",title:"New artistic exhibition",source_url:"https://example.org",status:"unreviewed",priority_hint:45,published_at:"2026-10-21T12:00:00Z"},
+  {id:"bad",category:"world",source_id:"unknown",title:"Invalid",source_url:"javascript:alert(1)",status:"unreviewed"}];
+ const selected=selectDiverseLeads(items);
+ assert.equal(selected[0].id,"php");
+ assert.ok(selected.some(x=>x.category==="culture"));
+ assert.equal(selected.filter(x=>x.category==="science").length,3);
+ assert.ok(!selected.some(x=>x.id==="bad"));
 });
