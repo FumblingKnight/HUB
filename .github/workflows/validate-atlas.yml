@@ -28,6 +28,10 @@ jobs:
       - run: node --check atlas/site/login.js
       - run: node --test atlas/site/viewer-ui.test.mjs
       - run: node --check atlas/site/mira.js
+      - run: node --check atlas/site/mira-reader.js
+      - run: node --check atlas/site/story.js
+      - run: node --check atlas/site/story-model.mjs
+      - run: node --test atlas/site/story-model.test.mjs
       - run: node --check atlas/site/context.js
       - run: node --check atlas/site/status.js
       - run: node --check atlas/cloud/mira-status.mjs

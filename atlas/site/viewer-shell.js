@@ -23,7 +23,7 @@
   const nav=document.createElement('nav');nav.className='mira-nav';nav.setAttribute('aria-label','Mira sections');
   for (const item of destinations) {
     const a=document.createElement('a');a.href=item.href;a.className='mira-nav-item';
-    if ((item.tag==='library'&&landing)||(item.tag!=='library'&&path===item.href)) {a.setAttribute('aria-current','page');a.classList.add('selected');}
+    if ((item.tag==='library'&&landing)||(item.tag==='signals'&&path==='/story.html')||(item.tag!=='library'&&path===item.href)) {a.setAttribute('aria-current','page');a.classList.add('selected');}
     const shape=document.createElement('span');shape.className='mira-nav-shape mira-nav-'+item.tag;shape.setAttribute('aria-hidden','true');
     shape.textContent={home:'⌂',signals:'✦',memory:'▤',project:'◫',library:'▦'}[item.tag];
     const label=document.createElement('span');label.textContent=item.label;a.append(shape,label);nav.append(a);

@@ -1,0 +1,65 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c10"><title>Mira — Story and sources</title>
+<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/viewer.css">
+<link rel="stylesheet" href="/signals-reader.css"><link rel="stylesheet" href="/story-page.css">
+<script src="/viewer-shell.js" defer></script></head>
+<body><div class="ambient" aria-hidden="true"></div>
+<main class="content story-page">
+ <a class="story-back" href="/mira.html">← Back to Signals</a>
+ <div id="story-status" role="status" aria-live="polite">Opening saved story…</div>
+ <article id="story-article" aria-label="Story details" hidden>
+   <header class="story-hero">
+    <div class="story-hero-body">
+     <div id="story-eyebrow" class="story-label"></div>
+     <h1 id="story-title"></h1>
+     <p class="story-deck" id="story-deck"></p>
+     <div id="story-byline" class="story-byline"></div>
+     <a id="story-primary" class="story-primary" href="#" rel="noopener noreferrer" target="_blank">Read the original announcement ↗</a>
+    </div>
+    <div id="story-image-host" class="story-hero-media"></div>
+   </header>
+   <div class="story-columns">
+    <div class="story-main">
+     <section class="story-panel" id="story-facts-panel">
+      <div class="story-section-caption">THE BRIEF</div><h2>What happened</h2>
+      <ul id="story-points" class="story-points"></ul>
+     </section>
+     <section class="story-panel" id="story-why-panel" hidden>
+      <div class="story-section-caption">YOUR CONTEXT</div><h2>Why it matters</h2><p id="story-why"></p>
+     </section>
+     <section class="story-panel" id="story-background-panel" hidden>
+      <div class="story-section-caption">ZOOM OUT</div><h2>The bigger picture</h2><p id="story-background"></p>
+     </section>
+     <section class="story-panel" id="story-community-panel" hidden>
+      <div class="story-section-caption">WHAT PEOPLE ARE SAYING</div><h2>Community perspectives</h2>
+      <p id="story-community-note"></p><div id="community-links" class="story-links"></div>
+      <p class="story-disclaimer">Discussion links reflect community observations and opinions, not independent confirmation.</p>
+     </section>
+     <section class="story-panel" id="story-neighbors-panel" hidden>
+      <div class="story-section-caption">ALSO IN THIS TOPIC</div><h2>Related developments</h2>
+      <div id="story-neighbors" class="story-links"></div>
+     </section>
+     <section class="story-panel" id="story-related-panel" hidden>
+      <div class="story-section-caption">MORE COVERAGE</div><h2>Other reporting &amp; useful links</h2>
+      <div id="story-related-links" class="story-links"></div>
+     </section>
+    </div>
+    <aside class="story-aside" aria-label="Evidence and context">
+     <div class="story-aside-panel">
+      <div class="story-section-caption">SOURCE FILE</div>
+      <h2>Start with the evidence.</h2>
+      <p id="story-evidence-note"></p>
+      <div id="story-sources" class="story-links"></div>
+      <dl class="story-attributes"><div><dt>First reported</dt><dd id="story-published">Not recorded</dd></div>
+       <div><dt>Event date</dt><dd id="story-date">Not recorded</dd></div>
+       <div><dt>Confidence</dt><dd id="story-confidence">Not established</dd></div>
+       <div><dt>Availability</dt><dd id="story-availability">Check original</dd></div>
+      </dl>
+     </div>
+    </aside>
+   </div>
+   <footer>Built from saved, source-linked records. This is a curated briefing, not the full text of any publisher's article. <a href="/mira.html">All Signals ↗</a></footer>
+ </article>
+</main>
+<script type="module" src="/story.js"></script></body></html>

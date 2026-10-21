@@ -1,3 +1,4 @@
+import {groupStories,topicBundles,detailHref,safeImage} from "./story-model.mjs";
 // Read-only Mira Home. No assumed fresh news, no raw personal records, no hidden background actions.
 const byId=id=>document.getElementById(id);
 const node=(name,cls,content)=>{const n=document.createElement(name);if(cls)n.className=cls;if(content!==undefined)n.textContent=String(content);return n;};
@@ -17,16 +18,29 @@ function freshItems(data){
     (Number(b.relevance)||0)-(Number(a.relevance)||0)||
     String(b.discovered_ist||"").localeCompare(String(a.discovered_ist||"")));
 }
-function story(item,i){
+function story(item,related=[]){
  const card=node("article","home-story"),meta=node("div","home-story-meta");
  const category=String(item.category||"Discovery").replace(/_/g," ");
  const time=item.source_date||item.discovered_ist||"";
  meta.append(node("span","",category.charAt(0).toUpperCase()+category.slice(1)));
  if(item.urgency>=2)meta.append(node("span","","Time-sensitive"));
  if(time)meta.append(node("span","home-story-date",time));
+ if(item.image_url&&safeImage(item.image_url)){
+  const media=node("a","home-story-media");media.href=detailHref(item.story_id);
+  const img=node("img");img.src=safeImage(item.image_url);img.alt=item.image_alt||"Official related media";img.loading="lazy";img.referrerPolicy="no-referrer";
+  media.append(img);card.append(media);
+ }
  card.append(meta,node("div","home-story-title",item.title),node("p","home-story-desc",item.summary||""));
- const action=node("a","home-story-action","Read original source ↗");
- action.href=verifiedUrl(item.source_url);action.rel="noopener noreferrer";action.target="_blank";
+ if(related.length){
+  const group=node("div","home-story-related");
+  group.append(node("span","home-related-label","ALSO IN "+category.toUpperCase()));
+  for(const other of related){
+   const link=node("a","home-related-link",other.title+" ↗");link.href=detailHref(other.story_id);group.append(link);
+  }
+  card.append(group);
+ }
+ const action=node("a","home-story-action","Read story · "+item.coverage.length+" sources ↗");
+ action.href=detailHref(item.story_id);
  card.append(action);
  return card;
 }
@@ -36,7 +50,7 @@ async function loadBriefing(){
   const response=await fetch("/api/mira/signals",{credentials:"same-origin",cache:"no-store"});
   if(response.status===401){location.assign("/login");return;}
   if(!response.ok)throw Error("Feed temporarily unavailable");
-  const data=await response.json(),items=freshItems(data);
+  const data=await response.json(),items=freshItems({...data,items:groupStories(data.items)});
   container.replaceChildren();
   const date=data.updated_ist||"not recorded";
   if(items.length===0){
@@ -46,8 +60,9 @@ async function loadBriefing(){
    summary.textContent="Latest saved feed: "+date+" · No current verified highlights";
    return;
   }
-  for(const item of items.slice(0,3))container.append(story(item));
-  summary.textContent=items.length+" current saved "+(items.length===1?"discovery":"discoveries")+" · Feed last updated "+date+". Not a live news search.";
+  const bundles=topicBundles(items);
+  for(const bundle of bundles.slice(0,3))container.append(story(bundle.lead,bundle.others));
+  summary.textContent=bundles.length+" topics · "+items.length+" distinct current "+(items.length===1?"story":"stories")+" · Saved feed updated "+date+". Not a live news search.";
  }catch(e){
   const empty=node("div","home-feed-empty");
   empty.append(node("h3","","Unable to load the private feed."),node("p","","Your saved discoveries are still available when the connection returns."));

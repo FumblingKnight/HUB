@@ -108,7 +108,7 @@ function shield(result){
  headers.set("referrer-policy","no-referrer");
  headers.set("x-frame-options","DENY");
  headers.set("content-security-policy",
-  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
  return new Response(result.body,{status:result.status,statusText:result.statusText,headers});
 }
 export default {async fetch(req,env){
