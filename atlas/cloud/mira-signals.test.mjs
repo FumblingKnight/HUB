@@ -31,7 +31,7 @@ test('invalid expiry metadata does not become a valid deadline',async()=>{
 });
 
 test("curated deep-dive fields are projected safely with explicit story cluster identity",async()=>{
- const value={...base.items[0],story_id:"event-canonical",source_kind:"official",
+ const value={...base.items[0],story_id:"event-canonical",topic_id:"reddit-platform",source_kind:"official",
   image_url:"https://i.ytimg.com/vi/IBTK8PGe_Oo/hqdefault.jpg",
   coverage:[{url:"https://www.reddit.com/r/example",label:"Community conversation",type:"community",note:"Unverified user reactions"},
     {url:"javascript:alert(1)",label:"Attack",type:"official"}],
@@ -40,7 +40,7 @@ test("curated deep-dive fields are projected safely with explicit story cluster 
   why_it_matters:"Project relevance",background:"Earlier changes and context",community_note:"Opinions differ"};
  const res=await readMiraSignals(env,mock({...base,items:[value]}));
  const item=res.items[0];
- assert.equal(item.story_id,"event-canonical");assert.equal(item.coverage.length,1);
+ assert.equal(item.story_id,"event-canonical");assert.equal(item.topic_id,"reddit-platform");assert.equal(item.coverage.length,1);
  assert.equal(item.coverage[0].type,"community");assert.equal(item.additional_sources.length,1);
  assert.equal(item.image_url,value.image_url);assert.equal(item.key_points.length,2);
  assert.equal(item.why_it_matters,"Project relevance");
