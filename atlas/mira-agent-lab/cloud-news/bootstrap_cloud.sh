@@ -116,15 +116,30 @@ dispatch_and_wait() {
   gh run watch "$id" -R "$HUB_REPO" --exit-status
 }
 
-echo "[7/7] Running cloud acceptance: auth, hourly, then premium morning."
+echo "[7/8] Running cloud acceptance: auth, hourly, then premium morning."
 dispatch_and_wait auth-check
 dispatch_and_wait hourly
 dispatch_and_wait morning
 
 echo "All cloud acceptance runs passed."
+echo "[8/8] Cutting over from Mac scheduling to GitHub Actions."
+# Pause only after every cloud acceptance run succeeded. A pause failure stops here,
+# leaving the GitHub schedule disabled so two writers never compete for current.json.
+for job in eceb21ddbc4b ce1a79bbcff4 59135974381b; do
+  if hermes cron list --all | grep -Fq "$job [active]"; then
+    hermes cron pause "$job"
+  fi
+done
+for job in eceb21ddbc4b ce1a79bbcff4 59135974381b; do
+  if hermes cron list --all | grep -Fq "$job [active]"; then
+    echo "Local Hermes job $job is still active; refusing to arm cloud schedules." >&2
+    exit 8
+  fi
+done
+
 gh variable set MIRA_NEWSPAPER_CLOUD_ENABLED -R "$HUB_REPO" --body true
-echo "Scheduled cloud editor ENABLED."
+echo "Scheduled cloud editor ENABLED; old Mac newspaper writers are paused."
 echo "Cloud newspaper: https://sajo-atlas.thefumblingknight.workers.dev/newspaper.html"
 echo
-echo "The old Mac jobs are intentionally left active until their cloud replacements are verified in the live page."
+echo "Rollback if ever needed: set MIRA_NEWSPAPER_CLOUD_ENABLED=false, then resume the three Mac jobs."
 echo "Return to ChatGPT and say: cloud bootstrap passed"

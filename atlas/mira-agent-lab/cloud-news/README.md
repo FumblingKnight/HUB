@@ -58,7 +58,7 @@ After this code is merged to `main`, run on the owner Mac:
 bash atlas/mira-agent-lab/cloud-news/bootstrap_cloud.sh
 ```
 
-The script keeps schedules disabled until it has: configured a write deploy key, stored the OAuth-encryption key in macOS Keychain and GitHub Actions, optionally configured the Discord bot, created a **dedicated** Codex OAuth identity in a separate Hermes home, encrypted that auth state into the private repository, and passed `auth-check`, `hourly`, and `morning` cloud workflow runs.
+The script keeps schedules disabled until it has: configured a write deploy key, stored the OAuth-encryption key in macOS Keychain and GitHub Actions, optionally configured the Discord bot, created a **dedicated** Codex OAuth identity in a separate Hermes home, encrypted that auth state into the private repository, and passed `auth-check`, `hourly`, and `morning` cloud workflow runs. Only then does it pause the three old Mac newspaper writer jobs and arm the cloud schedule, preventing two writers from competing for `current.json`.
 
 It deliberately never copies the ordinary Mac `~/.hermes/auth.json` into CI.
 
