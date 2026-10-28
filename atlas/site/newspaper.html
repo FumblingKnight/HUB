@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira / The Observer</title><meta name="theme-color" content="#f3f0e9">
+<link rel="stylesheet" href="/newspaper.css"></head><body><div class="shell">
+<header><div class="mast-top"><span>Private newspaper • Curated by an AI editor</span><span><i class="live-dot"></i><span id="top-status">Connecting to newsroom</span></span></div>
+<div class="mast"><div class="mast-left"><a href="/home.html">← Mira Home</a><br>An independent journal<br>of unexpected discoveries</div><h1>mira<em>.</em></h1><div class="mast-right">Read widely.<br>Think deeply.<br>Miss less.</div></div>
+<nav class="nav" aria-label="Newspaper sections"><button class="tab selected" data-tab="morning">Morning edition</button><button class="tab" data-tab="live">Live desk</button><button class="tab" data-tab="following">Following</button><button class="tab" data-tab="discover">Offbeat</button><button class="tab" data-tab="sources">The wire</button><div class="nav-right"><span id="nav-day"></span><button id="refresh">↻ Update</button></div></nav></header>
+<section class="page-intro"><div><div class="kicker" id="eyebrow">An edition made for curiosity</div><h2 id="page-title">The morning paper.</h2></div><p id="page-subtitle">One considered briefing a day, with thoughtful context. Between editions, the live desk watches what changes.</p></section>
+<div class="content-grid"><div class="column-main">
+<section id="morning-view" class="view"><div id="morning-content"></div></section>
+<section id="live-view" class="view" hidden><div class="section-title"><h3>What has changed</h3><span id="live-sub">Verified links and developing threads</span></div><div class="filterrow" id="live-filters"><button class="filter on" data-filter="all">All stories</button><button class="filter" data-filter="core">Your interests</button><button class="filter" data-filter="adjacent">Adjacent</button><button class="filter" data-filter="wildcard">Unexpected</button><button class="filter" data-filter="liked">Liked</button><button class="filter" data-filter="hidden">Hidden</button></div><div id="live-stories"></div></section>
+<section id="following-view" class="view" hidden><div class="section-title"><h3>Your watchlist</h3><span>Follow an unfolding story, not another recycled headline</span></div><div id="follow-stories"></div></section>
+<section id="discover-view" class="view" hidden><div class="section-title"><h3>The surprising stuff</h3><span>Curiosity beyond your usual subjects</span></div><div id="discover-stories"></div></section>
+<section id="sources-view" class="view" hidden><div class="section-title"><h3>From the wire</h3><span>Raw publisher feed items, before AI curation</span></div><div id="full-wire"></div></section>
+</div><aside class="sidebar">
+<section class="sidebox dark"><span class="kicker">THE NEWSROOM</span><h3>Always reading.<br>Never shouting.</h3><p>The hourly scanner tracks developing stories. The morning editor connects the dots.</p><div class="stat"><span>Hourly rounds completed</span><b id="scan-count">0</b></div><div class="stat"><span>Curated stories</span><b id="story-count">0</b></div><div class="stat"><span>Next hourly check</span><b id="next-scan">—</b></div><div class="stat"><span>Next morning issue</span><b id="next-morning">—</b></div></section>
+<section class="sidebox"><span class="kicker">THE WATCH DESK</span><h3>In development</h3><div id="watch-desk" class="tiny-list"></div></section>
+<section class="sidebox"><span class="kicker">IN THE PIPELINE</span><h3>Fresh sources</h3><div id="wire-mini"></div><button class="action" id="wire-link" style="margin-top:15px">Open entire wire ↗</button></section>
+<section class="sidebox"><span class="kicker">EDITOR'S POLICY</span><h3>Signal before noise.</h3><p>Interesting does not always mean urgent. Only truly exceptional, independently supported developments qualify for Discord alerts.</p><p>Discord delivery is not connected yet. This edition is privately mirrored on Cloudflare.</p></section>
+</aside></div>
+<footer class="site-footer"><span>Mira / The Observer · A private Cloudflare-hosted newspaper · Not a substitute for original reporting</span><span id="bottom-status">Waiting for the newsroom</span></footer>
+</div>
+<script defer src="/newspaper.js"></script></body></html>

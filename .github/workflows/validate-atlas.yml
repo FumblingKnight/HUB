@@ -41,6 +41,9 @@ jobs:
       - run: node --test atlas/cloud/mira-health.test.mjs
       - run: node --test atlas/cloud/mira-status.test.mjs
       - run: node --check atlas/cloud/mira-signals.mjs
+      - run: node --check atlas/cloud/mira-newspaper.mjs
+      - run: node --check atlas/site/newspaper.js
+      - run: node --test atlas/cloud/mira-newspaper.test.mjs
       - run: node --check atlas/cloud/mira-discovery.mjs
       - run: node --test atlas/cloud/mira-discovery.test.mjs
       - run: node --check atlas/site/discovery.js

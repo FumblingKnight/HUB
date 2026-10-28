@@ -1,3 +1,4 @@
+import {readNewspaper,updateNewspaperFeedback} from "./mira-newspaper.mjs";
 import {reconcile,validateVault} from "../core.mjs";
 import {searchVaultContext} from "../retrieve-context.mjs";
 import {readMiraSignals} from "./mira-signals.mjs";
@@ -58,6 +59,10 @@ async function api(req,env,url){
   return json(await readMiraProjectStatus(env));
  if(url.pathname==="/api/mira/signals"&&req.method==="GET")
   return json(await readMiraSignals(env));
+ if(url.pathname==="/api/mira/newspaper"&&req.method==="GET")
+  return json(await readNewspaper(env));
+ if(url.pathname==="/api/mira/newspaper/feedback"&&req.method==="POST")
+  return await updateNewspaperFeedback(req,env,url);
  if(url.pathname==="/api/mira/discover"&&req.method==="GET")
   return json(await readDiscovery(env));
  if(url.pathname==="/api/mira/discover"&&req.method==="POST"){
