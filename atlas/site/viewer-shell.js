@@ -5,6 +5,7 @@
   const landing = path === '/' || path === '/index.html';
   const destinations = [
     {label:'Home',href:'/home.html',tag:'home'},
+    {label:'Newspaper',href:'/newspaper.html',tag:'newspaper'},
     {label:'Signals',href:'/mira.html',tag:'signals'},
     {label:'Memory',href:'/context.html',tag:'memory'},
     {label:'Project',href:'/status.html',tag:'project'},
@@ -25,7 +26,7 @@
     const a=document.createElement('a');a.href=item.href;a.className='mira-nav-item';
     if ((item.tag==='library'&&landing)||(item.tag==='signals'&&path==='/story.html')||(item.tag!=='library'&&path===item.href)) {a.setAttribute('aria-current','page');a.classList.add('selected');}
     const shape=document.createElement('span');shape.className='mira-nav-shape mira-nav-'+item.tag;shape.setAttribute('aria-hidden','true');
-    shape.textContent={home:'⌂',signals:'✦',memory:'▤',project:'◫',library:'▦'}[item.tag];
+    shape.textContent={home:'⌂',newspaper:'▧',signals:'✦',memory:'▤',project:'◫',library:'▦'}[item.tag];
     const label=document.createElement('span');label.textContent=item.label;a.append(shape,label);nav.append(a);
   }
   rail.append(nav);

@@ -15,7 +15,7 @@ test('every authenticated viewer page uses one shared design/navigation system',
 });
 test('home renders API-backed data and has useful access points without fake results',async()=>{
  const h=await src('home.html'),js=await src('home.js');
- for(const target of ['/mira.html','/context.html','/status.html','href="/"']) assert.ok(h.includes(target),target);
+ for(const target of ['/mira.html','/context.html','/status.html','href="/"','/newspaper.html']) assert.ok(h.includes(target),target);
  assert.match(h,/role="search"/);
  assert.match(js,/api\/mira\/signals/);
  assert.match(js,/api\/mira\/status/);
@@ -41,7 +41,7 @@ test('root capture backend remains preserved but hidden from viewer navigation',
  assert.match(h,/id="view-inbox"/);
  assert.match(css,/nav\[data-view="inbox"\]\{display:none\}/);
 });
-test('shared navigation recognizes the correct page and has 5 accessible links',async()=>{
+test('shared navigation recognizes the correct page and has 6 accessible links',async()=>{
  const script=await src('viewer-shell.js');
  function make(path){
   const all=[];
@@ -56,10 +56,10 @@ test('shared navigation recognizes the correct page and has 5 accessible links',
   runInNewContext(script,{document,location:{pathname:path}});
   return {body,all};
  }
- for(const [path,label] of [['/home.html','Home'],['/mira.html','Signals'],['/context.html','Memory'],['/status.html','Project'],['/','Library']]){
+ for(const [path,label] of [['/home.html','Home'],['/newspaper.html','Newspaper'],['/mira.html','Signals'],['/context.html','Memory'],['/status.html','Project'],['/','Library']]){
   const {body,all}=make(path);
   const links=all.filter(x=>x.tag==='a'&&x.className==='mira-nav-item');
-  assert.equal(links.length,5);
+  assert.equal(links.length,6);
   assert.equal(links.filter(x=>x.attrs['aria-current']==='page').length,1);
   const selected=links.find(x=>x.attrs['aria-current']==='page');
   assert.equal(selected.children[1].textContent,label);
