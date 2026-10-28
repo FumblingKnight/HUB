@@ -9,7 +9,7 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime,timezone,timedelta
-import argparse,html,ipaddress,json,os,re,subprocess,sys,tempfile,time
+import argparse,hashlib,html,ipaddress,json,os,re,subprocess,sys,tempfile,time
 ATOM="{http://www.w3.org/2005/Atom}";UTC=timezone.utc
 
 def now(): return datetime.now(UTC)
@@ -194,6 +194,15 @@ def recent_exposure(state,hours=48):
             lanes[lane]=lanes.get(lane,0)+1;categories[cat]=categories.get(cat,0)+1;sources[src]=sources.get(src,0)+1;total+=1
     return {"window_hours":hours,"total_selected":total,"lane_counts":dict(sorted(lanes.items(),key=lambda x:-x[1])),"category_counts":dict(sorted(categories.items(),key=lambda x:-x[1])[:12]),"source_counts":dict(sorted(sources.items(),key=lambda x:-x[1])[:12])}
 
+def should_wake_model(mode,new_publisher_count,new_community_count,feedback_changed,last_model_at,community_interval_hours=3):
+    if mode=="morning":return True,"morning"
+    if feedback_changed:return True,"feedback_changed"
+    if new_publisher_count>0:return True,"new_publisher_items"
+    if new_community_count>0:
+        last=parse_dt(last_model_at)
+        if not last or now()-last>=timedelta(hours=community_interval_hours):return True,"community_due"
+    return False,"no_new_inputs"
+
 def select_sources(registry,mode):
  sources=registry["sources"]
  if mode=="morning":return sources
@@ -325,11 +334,24 @@ def main():
    community.append({"title":x["title"],"url":x["url"],"published":x.get("published"),"category":x.get("category"),"publisher":x.get("publisher"),"lane":x.get("lane")})
  community=community[:12]
  fresh=[x for r in results for x in r["items"]];stamp=iso()
+ previous_candidate_urls={x.get("url") for x in buffer_data.get("items",[]) if isinstance(x,dict) and x.get("url")}
+ previous_community_urls=set(state.get("community_seen_urls",[])) if isinstance(state.get("community_seen_urls"),list) else set()
+ community_urls={x.get("url") for x in community if x.get("url")}
+ new_publisher_urls={x["url"] for x in fresh if x.get("url") not in previous_candidate_urls}
+ new_community_urls={u for u in community_urls if u not in previous_community_urls}
+ feedback_signature=hashlib.sha256(json.dumps(feedback,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
+ feedback_changed=feedback_signature!=state.get("feedback_signature")
+ wake_model,wake_reason=should_wake_model(args.mode,len(new_publisher_urls),len(new_community_urls),feedback_changed,state.get("last_model_at"))
  buf=merge_candidate_buffer(buffer_data.get("items",[]),fresh,stamp)
- evidence_candidates=round_robin(fresh,28 if args.mode=="morning" else 14)
- with ThreadPoolExecutor(max_workers=8) as pool:evidence=[x for x in pool.map(fetch_evidence,evidence_candidates) if x]
  health=[{"name":r["name"],"category":r["category"],"status":r["status"],"count":r["count"],"kind":"publisher"} for r in results]+[{"name":r["name"],"category":r["category"],"status":r["status"],"count":r["count"],"kind":"community"} for r in community_results];prefs=preference_summary(feedback,current,state)
- output,usage=call_hermes(build_prompt(args.mode,memory,prefs,state,buf,evidence,health,current,community),args.mode,work);known_urls={x["url"] for x in buf};known_discussion_urls={x["url"] for x in community};changed=[]
+ if wake_model:
+  evidence_candidates=round_robin(fresh,28 if args.mode=="morning" else 14)
+  with ThreadPoolExecutor(max_workers=8) as pool:evidence=[x for x in pool.map(fetch_evidence,evidence_candidates) if x]
+  output,usage=call_hermes(build_prompt(args.mode,memory,prefs,state,buf,evidence,health,current,community),args.mode,work)
+  state["last_model_at"]=stamp
+ else:
+  evidence=[];output={"stories":[],"watch":current.get("watch",[])};usage={"api_calls":0,"input_tokens":0,"output_tokens":0,"completed":True,"failed":False}
+ known_urls={x["url"] for x in buf};known_discussion_urls={x["url"] for x in community};changed=[]
  if args.mode=="hourly":
   existing_url_ids={canonical_url(x.get("url","")):x.get("id") for x in current.get("stories",[]) if isinstance(x,dict) and x.get("id") and x.get("url")}
   existing={x.get("id"):x for x in current.get("stories",[]) if isinstance(x,dict) and x.get("id")};known_ids=set(existing)|set(state.get("stories",{}))
@@ -348,9 +370,9 @@ def main():
   for s in changed:
    sid=s.get("topic_id");prev=state.setdefault("stories",{}).get(sid,{});state["stories"][sid]={"id":sid,"title":s["title"],"category":s.get("category"),"lane":s.get("lane","core"),"status":s.get("status"),"source_host":host(s["url"]),"first_seen":prev.get("first_seen",stamp),"last_seen":stamp,"times_selected":int(prev.get("times_selected",0))+1,"last_url":s["url"],"last_summary":s.get("summary",""),"importance":prev.get("importance",3)}
  next_run,next_morning=schedule_stats()
- current.update(schema_version=1,wire=round_robin(fresh,65),searched=[{"query":r["name"]+" · RSS checked ("+str(r["count"])+" items)","at":stamp} for r in results+community_results],stats={"source":"github-actions-hermes","model":os.environ.get("MIRA_MODEL","gpt-5.6-sol"),"reasoning":os.environ.get("MIRA_REASONING","high"),"last_run":stamp,"last_mode":args.mode,"source_count":len(results),"community_source_count":len(community_results),"community_lead_count":len(community),"candidate_count":len(fresh),"runs":len(state.get("runs",[]))+1,"found":len(current.get("stories",[])),"next_run":next_run,"next_morning":next_morning,"morning_ready":bool(current.get("morning"))},published_at=stamp)
+ current.update(schema_version=1,wire=round_robin(fresh,65),searched=[{"query":r["name"]+" · RSS checked ("+str(r["count"])+" items)","at":stamp} for r in results+community_results],stats={"source":"github-actions-hermes","model":os.environ.get("MIRA_MODEL","gpt-5.6-sol"),"reasoning":os.environ.get("MIRA_REASONING","high"),"last_run":stamp,"last_mode":args.mode,"source_count":len(results),"community_source_count":len(community_results),"community_lead_count":len(community),"candidate_count":len(fresh),"new_candidate_count":len(new_publisher_urls),"new_community_count":len(new_community_urls),"feedback_changed":feedback_changed,"model_wakeup":wake_model,"wake_reason":wake_reason,"runs":len(state.get("runs",[]))+1,"found":len(current.get("stories",[])),"next_run":next_run,"next_morning":next_morning,"morning_ready":bool(current.get("morning"))},published_at=stamp)
  selected_meta=[{"id":clean((s.get("id") or s.get("topic_id")),100),"category":clean(s.get("category"),60),"lane":clean(s.get("lane"),20),"source_host":host(s.get("url",""))} for s in changed if isinstance(s,dict)]
- state["preference_signals"]=prefs;state["source_health"]=health;state["updated_at"]=stamp;state.setdefault("runs",[]).append({"at":stamp,"mode":args.mode,"selected":len(changed),"selected_meta":selected_meta,"model":current["stats"]["model"],"usage":{k:usage.get(k) for k in ("input_tokens","output_tokens","api_calls","completed","failed")}});state["runs"]=state["runs"][-100:]
+ state["preference_signals"]=prefs;state["source_health"]=health;state["updated_at"]=stamp;state["feedback_signature"]=feedback_signature;state["community_seen_urls"]=list(dict.fromkeys(list(state.get("community_seen_urls",[]))+[x["url"] for x in community if x.get("url")]))[-500:];state.setdefault("runs",[]).append({"at":stamp,"mode":args.mode,"selected":len(changed),"selected_meta":selected_meta,"model":current["stats"]["model"],"model_wakeup":wake_model,"wake_reason":wake_reason,"new_candidate_count":len(new_publisher_urls),"new_community_count":len(new_community_urls),"usage":{k:usage.get(k) for k in ("input_tokens","output_tokens","api_calls","completed","failed")}});state["runs"]=state["runs"][-100:]
  pending=state.setdefault("pending_alerts",[])
  if args.mode=="hourly":
   for s in changed:
@@ -368,7 +390,7 @@ def main():
  if args.mode=="morning" and current.get("morning"):
   m=current["morning"];discord_dm("**Mira — Morning Edition**\n**"+m["lead"]["title"]+"**\n"+m.get("dek","")+"\nhttps://sajo-atlas.thefumblingknight.workers.dev/newspaper.html")
  write_json(cloud/"candidate_buffer.json",{"schema_version":1,"updated_at":stamp,"items":buf});write_json(cloud/"state.json",state);write_json(root/"mira/newspaper/current.json",current)
- print(json.dumps({"ok":True,"mode":args.mode,"sources":len(results),"community_sources":len(community_results),"community_leads":len(community),"fresh_candidates":len(fresh),"selected":len(changed),"pending_alerts":len(state["pending_alerts"]),"model":current["stats"]["model"],"api_calls":usage.get("api_calls"),"input_tokens":usage.get("input_tokens"),"output_tokens":usage.get("output_tokens")}))
+ print(json.dumps({"ok":True,"mode":args.mode,"sources":len(results),"community_sources":len(community_results),"community_leads":len(community),"fresh_candidates":len(fresh),"new_candidates":len(new_publisher_urls),"new_community":len(new_community_urls),"model_wakeup":wake_model,"wake_reason":wake_reason,"selected":len(changed),"pending_alerts":len(state["pending_alerts"]),"model":current["stats"]["model"],"api_calls":usage.get("api_calls"),"input_tokens":usage.get("input_tokens"),"output_tokens":usage.get("output_tokens")}))
 
 if __name__=="__main__":
  try:main()

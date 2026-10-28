@@ -91,6 +91,14 @@ class NewsSafetyTests(unittest.TestCase):
         x=m.recent_exposure(state)
         self.assertEqual(x["total_selected"],2);self.assertEqual(x["lane_counts"]["core"],1);self.assertEqual(x["lane_counts"]["wildcard"],1)
         self.assertEqual(x["category_counts"]["F1"],1);self.assertEqual(x["source_counts"]["a.example"],1)
+    def test_novelty_gate_skips_stale_hourly_work(self):
+        dt=__import__("datetime")
+        self.assertEqual(m.should_wake_model("hourly",0,0,False,m.iso(m.now()-dt.timedelta(minutes=20))),(False,"no_new_inputs"))
+        self.assertEqual(m.should_wake_model("hourly",1,0,False,m.iso(m.now())),(True,"new_publisher_items"))
+        self.assertEqual(m.should_wake_model("hourly",0,0,True,m.iso(m.now())),(True,"feedback_changed"))
+        self.assertEqual(m.should_wake_model("hourly",0,2,False,m.iso(m.now()-dt.timedelta(hours=4))),(True,"community_due"))
+        self.assertEqual(m.should_wake_model("hourly",0,2,False,m.iso(m.now()-dt.timedelta(hours=1))),(False,"no_new_inputs"))
+        self.assertEqual(m.should_wake_model("morning",0,0,False,m.iso(m.now())),(True,"morning"))
     def test_schedule_stats_are_future_ist_timestamps(self):
         h,morning=m.schedule_stats()
         self.assertIn("+05:30",h);self.assertIn("+05:30",morning)
