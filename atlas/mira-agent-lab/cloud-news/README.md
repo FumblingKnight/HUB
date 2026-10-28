@@ -52,6 +52,8 @@ Community feeds are discovery/reaction signals only. They are kept out of the pr
 
 The editor also records a 48-hour exposure ledger (lane, category, and source host). This is a fatigue signal, not a hard quota: explicit reader feedback personalizes selections, while recent overexposure raises the bar for more of the same and preserves room for strong adjacent/wildcard discoveries.
 
+Hourly source checks do not automatically spend a model call. A novelty gate wakes GPT-5.6 Sol High for new publisher items, changed reader feedback, or community-only activity after a cooldown; stale hourly scans update source health and the wire with zero inference tokens. The premium morning edition always wakes the model.
+
 ## One-time owner bootstrap
 
 After this code is merged to `main`, run on the owner Mac:
