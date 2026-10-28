@@ -78,12 +78,18 @@ fi
 echo "[5/7] Creating a DEDICATED Codex OAuth identity for GitHub Actions."
 echo "This intentionally does not reuse ~/.hermes/auth.json."
 mkdir -p "$BOOT_HOME"; chmod 700 "$BOOT_HOME"
-if ! HERMES_HOME="$BOOT_HOME" hermes auth status openai-codex >/dev/null 2>&1; then
+AUTH_STATUS="$(HERMES_HOME="$BOOT_HOME" hermes auth status openai-codex 2>&1 || true)"
+if ! grep -Eqi 'openai-codex:.*logged in' <<<"$AUTH_STATUS"; then
   echo
   echo "Approve the OpenAI/Codex device login shown below. This is the one manual browser step."
   HERMES_HOME="$BOOT_HOME" hermes auth add openai-codex --type oauth --no-browser
 fi
-HERMES_HOME="$BOOT_HOME" hermes auth status openai-codex
+AUTH_STATUS="$(HERMES_HOME="$BOOT_HOME" hermes auth status openai-codex 2>&1 || true)"
+grep -Eqi 'openai-codex:.*logged in' <<<"$AUTH_STATUS" || {
+  echo "Dedicated Codex login did not become active." >&2
+  exit 5
+}
+echo "Dedicated cloud Codex login verified."
 
 echo "[6/7] Encrypting the dedicated OAuth state into the private repository."
 gh repo clone "$PRIVATE_REPO" "$TMP/private" -- --depth 1 >/dev/null
