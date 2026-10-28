@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "name": "Anime News Network",
+      "url": "https://www.animenewsnetwork.com/news/rss.xml",
+      "category": "Anime",
+      "lane": "core",
+      "core": true,
+      "allowed_domains": [
+        "animenewsnetwork.com"
+      ]
+    },
+    {
+      "name": "Autosport F1",
+      "url": "https://www.autosport.com/rss/f1/news/",
+      "category": "F1",
+      "lane": "core",
+      "core": true,
+      "allowed_domains": [
+        "autosport.com"
+      ]
+    },
+    {
+      "name": "Ars Technica",
+      "url": "https://feeds.arstechnica.com/arstechnica/index",
+      "category": "Technology",
+      "lane": "core",
+      "core": true,
+      "allowed_domains": [
+        "arstechnica.com"
+      ]
+    },
+    {
+      "name": "NASA Aeronautics",
+      "url": "https://www.nasa.gov/aeronautics/feed/",
+      "category": "Aerospace",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "nasa.gov"
+      ]
+    },
+    {
+      "name": "GitHub Blog",
+      "url": "https://github.blog/feed/",
+      "category": "Software",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "github.blog"
+      ]
+    },
+    {
+      "name": "BleepingComputer",
+      "url": "https://www.bleepingcomputer.com/feed/",
+      "category": "Security",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "bleepingcomputer.com"
+      ]
+    },
+    {
+      "name": "arXiv Robotics",
+      "url": "https://rss.arxiv.org/rss/cs.RO",
+      "category": "Robotics",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "arxiv.org"
+      ]
+    },
+    {
+      "name": "PlayStation Blog",
+      "url": "https://blog.playstation.com/feed/",
+      "category": "Games",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "playstation.com"
+      ]
+    },
+    {
+      "name": "The Verge",
+      "url": "https://www.theverge.com/rss/index.xml",
+      "category": "Culture & Tech",
+      "lane": "wildcard",
+      "core": false,
+      "allowed_domains": [
+        "theverge.com"
+      ]
+    },
+    {
+      "name": "Nature News",
+      "url": "https://www.nature.com/nature.rss",
+      "category": "Science",
+      "lane": "wildcard",
+      "core": false,
+      "allowed_domains": [
+        "nature.com"
+      ]
+    },
+    {
+      "name": "Smithsonian Magazine",
+      "url": "https://www.smithsonianmag.com/rss/latest_articles/",
+      "category": "Culture & Science",
+      "lane": "wildcard",
+      "core": false,
+      "allowed_domains": [
+        "smithsonianmag.com"
+      ]
+    },
+    {
+      "name": "Motorsport F1",
+      "url": "https://www.motorsport.com/rss/f1/news/",
+      "category": "F1",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "motorsport.com"
+      ]
+    },
+    {
+      "name": "FIA News",
+      "url": "https://www.fia.com/rss/news",
+      "category": "F1",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "fia.com"
+      ]
+    },
+    {
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "AI",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "deepmind.google"
+      ]
+    },
+    {
+      "name": "MIT News AI",
+      "url": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+      "category": "AI",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "news.mit.edu"
+      ]
+    }
+  ]
+}

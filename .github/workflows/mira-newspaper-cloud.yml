@@ -1,0 +1,160 @@
+name: Mira Newspaper cloud editor
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode"
+        required: true
+        default: "smoke"
+        type: choice
+        options: [smoke, auth-check, hourly, morning]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mira-newspaper-cloud-agent
+  cancel-in-progress: false
+
+jobs:
+  editor:
+    # Scheduled runs remain inert until the owner explicitly enables the cloud agent.
+    if: github.event_name == 'workflow_dispatch' || vars.MIRA_NEWSPAPER_CLOUD_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      MIRA_MODEL: gpt-5.6-sol
+      MIRA_REASONING: high
+      HERMES_INSTALL_COMMIT: bf0203a794a0
+      HERMES_HOME: ${{ runner.temp }}/hermes-cloud
+    steps:
+      - name: Resolve run mode
+        id: mode
+        shell: bash
+        env:
+          INPUT_MODE: ${{ inputs.mode }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            mode="$INPUT_MODE"
+          elif [[ "$SCHEDULE" == "0 3 * * *" ]]; then
+            mode="morning"
+          else
+            mode="hourly"
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Mira mode: $mode"
+
+      - name: Checkout public runner code
+        uses: actions/checkout@v4
+        with:
+          path: hub
+          persist-credentials: false
+
+      - name: Public smoke test
+        if: steps.mode.outputs.mode == 'smoke'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile hub/atlas/mira-agent-lab/cloud-news/run.py hub/atlas/mira-agent-lab/cloud-news/auth_blob.py
+          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode smoke --private-root hub --registry hub/atlas/mira-agent-lab/cloud-news/source_registry.json
+
+      - name: Require private-repo deploy key
+        if: steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        env:
+          PRIVATE_KEY: ${{ secrets.MIRA_SAJO_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$PRIVATE_KEY" || { echo "::error::MIRA_SAJO_DEPLOY_KEY is not configured."; exit 2; }
+
+      - name: Checkout private newspaper state
+        if: steps.mode.outputs.mode != 'smoke'
+        uses: actions/checkout@v4
+        with:
+          repository: FumblingKnight/Sajo-Atlas
+          path: private
+          ssh-key: ${{ secrets.MIRA_SAJO_DEPLOY_KEY }}
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Install pinned Hermes runtime and crypto dependency
+        if: steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://hermes-agent.nousresearch.com/install.sh -o "$RUNNER_TEMP/hermes-install.sh"
+          bash "$RUNNER_TEMP/hermes-install.sh" --non-interactive --skip-browser --skip-computer-use --commit "$HERMES_INSTALL_COMMIT" --hermes-home "$HERMES_HOME"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          python3 -m pip install --quiet cryptography
+
+      - name: Restore dedicated cloud OAuth credential
+        if: steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        env:
+          AUTH_KEY: ${{ secrets.MIRA_HERMES_AUTH_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$AUTH_KEY" || { echo "::error::MIRA_HERMES_AUTH_KEY_B64 is not configured."; exit 3; }
+          blob="private/mira/newspaper/cloud/auth.enc"
+          test -s "$blob" || { echo "::error::Dedicated cloud Hermes auth has not been bootstrapped."; exit 4; }
+          mkdir -p "$HERMES_HOME"
+          MIRA_HERMES_AUTH_KEY_B64="$AUTH_KEY" python3 hub/atlas/mira-agent-lab/cloud-news/auth_blob.py open "$blob" "$HERMES_HOME/auth.json"
+          chmod 600 "$HERMES_HOME/auth.json"
+
+      - name: Verify dedicated Codex login
+        if: steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        run: |
+          set -euo pipefail
+          hermes auth status openai-codex
+          if [[ "${{ steps.mode.outputs.mode }}" == "auth-check" ]]; then
+            hermes -z "Return exactly: CLOUD_AUTH_OK" --provider openai-codex --model "$MIRA_MODEL" --reasoning high --ignore-user-config --ignore-rules --usage-file "$RUNNER_TEMP/auth-check-usage.json" > "$RUNNER_TEMP/auth-check.txt"
+            grep -Fxq 'CLOUD_AUTH_OK' "$RUNNER_TEMP/auth-check.txt"
+          fi
+
+      - name: Run Mira editor
+        if: steps.mode.outputs.mode == 'hourly' || steps.mode.outputs.mode == 'morning'
+        shell: bash
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.MIRA_DISCORD_BOT_TOKEN }}
+          DISCORD_USER_ID: ${{ secrets.MIRA_DISCORD_USER_ID }}
+        run: |
+          set -euo pipefail
+          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode "${{ steps.mode.outputs.mode }}" --private-root private --registry hub/atlas/mira-agent-lab/cloud-news/source_registry.json
+
+      - name: Re-encrypt refreshed OAuth state
+        if: always() && steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        env:
+          AUTH_KEY: ${{ secrets.MIRA_HERMES_AUTH_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$AUTH_KEY" && -s "$HERMES_HOME/auth.json" ]]; then
+            MIRA_HERMES_AUTH_KEY_B64="$AUTH_KEY" python3 hub/atlas/mira-agent-lab/cloud-news/auth_blob.py seal "$HERMES_HOME/auth.json" private/mira/newspaper/cloud/auth.enc
+          fi
+
+      - name: Commit private state and refreshed auth
+        if: always() && steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd private
+          git add mira/newspaper/current.json mira/newspaper/archive mira/newspaper/cloud/state.json mira/newspaper/cloud/candidate_buffer.json mira/newspaper/cloud/archive_index.json mira/newspaper/cloud/auth.enc 2>/dev/null || true
+          if git diff --cached --quiet; then echo "No private-state changes to commit."; exit 0; fi
+          git config user.name "Mira Newspaper Cloud"
+          git config user.email "299255337+FumblingKnight@users.noreply.github.com"
+          git commit -m "Mira newspaper: ${{ steps.mode.outputs.mode }} cloud run"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            echo "Push raced with another private write; rebasing (attempt $attempt)."
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "::error::Unable to persist private newspaper state after retries."
+          exit 1
