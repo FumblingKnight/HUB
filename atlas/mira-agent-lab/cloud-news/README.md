@@ -50,6 +50,8 @@ Morning runs scan the full source registry, fetch a larger set of publisher page
 
 Community feeds are discovery/reaction signals only. They are kept out of the primary candidate set, and a model-proposed discussion link is accepted only if that exact URL was collected from an allowed community feed.
 
+The editor also records a 48-hour exposure ledger (lane, category, and source host). This is a fatigue signal, not a hard quota: explicit reader feedback personalizes selections, while recent overexposure raises the bar for more of the same and preserves room for strong adjacent/wildcard discoveries.
+
 ## One-time owner bootstrap
 
 After this code is merged to `main`, run on the owner Mac:

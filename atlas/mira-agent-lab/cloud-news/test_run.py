@@ -84,6 +84,13 @@ class NewsSafetyTests(unittest.TestCase):
             m.validate_registry({"sources":[{"name":"Bad","url":"http://example.com/feed","category":"X","lane":"core","allowed_domains":["example.com"]}]})
         with self.assertRaises(ValueError):
             m.validate_registry({"sources":[{"name":"Bad","url":"https://example.com/feed","category":"X","lane":"oops","allowed_domains":["*"]}]})
+    def test_recent_exposure_tracks_lane_category_and_source(self):
+        dt=__import__("datetime")
+        recent=m.iso(m.now()-dt.timedelta(hours=2));old=m.iso(m.now()-dt.timedelta(hours=80))
+        state={"runs":[{"at":recent,"selected_meta":[{"lane":"core","category":"F1","source_host":"a.example"},{"lane":"wildcard","category":"Science","source_host":"b.example"}]},{"at":old,"selected_meta":[{"lane":"core","category":"F1","source_host":"a.example"}]}]}
+        x=m.recent_exposure(state)
+        self.assertEqual(x["total_selected"],2);self.assertEqual(x["lane_counts"]["core"],1);self.assertEqual(x["lane_counts"]["wildcard"],1)
+        self.assertEqual(x["category_counts"]["F1"],1);self.assertEqual(x["source_counts"]["a.example"],1)
     def test_schedule_stats_are_future_ist_timestamps(self):
         h,morning=m.schedule_stats()
         self.assertIn("+05:30",h);self.assertIn("+05:30",morning)
