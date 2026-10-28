@@ -53,22 +53,36 @@ import re,sys
 raise SystemExit(0 if re.fullmatch(r"[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{15,}",sys.argv[1] if len(sys.argv)>1 else "") else 1)
 PY
 then
-  read -r -s -p "Discord bot token (leave blank to skip Discord for now): " DISCORD_TOKEN
-  echo
+  printf '%s' "Discord bot token (leave blank to skip Discord for now): "
+  IFS= read -r -s DISCORD_TOKEN || true
+  printf '\n'
 fi
+
 if [[ -n "$DISCORD_TOKEN" ]]; then
-  read -r DISCORD_USER_ID DISCORD_APP_ID < <(DISCORD_BOT_TOKEN="$DISCORD_TOKEN" python3 - <<'PY'
+  # macOS ships an older Bash; avoid nesting a here-document inside process
+  # substitution because that construct can misparse there.
+  if ! DISCORD_BOT_TOKEN="$DISCORD_TOKEN" python3 - > "$TMP/discord_identity" <<'PY'
 import json,os,urllib.request
+from urllib.error import HTTPError, URLError
 t=os.environ["DISCORD_BOT_TOKEN"]
 h={"Authorization":"Bot "+t,"User-Agent":"MiraCloudBootstrap/1.0"}
-with urllib.request.urlopen(urllib.request.Request("https://discord.com/api/v10/oauth2/applications/@me",headers=h),timeout=15) as r:
-    d=json.load(r)
+try:
+    req=urllib.request.Request("https://discord.com/api/v10/oauth2/applications/@me",headers=h)
+    with urllib.request.urlopen(req,timeout=15) as r:
+        d=json.load(r)
+except (HTTPError, URLError) as exc:
+    raise SystemExit("Discord bot token could not be verified: "+str(exc))
 u=str((d.get("owner") or {}).get("id") or "")
 app=str(d.get("id") or "")
-if not u.isdigit() or not app.isdigit(): raise SystemExit("Unable to identify Discord application owner")
+if not u.isdigit() or not app.isdigit():
+    raise SystemExit("Unable to identify Discord application owner")
 print(u,app)
 PY
-)
+  then
+    echo "Discord bot token verification failed." >&2
+    exit 4
+  fi
+  IFS=' ' read -r DISCORD_USER_ID DISCORD_APP_ID < "$TMP/discord_identity"
 
   discord_dm_test() {
     DISCORD_BOT_TOKEN="$DISCORD_TOKEN" DISCORD_USER_ID="$DISCORD_USER_ID" python3 - <<'PY'
