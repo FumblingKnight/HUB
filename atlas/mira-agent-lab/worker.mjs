@@ -1,6 +1,6 @@
 // Isolated Cloudflare Workers AI probe. Never accepts personal/user-provided prompts.
 // Not wired into the production ATLAS Worker or deployed by its workflow.
-const MODEL = "@cf/meta/llama-3.1-8b-instruct";
+const MODEL = "@cf/openai/gpt-oss-20b";
 const json = (data,status=200) => new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
 export async function handleRequest(request, env) {
   const url=new URL(request.url);

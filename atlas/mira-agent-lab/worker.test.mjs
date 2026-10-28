@@ -18,7 +18,7 @@ test("arbitrary prompts are rejected before AI",async()=>{
   assert.equal(calls,0);
 });
 test("fixed public task runs exactly one bounded AI request",async()=>{
-  let calls=0;const env={AI:{run:async(model,args)=>{calls++;assert.equal(model,"@cf/meta/llama-3.1-8b-instruct");assert.equal(args.max_tokens,24);assert.equal(args.messages.length,2);return {response:"READY"};}}};
+  let calls=0;const env={AI:{run:async(model,args)=>{calls++;assert.equal(model,"@cf/openai/gpt-oss-20b");assert.equal(args.max_tokens,24);assert.equal(args.messages.length,2);return {response:"READY"};}}};
   const res=await handleRequest(req("/probe","POST",{kind:"public-smoke"}),env);
   assert.equal(res.status,200);assert.equal((await res.json()).response,"READY");assert.equal(calls,1);
 });
