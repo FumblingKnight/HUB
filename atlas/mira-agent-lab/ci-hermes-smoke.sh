@@ -12,14 +12,18 @@ for _ in $(seq 1 20); do
   sleep 1
 done
 test "$ready" -eq 1
-# Explicitly no API secrets, no GitHub credentials, no personal data.
-# Use a single request, 1 tool-turn maximum, and a fake model; a mock response is NOT live AI inference.
-timeout 90s hermes chat --oneshot --quiet --provider custom \
-  --base-url http://127.0.0.1:8789/v1 \
-  --api-key 'mira-ci-placeholder-no-secret' \
-  --model mira-ci-mock-128k \
-  --max-turns 1 --safe-mode --ignore-user-config --ignore-rules \
-  -q "This is a public CI integration check. Respond with the supplied model response." \
+# Hermes -z is its officially documented pure stdout one-shot entrypoint.
+# Local fake credentials are explicitly scoped to this disposable mock server.
+hermes config set model.provider custom
+hermes config set model.base_url http://127.0.0.1:8789/v1
+hermes config set model.default mira-ci-mock-128k
+export OPENAI_API_KEY='mira-ci-placeholder-no-secret'
+timeout 90s hermes -z "This is a public CI integration check. Respond with the supplied model response." \
+  --provider custom --model mira-ci-mock-128k --usage-file /tmp/mira-hermes-usage.json \
   > /tmp/mira-hermes-smoke.txt
-grep -Fq 'HERMES_CI_OK' /tmp/mira-hermes-smoke.txt
-echo 'Hermes actual runtime invoked an isolated OpenAI-compatible endpoint successfully.'
+grep -Fq 'HERMES_CI_OK' /tmp/mira-hermes-smoke.txt || {
+  echo 'No mock model answer observed; report only sanitized exit data.'
+  test -f /tmp/mira-hermes-usage.json && node -e 'const r=require("/tmp/mira-hermes-usage.json");console.log(JSON.stringify({completed:r.completed,failed:r.failed,api_calls:r.api_calls||0}));' || true
+  exit 1
+}
+echo 'Hermes actual runtime received the isolated mock model reply.'
