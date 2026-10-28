@@ -89,5 +89,8 @@ class NewsSafetyTests(unittest.TestCase):
         self.assertIn("+05:30",h);self.assertIn("+05:30",morning)
         self.assertGreater(m.parse_dt(h),m.now())
         self.assertGreater(m.parse_dt(morning),m.now())
+        self.assertEqual(__import__("datetime").datetime.fromisoformat(h).minute,17)
+        md=__import__("datetime").datetime.fromisoformat(morning)
+        self.assertEqual((md.hour,md.minute),(8,30))
 
 if __name__=="__main__":unittest.main()

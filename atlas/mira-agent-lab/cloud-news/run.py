@@ -92,7 +92,8 @@ class BriefHTML(HTMLParser):
 IST=timezone(timedelta(hours=5,minutes=30))
 def schedule_stats():
     local=now().astimezone(IST)
-    nxt=(local.replace(minute=0,second=0,microsecond=0)+timedelta(hours=1))
+    nxt=local.replace(minute=17,second=0,microsecond=0)
+    if nxt<=local:nxt+=timedelta(hours=1)
     morning=local.replace(hour=8,minute=30,second=0,microsecond=0)
     if morning<=local:morning+=timedelta(days=1)
     return nxt.isoformat(timespec="seconds"),morning.isoformat(timespec="seconds")
