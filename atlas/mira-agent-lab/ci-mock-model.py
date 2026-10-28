@@ -7,11 +7,13 @@ class MockModel(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
+        print('MIRA_MOCK_GET '+self.path, flush=True)
         if self.path != "/v1/models":
             return self.reply(404, {"error": {"message": "not found"}})
         return self.reply(200, {"object": "list", "data": [{"id": "mira-ci-mock-128k", "object": "model", "context_length": 131072}]})
 
     def do_POST(self):
+        print('MIRA_MOCK_POST '+self.path, flush=True)
         if self.path != "/v1/chat/completions":
             return self.reply(404, {"error": {"message": "not found"}})
         length = int(self.headers.get("content-length", 0))
