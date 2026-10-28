@@ -57,19 +57,49 @@ then
   echo
 fi
 if [[ -n "$DISCORD_TOKEN" ]]; then
-  DISCORD_USER_ID="$(DISCORD_BOT_TOKEN="$DISCORD_TOKEN" python3 - <<'PY'
+  read -r DISCORD_USER_ID DISCORD_APP_ID < <(DISCORD_BOT_TOKEN="$DISCORD_TOKEN" python3 - <<'PY'
 import json,os,urllib.request
 t=os.environ["DISCORD_BOT_TOKEN"]
 h={"Authorization":"Bot "+t,"User-Agent":"MiraCloudBootstrap/1.0"}
 with urllib.request.urlopen(urllib.request.Request("https://discord.com/api/v10/oauth2/applications/@me",headers=h),timeout=15) as r:
     d=json.load(r)
 u=str((d.get("owner") or {}).get("id") or "")
-if not u.isdigit(): raise SystemExit("Unable to identify Discord application owner")
-print(u)
+app=str(d.get("id") or "")
+if not u.isdigit() or not app.isdigit(): raise SystemExit("Unable to identify Discord application owner")
+print(u,app)
 PY
-)"
+)
+
+  discord_dm_test() {
+    DISCORD_BOT_TOKEN="$DISCORD_TOKEN" DISCORD_USER_ID="$DISCORD_USER_ID" python3 - <<'PY'
+import json,os,urllib.request
+from urllib.error import HTTPError
+t=os.environ["DISCORD_BOT_TOKEN"];u=os.environ["DISCORD_USER_ID"]
+h={"Authorization":"Bot "+t,"Content-Type":"application/json","User-Agent":"MiraCloudBootstrap/1.0"}
+try:
+    req=urllib.request.Request("https://discord.com/api/v10/users/@me/channels",method="POST",headers=h,data=json.dumps({"recipient_id":u}).encode())
+    with urllib.request.urlopen(req,timeout=15) as r: channel=json.load(r)["id"]
+    msg={"content":"Mira cloud Discord link verified. Urgent alerts and morning-edition notices will use this DM."}
+    req=urllib.request.Request("https://discord.com/api/v10/channels/"+channel+"/messages",method="POST",headers=h,data=json.dumps(msg).encode())
+    with urllib.request.urlopen(req,timeout=15) as r:
+        raise SystemExit(0 if 200 <= r.status < 300 else 1)
+except HTTPError:
+    raise SystemExit(1)
+PY
+  }
+
+  if ! discord_dm_test; then
+    INVITE="https://discord.com/oauth2/authorize?client_id=$DISCORD_APP_ID&scope=bot%20applications.commands&permissions=2048"
+    echo "Discord cannot DM you yet. The bot normally needs one mutual server first."
+    echo "Opening its invite page; add it to a server you control, then return here."
+    open "$INVITE" >/dev/null 2>&1 || echo "Open this URL manually: $INVITE"
+    read -r -p "Press Enter after the bot has joined a server you share: "
+    discord_dm_test || { echo "Discord DM test still failed; refusing silent alert setup." >&2; exit 4; }
+  fi
+
   printf '%s' "$DISCORD_TOKEN" | gh secret set MIRA_DISCORD_BOT_TOKEN -R "$HUB_REPO"
   printf '%s' "$DISCORD_USER_ID" | gh secret set MIRA_DISCORD_USER_ID -R "$HUB_REPO"
+  echo "Discord DM delivery verified."
   unset DISCORD_TOKEN
 else
   echo "Discord skipped. Newspaper cloud setup can still complete."
