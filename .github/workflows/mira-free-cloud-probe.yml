@@ -1,0 +1,73 @@
+name: Mira free cloud AI probe
+on:
+  pull_request:
+    paths:
+      - "atlas/mira-agent-lab/**"
+      - ".github/workflows/mira-free-cloud-probe.yml"
+  push:
+    branches: [main]
+    paths:
+      - "atlas/mira-agent-lab/**"
+      - ".github/workflows/mira-free-cloud-probe.yml"
+  workflow_dispatch:
+    inputs:
+      run_live_ai:
+        description: "Run ONE public model call; check Cloudflare plan/allowance first (may incur usage on paid plan)"
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mira-free-cloud-ai-probe
+  cancel-in-progress: false
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify isolated worker behavior without secrets or model usage
+        run: node --test atlas/mira-agent-lab/worker.test.mjs
+  live:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_live_ai == true }}
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run one fixed public test with temporary remote preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
+          npx --yes wrangler@4 dev --remote --config atlas/mira-agent-lab/wrangler.toml --ip 127.0.0.1 --port 8787 > /tmp/mira-probe-wrangler.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 60); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8787/health >/dev/null 2>&1; then ready=1; break; fi
+            if ! kill -0 "$server" 2>/dev/null; then break; fi
+            sleep 2
+          done
+          if [ "$ready" != 1 ]; then
+            echo 'Remote preview failed to start'
+            tail -n 20 /tmp/mira-probe-wrangler.log || true
+            exit 1
+          fi
+          curl --fail-with-body -fsS --max-time 50 \
+            -H 'content-type: application/json' \
+            -d '{"kind":"public-smoke"}' http://127.0.0.1:8787/probe \
+            > /tmp/mira-probe-result.json
+          node -e 'const r=require("/tmp/mira-probe-result.json");if(!r.ok||typeof r.response!=="string"||!r.response)process.exit(1);console.log(JSON.stringify({success:true,model:r.model,model_replied:true}));'
+          rm -f /tmp/mira-probe-result.json

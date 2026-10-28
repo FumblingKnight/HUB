@@ -1,0 +1,8 @@
+# Isolated, undeployed experiment. Does not modify atlas/cloud/wrangler.toml.
+name = "mira-ai-public-probe"
+main = "./worker.mjs"
+compatibility_date = "2026-10-27"
+
+[ai]
+binding = "AI"
+remote = true
