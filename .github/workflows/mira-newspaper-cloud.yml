@@ -30,8 +30,12 @@ jobs:
       MIRA_MODEL: gpt-5.6-sol
       MIRA_REASONING: high
       HERMES_INSTALL_COMMIT: bf0203a794a0
-      HERMES_HOME: ${{ runner.temp }}/hermes-cloud
     steps:
+      - name: Initialize runner paths
+        shell: bash
+        run: |
+          echo "HERMES_HOME=$RUNNER_TEMP/hermes-cloud" >> "$GITHUB_ENV"
+
       - name: Resolve run mode
         id: mode
         shell: bash
