@@ -26,10 +26,10 @@ Expected under `mira/newspaper/cloud/` in Sajo-Atlas:
 - `state.json`
 - `candidate_buffer.json`
 - `archive_index.json`
+- `source_registry.json`
 - `auth.enc` after one-time bootstrap
 
-The encrypted OAuth blob uses AES-256-GCM. Its key is a GitHub Actions secret,
-not repository content.
+The source registry and encrypted OAuth blob remain private. The OAuth blob uses AES-256-GCM; its key is a GitHub Actions secret, not repository content.
 
 ## Modes
 

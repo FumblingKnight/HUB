@@ -3,7 +3,7 @@ name: Mira Newspaper cloud editor
 on:
   schedule:
     - cron: "17 * * * *"
-    - cron: "0 3 * * *"
+    - cron: "45 2 * * *"
   workflow_dispatch:
     inputs:
       mode:
@@ -29,7 +29,7 @@ jobs:
     env:
       MIRA_MODEL: gpt-5.6-sol
       MIRA_REASONING: high
-      HERMES_INSTALL_COMMIT: bf0203a794a0
+      HERMES_INSTALL_COMMIT: bf0203a794a07aac3ff764972ab9087baa4e4f4e
     steps:
       - name: Initialize runner paths
         shell: bash
@@ -46,7 +46,7 @@ jobs:
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             mode="$INPUT_MODE"
-          elif [[ "$SCHEDULE" == "0 3 * * *" ]]; then
+          elif [[ "$SCHEDULE" == "45 2 * * *" ]]; then
             mode="morning"
           else
             mode="hourly"
@@ -55,7 +55,7 @@ jobs:
           echo "Mira mode: $mode"
 
       - name: Checkout public runner code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           path: hub
           persist-credentials: false
@@ -66,7 +66,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile hub/atlas/mira-agent-lab/cloud-news/run.py hub/atlas/mira-agent-lab/cloud-news/auth_blob.py
-          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode smoke --private-root hub --registry hub/atlas/mira-agent-lab/cloud-news/source_registry.json
+          python3 hub/atlas/mira-agent-lab/cloud-news/test_run.py
+          printf '{"sources":[]}\n' > "$RUNNER_TEMP/smoke-registry.json"
+          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode smoke --private-root hub --registry "$RUNNER_TEMP/smoke-registry.json"
 
       - name: Require private-repo deploy key
         if: steps.mode.outputs.mode != 'smoke'
@@ -79,7 +81,7 @@ jobs:
 
       - name: Checkout private newspaper state
         if: steps.mode.outputs.mode != 'smoke'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: FumblingKnight/Sajo-Atlas
           path: private
@@ -92,10 +94,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --location https://hermes-agent.nousresearch.com/install.sh -o "$RUNNER_TEMP/hermes-install.sh"
+          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/NousResearch/hermes-agent/$HERMES_INSTALL_COMMIT/scripts/install.sh" -o "$RUNNER_TEMP/hermes-install.sh"
           bash "$RUNNER_TEMP/hermes-install.sh" --non-interactive --skip-browser --skip-computer-use --commit "$HERMES_INSTALL_COMMIT" --hermes-home "$HERMES_HOME"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          python3 -m pip install --quiet cryptography
+          python3 -m pip install --quiet 'cryptography==46.0.3'
 
       - name: Restore dedicated cloud OAuth credential
         if: steps.mode.outputs.mode != 'smoke'
@@ -111,6 +113,25 @@ jobs:
           MIRA_HERMES_AUTH_KEY_B64="$AUTH_KEY" python3 hub/atlas/mira-agent-lab/cloud-news/auth_blob.py open "$blob" "$HERMES_HOME/auth.json"
           chmod 600 "$HERMES_HOME/auth.json"
 
+      - name: Configure minimal cloud Hermes profile
+        if: steps.mode.outputs.mode != 'smoke'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$HERMES_HOME/config.yaml" <<'YAML'
+          model:
+            default: gpt-5.6-sol
+            provider: openai-codex
+          agent:
+            reasoning_effort: high
+            max_turns: 12
+          web:
+            search_backend: openai-native
+          memory:
+            memory_enabled: false
+            user_profile_enabled: false
+          YAML
+
       - name: Verify dedicated Codex login
         if: steps.mode.outputs.mode != 'smoke'
         shell: bash
@@ -118,7 +139,7 @@ jobs:
           set -euo pipefail
           hermes auth status openai-codex
           if [[ "${{ steps.mode.outputs.mode }}" == "auth-check" ]]; then
-            hermes -z "Return exactly: CLOUD_AUTH_OK" --provider openai-codex --model "$MIRA_MODEL" --reasoning high --ignore-user-config --ignore-rules --usage-file "$RUNNER_TEMP/auth-check-usage.json" > "$RUNNER_TEMP/auth-check.txt"
+            hermes -z "Return exactly: CLOUD_AUTH_OK" --provider openai-codex --model "$MIRA_MODEL" --reasoning high -t vision --ignore-user-config --ignore-rules --usage-file "$RUNNER_TEMP/auth-check-usage.json" > "$RUNNER_TEMP/auth-check.txt"
             grep -Fxq 'CLOUD_AUTH_OK' "$RUNNER_TEMP/auth-check.txt"
           fi
 
@@ -130,7 +151,7 @@ jobs:
           DISCORD_USER_ID: ${{ secrets.MIRA_DISCORD_USER_ID }}
         run: |
           set -euo pipefail
-          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode "${{ steps.mode.outputs.mode }}" --private-root private --registry hub/atlas/mira-agent-lab/cloud-news/source_registry.json
+          python3 hub/atlas/mira-agent-lab/cloud-news/run.py --mode "${{ steps.mode.outputs.mode }}" --private-root private --registry private/mira/newspaper/cloud/source_registry.json
 
       - name: Re-encrypt refreshed OAuth state
         if: always() && steps.mode.outputs.mode != 'smoke'
