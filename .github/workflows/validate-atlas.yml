@@ -42,6 +42,9 @@ jobs:
       - run: node --test atlas/cloud/mira-status.test.mjs
       - run: node --check atlas/cloud/mira-signals.mjs
       - run: node --check atlas/cloud/mira-newspaper.mjs
+      - run: python3 -m py_compile atlas/mira-agent-lab/cloud-news/run.py atlas/mira-agent-lab/cloud-news/auth_blob.py
+      - run: python3 atlas/mira-agent-lab/cloud-news/run.py --mode smoke --private-root . --registry atlas/mira-agent-lab/cloud-news/source_registry.json
+      - run: python3 -m unittest atlas/mira-agent-lab/cloud-news/test_run.py
       - run: node --check atlas/site/newspaper.js
       - run: node --test atlas/cloud/mira-newspaper.test.mjs
       - run: node --check atlas/cloud/mira-discovery.mjs
