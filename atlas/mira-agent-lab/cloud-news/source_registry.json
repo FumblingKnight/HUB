@@ -151,5 +151,51 @@
         "news.mit.edu"
       ]
     }
+  ],
+  "community_sources": [
+    {
+      "name": "Reddit r/anime",
+      "url": "https://www.reddit.com/r/anime/hot/.rss",
+      "category": "Anime community",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "reddit.com"
+      ],
+      "community": true
+    },
+    {
+      "name": "Reddit r/formula1",
+      "url": "https://www.reddit.com/r/formula1/hot/.rss",
+      "category": "F1 community",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "reddit.com"
+      ],
+      "community": true
+    },
+    {
+      "name": "Reddit r/F1Technical",
+      "url": "https://www.reddit.com/r/F1Technical/hot/.rss",
+      "category": "F1 technical community",
+      "lane": "core",
+      "core": false,
+      "allowed_domains": [
+        "reddit.com"
+      ],
+      "community": true
+    },
+    {
+      "name": "Reddit r/LocalLLaMA",
+      "url": "https://www.reddit.com/r/LocalLLaMA/hot/.rss",
+      "category": "AI community",
+      "lane": "adjacent",
+      "core": false,
+      "allowed_domains": [
+        "reddit.com"
+      ],
+      "community": true
+    }
   ]
 }
