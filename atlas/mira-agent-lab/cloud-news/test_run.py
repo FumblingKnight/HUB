@@ -31,16 +31,59 @@ class NewsSafetyTests(unittest.TestCase):
         raw["secondary_url"]="https://b.example/y"
         got=m.validate_story(raw,{raw["url"],raw["secondary_url"]})
         self.assertEqual(got["alert_priority"],"urgent")
+    def test_discussion_url_must_come_from_community_allowlist(self):
+        raw={"topic_id":"x","title":"X","url":"https://news.example/x","discussion_url":"https://www.reddit.com/r/anime/comments/abc/x/"}
+        got=m.validate_story(raw,{raw["url"]},known_discussion_urls=set())
+        self.assertEqual(got["discussion_url"],"")
+        got=m.validate_story(raw,{raw["url"]},known_discussion_urls={raw["discussion_url"]})
+        self.assertEqual(got["discussion_url"],raw["discussion_url"])
+    def test_community_sources_are_separate_and_bounded(self):
+        reg=json.loads((HERE/"source_registry.json").read_text())
+        self.assertGreaterEqual(len(reg.get("community_sources",[])),3)
+        self.assertEqual(len(m.select_community_sources(reg,"hourly")),1)
+        self.assertLessEqual(len(m.select_community_sources(reg,"morning")),2)
+        for src in reg["community_sources"]:
+            self.assertTrue(src.get("community"))
+            self.assertEqual(src["allowed_domains"],["reddit.com"])
+    def test_research_pack_compaction_preserves_all_sections_as_valid_json(self):
+        huge="x"*4000
+        state={"stories":{str(i):{"id":str(i),"title":huge,"last_seen":"2026-10-29T00:00:00+00:00","last_summary":huge} for i in range(60)}}
+        buf=[{"url":f"https://news.example/{i}","title":huge,"excerpt":huge,"category":"X","publisher":"P"} for i in range(50)]
+        evidence=[{"url":f"https://news.example/{i}","title":huge,"description":huge,"body_intro":huge} for i in range(20)]
+        community=[{"url":"https://www.reddit.com/r/anime/comments/x/y/","title":huge,"publisher":"Reddit"}]
+        raw=m.research_pack_json("morning",{},state,buf,evidence,[],{"watch":[{"topic":"T","reason":"R"}]},community)
+        pack=json.loads(raw)
+        self.assertIn("community_leads",pack);self.assertIn("source_health",pack);self.assertIn("previous_watch",pack)
+        self.assertLess(len(raw),90000)
+    def test_candidate_memory_preserves_first_seen_and_counts_sightings(self):
+        stamp=m.iso(m.now())
+        old=[{"url":"https://news.example/a","title":"Old","first_observed_at":"2026-10-29T00:00:00+00:00","last_observed_at":stamp,"sightings":2}]
+        fresh=[{"url":"https://news.example/a","title":"Fresh metadata"}]
+        got=m.merge_candidate_buffer(old,fresh,stamp)
+        self.assertEqual(got[0]["first_observed_at"],"2026-10-29T00:00:00+00:00")
+        self.assertEqual(got[0]["sightings"],3)
+        self.assertEqual(got[0]["title"],"Fresh metadata")
+    def test_known_hourly_story_requires_material_change(self):
+        story={"id":"known","new_information":"","title":"Old"}
+        self.assertFalse(m.accept_hourly_story(story,{"known"}))
+        story["new_information"]="A genuinely new fact"
+        self.assertTrue(m.accept_hourly_story(story,{"known"}))
+        self.assertTrue(m.accept_hourly_story({"id":"new","new_information":""},{"known"}))
     def test_morning_rejects_non_candidate_lead(self):
         data={"lead":{"topic_id":"x","title":"X","url":"https://invented.example/x"},"sections":[]}
         with self.assertRaises(RuntimeError):m.validate_morning(data,{"https://allowed.example/x"})
     def test_registry_is_https_and_domains_are_bounded(self):
         reg=json.loads((HERE/"source_registry.json").read_text())
+        self.assertIs(m.validate_registry(reg),reg)
         self.assertGreaterEqual(len(reg["sources"]),10)
         for src in reg["sources"]:
             self.assertTrue(src["url"].startswith("https://"))
             self.assertTrue(src["allowed_domains"])
             self.assertNotIn("*",src["allowed_domains"])
+        with self.assertRaises(ValueError):
+            m.validate_registry({"sources":[{"name":"Bad","url":"http://example.com/feed","category":"X","lane":"core","allowed_domains":["example.com"]}]})
+        with self.assertRaises(ValueError):
+            m.validate_registry({"sources":[{"name":"Bad","url":"https://example.com/feed","category":"X","lane":"oops","allowed_domains":["*"]}]})
     def test_schedule_stats_are_future_ist_timestamps(self):
         h,morning=m.schedule_stats()
         self.assertIn("+05:30",h);self.assertIn("+05:30",morning)
