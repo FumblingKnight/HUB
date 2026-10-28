@@ -135,7 +135,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          hermes auth status openai-codex
+          AUTH_STATUS="$(hermes auth status openai-codex 2>&1 || true)"
+          echo "$AUTH_STATUS"
+          grep -Eqi 'openai-codex:.*logged in' <<<"$AUTH_STATUS" || {
+            echo "::error::Dedicated cloud Codex credential is not logged in."
+            exit 5
+          }
           if [[ "${{ steps.mode.outputs.mode }}" == "auth-check" ]]; then
             hermes -z "Return exactly: CLOUD_AUTH_OK" --provider openai-codex --model "$MIRA_MODEL" --reasoning high -t context_engine --ignore-user-config --ignore-rules --usage-file "$RUNNER_TEMP/auth-check-usage.json" > "$RUNNER_TEMP/auth-check.txt"
             grep -Fxq 'CLOUD_AUTH_OK' "$RUNNER_TEMP/auth-check.txt"
@@ -168,7 +173,8 @@ jobs:
         run: |
           set -euo pipefail
           cd private
-          git add mira/newspaper/current.json mira/newspaper/archive mira/newspaper/cloud/state.json mira/newspaper/cloud/candidate_buffer.json mira/newspaper/cloud/archive_index.json mira/newspaper/cloud/auth.enc 2>/dev/null || true
+          git add -A -- mira/newspaper/current.json mira/newspaper/cloud
+          if [[ -d mira/newspaper/archive ]]; then git add -A -- mira/newspaper/archive; fi
           if git diff --cached --quiet; then echo "No private-state changes to commit."; exit 0; fi
           git config user.name "Mira Newspaper Cloud"
           git config user.email "299255337+FumblingKnight@users.noreply.github.com"
