@@ -1,0 +1,64 @@
+name: Mira ephemeral Hermes proof
+on:
+  pull_request:
+    paths:
+      - 'atlas/mira-agent-lab/**'
+      - '.github/workflows/mira-hermes-ephemeral.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'atlas/mira-agent-lab/**'
+      - '.github/workflows/mira-hermes-ephemeral.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mira-hermes-ephemeral
+  cancel-in-progress: false
+jobs:
+  hermes-no-secret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Hermes CLI without setup, browser or credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://hermes-agent.nousresearch.com/install.sh -o /tmp/hermes-install.sh
+          bash /tmp/hermes-install.sh --non-interactive --skip-browser --skip-computer-use
+      - name: Test actual Hermes one-shot against a local fixed-response mock (NO REAL AI)
+        run: bash atlas/mira-agent-lab/ci-hermes-smoke.sh
+  cloudflare-plan-preflight:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read account plan WITHOUT invoking AI or printing billing details
+        env:
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_ACCOUNT:-}" ] || [ -z "${CF_TOKEN:-}" ]; then
+            echo "free_AI_eligibility=unverified (missing existing credentials)"; exit 0
+          fi
+          status=$(curl -sS --max-time 20 -o /tmp/mira-cf-plan.json -w '%{http_code}' \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/subscriptions" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          if [ "$status" != 200 ]; then
+            echo "free_AI_eligibility=unverified (account read unavailable: HTTP $status)"
+            exit 0
+          fi
+          node - <<'NODE'
+          const fs = require('node:fs');
+          let data;try{data=JSON.parse(fs.readFileSync('/tmp/mira-cf-plan.json','utf8'))}catch{console.log('free_AI_eligibility=unverified (invalid response)');process.exit(0);}
+          const entries=Array.isArray(data.result)?data.result:[];
+          const ids=entries.map(x=>String(x?.rate_plan?.id||'').toLowerCase());
+          // Fail closed. Absence of a paid subscription is NOT conclusive proof of Workers Free.
+          const confirmed=Boolean(data.success)&&ids.some(x=>/^(workers[_-]free|free[_-]workers)$/.test(x));
+          console.log('free_AI_eligibility='+ (confirmed?'confirmed_workers_free':'unverified'));
+          console.log('No Cloudflare model call was made.');
+          NODE
