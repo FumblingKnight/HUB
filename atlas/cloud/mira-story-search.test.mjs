@@ -44,6 +44,7 @@ test("scene query filters out all episodes beyond cutoff even if upstream ignore
   const rows={results:[
     {title:"Iruma",mal_id:39196,episode_number:4,arc_name:"School",
       scenes:[{scene_id:"ep4scene1",summary:"Classmates train",location:"Classroom"}]},
+    {title:"Other",mal_id:999,episode_number:3,arc_name:"Wrong series",scenes:[{summary:"Wrong series evidence"}]},
     {title:"Iruma",mal_id:39196,episode_number:22,arc_name:"School",
       scenes:[{scene_id:"ep22scene1",summary:"Future event"}]}
   ]};
@@ -53,6 +54,7 @@ test("scene query filters out all episodes beyond cutoff even if upstream ignore
   assert.equal(data.matches.length,1);
   assert.equal(data.matches[0].episode,4);
   assert.ok(JSON.stringify(data).indexOf("Future event")<0);
+  assert.ok(JSON.stringify(data).indexOf("Wrong series")<0);
 });
 test("arc index refuses mismatched title identity",async()=>{
   const r=await run("mode=arcs&mal=39196&through=12",fake({mal_id:999,arcs:[]}));
