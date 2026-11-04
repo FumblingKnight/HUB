@@ -57,7 +57,7 @@ function renderEpisodes(items,through){
       const section=el("div","media-scene");
       if(scene.location)section.append(el("h4","",scene.location));
       if(scene.summary)section.append(el("p","",scene.summary));
-      if(scene.timestamp)append(el("small","",scene.timestamp));
+      if(scene.timestamp)section.append(el("small","",scene.timestamp));
       card.append(section);
     }
     appendNote(card,"Source:","Anime Akashic Records indexed episode/scene data (not independently fact-checked).");
