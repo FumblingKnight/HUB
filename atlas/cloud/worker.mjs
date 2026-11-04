@@ -3,6 +3,7 @@ import {reconcile,validateVault} from "../core.mjs";
 import {searchVaultContext} from "../retrieve-context.mjs";
 import {readMiraSignals} from "./mira-signals.mjs";
 import {storySearch} from "./mira-story-search.mjs";
+import {readReviewedMediaClaims} from "./mira-media-claims.mjs";
 import {readDiscovery,queueDiscovery} from "./mira-discovery.mjs";
 import {readMiraProjectStatus} from "./mira-status.mjs";
 import {mediaEndpoint,MAX_IMAGE_BYTES} from "./github-media.mjs";
@@ -59,7 +60,7 @@ async function api(req,env,url){
  if(url.pathname==="/api/mira/status"&&req.method==="GET")
   return json(await readMiraProjectStatus(env));
  if(url.pathname==="/api/mira/story"&&req.method==="GET")
-  return await storySearch(req);
+  return await storySearch(req,fetch,(mal,through)=>readReviewedMediaClaims(env,mal,through));
  if(url.pathname==="/api/mira/signals"&&req.method==="GET")
   return json(await readMiraSignals(env));
  if(url.pathname==="/api/mira/newspaper"&&req.method==="GET")
