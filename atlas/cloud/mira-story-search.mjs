@@ -89,7 +89,7 @@ export async function storySearch(request,fetcher=fetch,readClaims=async()=>[]){
       upstream.searchParams.set("limit",String(Math.max(p.limit,18)));
       const data=await requestAAR(upstream.pathname+upstream.search,fetcher);
       const rows=(Array.isArray(data.results)?data.results:[]).filter(x=>
-        !p.medium||x.type===p.medium).slice(0,p.limit).map(catalogue);
+        x.is_adult!==true&&(!p.medium||x.type===p.medium)).slice(0,p.limit).map(catalogue);
       return result({mode:p.mode,query:p.q,results:rows,coverage:{source:"AAR preindexed third-party catalogue",
         provider_result_total:Number(data.total)||null},
         limits:"Titles, themes and synopses are candidate evidence, not proof of late story progression."});
@@ -103,7 +103,7 @@ export async function storySearch(request,fetcher=fetch,readClaims=async()=>[]){
         ()=>({items:[],unavailable:true}));
       return result({mode:p.mode,mal_id:p.mal,through_episode:p.through,
         reviewed_claims:reviewed.items,reviewed_claims_unavailable:reviewed.unavailable,
-        matches:(Array.isArray(data.results)?data.results:[]).map(x=>scene(x,p.through)).filter(Boolean),
+        matches:(Array.isArray(data.results)?data.results:[]).filter(x=>x.mal_id===p.mal).map(x=>scene(x,p.through)).filter(Boolean),
         coverage:{source:"AAR preindexed episode/scene retrieval"},
         limits:"These are provider-generated scene descriptions. They support bounded episode observations, not claims about the whole series or manga chapters."});
     }
