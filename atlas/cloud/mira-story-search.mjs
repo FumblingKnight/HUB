@@ -78,7 +78,7 @@ function arc(r,cutoff){
           saga:safeString(r.saga_name,150),start_episode:x,end_episode:y,
           evidence_status:"PROVIDER_ARC_BOUNDARY_NOT_PLOT_CENTRALITY"};
 }
-export async function storySearch(request,fetcher=fetch){
+export async function storySearch(request,fetcher=fetch,readClaims=async()=>[]){
   const url=new URL(request.url);
   let p;
   try{p=validate(url);}catch(e){return result({error:safeString(e.message,150)},400);}
@@ -99,7 +99,10 @@ export async function storySearch(request,fetcher=fetch){
       for(const [k,v] of Object.entries({q:p.q,granularity:"episode",mal_id:p.mal,
           max_episode:p.through,limit:p.limit}))upstream.searchParams.set(k,String(v));
       const data=await requestAAR(upstream.pathname+upstream.search,fetcher);
+      const reviewed=await readClaims(p.mal,p.through).then(items=>({items,unavailable:false}),
+        ()=>({items:[],unavailable:true}));
       return result({mode:p.mode,mal_id:p.mal,through_episode:p.through,
+        reviewed_claims:reviewed.items,reviewed_claims_unavailable:reviewed.unavailable,
         matches:(Array.isArray(data.results)?data.results:[]).map(x=>scene(x,p.through)).filter(Boolean),
         coverage:{source:"AAR preindexed episode/scene retrieval"},
         limits:"These are provider-generated scene descriptions. They support bounded episode observations, not claims about the whole series or manga chapters."});
