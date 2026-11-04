@@ -1,3 +1,4 @@
+import {printThemes} from "./mira-print-themes.mjs";
 // Read-only, session-protected story retrieval. Call ONLY after ATLAS session verification.
 // AAR is a separate pre-indexed third-party engine; results are source assertions, not verified plot facts.
 const ROOT = "https://api.aarecords.tech";
@@ -23,13 +24,15 @@ function validate(url){
   const limit=num(url.searchParams.get("limit"),8,1,12);
   const through=num(url.searchParams.get("through"),0,0,2000);
   const mal=num(url.searchParams.get("mal"),null,1,1000000);
-  if(!["discover","episodes","arcs"].includes(mode)||!limit===true){}
+  if(!["discover","episodes","arcs","print-themes"].includes(mode)||!limit===true){}
   if(!["discover","episodes","arcs"].includes(mode)||limit===null||through===null||
      (medium&&!MEDIUM.has(medium)))throw Error("Invalid parameters");
   if(mode==="discover"&&(q.length<3||q.length>250))throw Error("Query must be 3–250 characters");
-  if(mode!=="discover"&&(mal===null||through===0||q.length>250))throw Error("Episode limit and MAL anime ID required");
+  if(["episodes","arcs"].includes(mode)&&(mal===null||through===0||q.length>250))throw Error("Episode limit and MAL anime ID required");
+  if(mode==="print-themes"&&(mal===null||medium==="anime"||!["manga","manhwa","manhua","novel"].includes(medium)||
+      !url.searchParams.get("title")?.trim()||url.searchParams.get("title").length>200))throw Error("Exact print identity required");
   if(mode==="episodes"&&q.length<3)throw Error("Episode search requires a query");
-  return {q,mode,medium,limit,through,mal};
+  return {q,mode,medium,limit,through,mal,title:url.searchParams.get("title")||""};
 }
 async function requestAAR(path,fetcher){
   const u=new URL(path,ROOT);
@@ -83,6 +86,7 @@ export async function storySearch(request,fetcher=fetch,readClaims=async()=>[]){
   let p;
   try{p=validate(url);}catch(e){return result({error:safeString(e.message,150)},400);}
   try{
+    if(p.mode==="print-themes")return result(await printThemes({title:p.title,mal:p.mal,medium:p.medium},fetcher));
     if(p.mode==="discover"){
       const upstream=new URL("/search",ROOT);
       upstream.searchParams.set("q",p.q);
