@@ -38,7 +38,13 @@
     <p class="media-fine">Only episodes at or before your cutoff are displayed. Third-party scene summaries are attributed but not independently verified.</p>
     <div id="episode-results" class="media-results"></div>
   </section>
-  <footer class="media-foot">Catalogue and scene search use the independently pre-indexed Anime Akashic Records service. Findings are not an assertion that a theme remains central throughout an entire manga or anime. Queries are sent to that provider through Mira’s authenticated server; private memory is not transmitted automatically. <a href="https://aarecords.tech/api" target="_blank" rel="noreferrer">Source and API details</a>.</footer>
+  <section id="print-section" class="episode-section" hidden>
+    <div class="media-section-heading"><div><span class="media-kicker">PRINT / PREINDEXED THEMES</span><h2 id="print-title">Series themes</h2></div>
+      <button type="button" id="close-print">Close</button></div>
+    <p class="media-fine">Source-weighted themes describe the overall work. They do not establish when school arcs occur. Spoiler-tagged themes are excluded.</p>
+    <div id="print-results" class="media-results"></div>
+  </section>
+  <footer class="media-foot">Catalogue and scene search use the independently pre-indexed Anime Akashic Records service. Print themes come from MangaBaka (CC BY-NC-SA and provider attribution). Findings are not an assertion that a theme remains central throughout an entire manga or anime. Queries are sent to that provider through Mira’s authenticated server; private memory is not transmitted automatically. <a href="https://aarecords.tech/api" target="_blank" rel="noreferrer">Source and API details</a>.</footer>
 </main>
 <script type="module" src="/media-intelligence.js"></script>
 </body></html>
