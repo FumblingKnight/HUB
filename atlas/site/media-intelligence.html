@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c10"><title>Media Intelligence — Mira</title>
+<meta name="description" content="Evidence-led anime and manga discovery with spoiler boundaries.">
+<link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/viewer.css">
+<link rel="stylesheet" href="/media-intelligence.css"><script src="/viewer-shell.js" defer></script>
+</head><body>
+<div class="ambient" aria-hidden="true"></div>
+<main class="content media-page">
+  <div class="media-top"><a href="/home.html">← Mira Home</a><span>PRIVATE WORKSPACE / MEDIA INTELLIGENCE</span></div>
+  <header class="media-head">
+    <div class="media-kicker">PREINDEXED KNOWLEDGE, PROVENANCE FIRST</div>
+    <h1>Find a story that <em>stays with you.</em></h1>
+    <p>Search anime, manga and manhwa by premise and themes. For indexed anime, inspect episode evidence only within a cutoff you choose. No fabricated chapter knowledge.</p>
+  </header>
+  <form id="search-form" class="media-query">
+    <label for="query">What kind of story?</label>
+    <textarea id="query" rows="2" maxlength="250" required minlength="3" placeholder="A long magic-school story with a growing protagonist, real friendships, training and some romance — not constant world-ending escalation."></textarea>
+    <div class="media-controls">
+      <label>Medium <select id="medium">
+        <option value="">All indexed formats</option><option value="anime">Anime</option>
+        <option value="manga">Manga</option><option value="manhwa">Manhwa</option>
+        <option value="light_novel">Light novels</option>
+      </select></label>
+      <button id="search-button" type="submit">Search stories</button>
+    </div>
+  </form>
+  <p class="media-status" role="status" aria-live="polite" id="status">Search the pre-indexed source to begin.</p>
+  <section id="results" aria-label="Story matches" class="media-results"></section>
+  <section id="episode-section" class="episode-section" hidden>
+    <div class="media-section-heading"><div><span class="media-kicker">PLOT EVIDENCE / SPOILER CONTROL</span><h2 id="episode-title">Episode evidence</h2></div>
+    <button type="button" id="close-episode">Close</button></div>
+    <form id="episode-form" class="media-episode-form">
+      <label>Watched through episode <input id="through" type="number" min="1" max="2000" step="1" placeholder="e.g. 12" required></label>
+      <button type="submit">Check within cutoff</button>
+    </form>
+    <p class="media-fine">Only episodes at or before your cutoff are displayed. Third-party scene summaries are attributed but not independently verified.</p>
+    <div id="episode-results" class="media-results"></div>
+  </section>
+  <footer class="media-foot">Catalogue and scene search use the independently pre-indexed Anime Akashic Records service. Findings are not an assertion that a theme remains central throughout an entire manga or anime. Queries are sent to that provider through Mira’s authenticated server; private memory is not transmitted automatically. <a href="https://aarecords.tech/api" target="_blank" rel="noreferrer">Source and API details</a>.</footer>
+</main>
+<script type="module" src="/media-intelligence.js"></script>
+</body></html>
