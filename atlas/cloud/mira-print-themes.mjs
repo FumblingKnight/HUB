@@ -51,6 +51,7 @@ export async function printThemes({title,mal,medium},fetcher=fetch){
  const name=(Array.isArray(item.titles)?item.titles:[]).find(x=>x.language==="en"&&x.is_primary)?.title||
             (Array.isArray(item.titles)?item.titles:[]).find(x=>x.language==="en")?.title||title;
  return {mode:"print-themes",status:"MATCHED_MAL_ID",title:safe(name),mal_id:mal,
+   mangabaka_id:id,
    medium,source:"https://mangabaka.org/"+id,source_provider:"MangaBaka",
    catalogue_updated:safe(item.last_updated_at,60),
    total_chapters:Number.isInteger(item.total_chapters)?item.total_chapters:null,
