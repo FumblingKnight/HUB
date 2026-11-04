@@ -49,3 +49,11 @@
 .media-reviewed h3{line-height:1.45}
 .media-sources{padding-left:19px;color:#c0c7d6;font-size:12px;line-height:1.8}
 .media-sources li+li{margin-top:6px}
+
+.media-theme-list{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 18px}
+.media-theme{display:flex;gap:8px;align-items:center;border:1px solid #484c5a;background:#292b35;
+  border-radius:999px;padding:6px 10px;font-size:12px;color:#a8acba}
+.media-theme strong{color:#d0d4e0;font-weight:600}
+.media-theme span{text-transform:capitalize;letter-spacing:.01em;font-size:10px}
+.media-theme-strong{border-color:#7485aa;background:#303d53}
+.media-theme-strong strong{color:#f0f4ff}
