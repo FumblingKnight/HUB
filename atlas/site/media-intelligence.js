@@ -42,6 +42,41 @@ function renderCatalog(items){
         $("through").value="";episodeSection.scrollIntoView({behavior:"smooth",block:"start"});
       });card.append(b);
     }
+
+    if(["manga","manhwa","manhua"].includes(item.medium)&&Number.isInteger(item.mal_id)){
+      const b=el("button","media-secondary","Inspect series themes");
+      b.type="button";b.addEventListener("click",async()=>{
+        episodeSection.hidden=true;
+        $("print-section").hidden=false;
+        $("print-title").textContent=(item.title||"Series")+" — theme weight";
+        const host=$("print-results");
+        host.replaceChildren(el("p","media-empty","Reading pre-indexed MangaBaka themes…"));
+        $("print-section").scrollIntoView({behavior:"smooth",block:"start"});
+        try{
+          const data=await request({mode:"print-themes",title:item.title,
+            medium:item.medium,mal:item.mal_id});
+          host.replaceChildren();
+          if(data.status!=="MATCHED_MAL_ID"){
+            host.append(el("p","media-empty","MangaBaka could not establish an exact title identity. No themes are asserted."));return;
+          }
+          const wrap=el("article","media-card media-reviewed");
+          wrap.append(el("h3","",data.title));
+          appendNote(wrap,"Verified identity:","Exact MAL ID match · "+data.medium);
+          if(data.total_chapters!==null)appendNote(wrap,"Provider chapter count:",String(data.total_chapters));
+          const tags=el("div","media-theme-list");
+          for(const tag of data.tags||[]){
+            const pill=el("div","media-theme"+(["core","defining"].includes(tag.weight)?" media-theme-strong":""));
+            pill.append(el("strong","",tag.name));
+            pill.append(el("span","",tag.weight));
+            tags.append(pill);
+          }
+          wrap.append(tags);
+          appendNote(wrap,"Limitation:",data.limits);
+          if(data.source)wrap.append(external(data.source,"Original MangaBaka record"));
+          host.append(wrap);
+        }catch(err){host.replaceChildren(el("p","media-error",err.message));}
+      });card.append(b);
+    }
     results.append(card);
   }
 }
@@ -86,7 +121,7 @@ function renderEpisodes(items,through,claims=[],unavailable=false){
 search.addEventListener("submit",async e=>{
   e.preventDefault();selected=null;episodeSection.hidden=true;
   const q=$("query").value.trim();if(q.length<3)return;
-  searchButton.disabled=true;setStatus("Searching pre-indexed stories…");results.replaceChildren();
+  searchButton.disabled=true;setStatus("Searching pre-indexed stories…");results.replaceChildren();$("print-section").hidden=true;
   try{
     const data=await request({q,mode:"discover",medium:$("medium").value,limit:10});
     renderCatalog(data.results||[]);
@@ -95,6 +130,7 @@ search.addEventListener("submit",async e=>{
   finally{searchButton.disabled=false;}
 });
 $("close-episode").addEventListener("click",()=>{episodeSection.hidden=true;selected=null;});
+$("close-print").addEventListener("click",()=>{$("print-section").hidden=true;});
 $("episode-form").addEventListener("submit",async e=>{
   e.preventDefault();if(!selected)return;
   const through=Number($("through").value);

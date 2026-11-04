@@ -73,3 +73,19 @@ test("source HTTP errors fail closed without claiming story evidence",async()=>{
   const data=await r.json();
   assert.equal(data.retryable,true);assert.deepEqual(Object.keys(data).sort(),["error","reason","retryable"]);
 });
+
+test("print theme mode requires exact MAL identity and returns weighted tags",async()=>{
+  const matching={id:1464,type:"manhwa",content_rating:"safe",
+    source:{my_anime_list:{id:154692}},
+    titles:[{language:"en",is_primary:true,title:"The Infinite Mage"}],
+    tags:[{id:611,name:"Magic School",weight:"core",is_spoiler:false,content_rating:"safe"}]};
+  let calls=0;
+  const r=await run("mode=print-themes&title=The%20Infinite%20Mage&mal=154692&medium=manhwa",
+    async url=>{calls++;const u=new URL(url);assert.equal(u.origin,"https://api.mangabaka.org");
+      return new Response(JSON.stringify({status:200,data:u.pathname.includes("/search")?[matching]:matching}),{status:200});
+    });
+  assert.equal(r.status,200);
+  const d=await r.json();assert.equal(d.status,"MATCHED_MAL_ID");
+  assert.equal(d.tags[0].name,"Magic School");
+  assert.equal(calls,2);
+});

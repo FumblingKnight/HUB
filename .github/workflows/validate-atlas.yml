@@ -42,6 +42,8 @@ jobs:
       - run: node --test atlas/cloud/mira-status.test.mjs
       - run: node --check atlas/cloud/mira-story-search.mjs
       - run: node --check atlas/cloud/mira-media-claims.mjs
+      - run: node --check atlas/cloud/mira-print-themes.mjs
+      - run: node --test atlas/cloud/mira-print-themes.test.mjs
       - run: node --check atlas/site/media-intelligence.js
       - run: node --test atlas/cloud/mira-story-search.test.mjs atlas/cloud/mira-media-claims.test.mjs
       - run: node --check atlas/cloud/mira-signals.mjs
