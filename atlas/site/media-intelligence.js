@@ -45,9 +45,27 @@ function renderCatalog(items){
     results.append(card);
   }
 }
-function renderEpisodes(items,through){
+function renderEpisodes(items,through,claims=[],unavailable=false){
   episodeResults.replaceChildren();
-  if(!items.length){episodeResults.append(el("p","media-empty","No matching episode evidence within the selected cutoff. This does not prove the theme is absent."));return;}
+  if(unavailable)episodeResults.append(el("p","media-error","Private reviewed evidence is temporarily unavailable; external source results may still be shown."));
+  for(const claim of claims){
+    const card=el("article","media-card media-reviewed");
+    card.append(el("p","media-kicker","REVIEWED PUBLISHER / DISTRIBUTOR EVIDENCE"));
+    card.append(el("h3","",claim.claim));
+    appendNote(card,"Scope:","Season "+claim.scope.season+", episode "+claim.scope.start_episode+
+      (claim.scope.start_episode===claim.scope.end_episode?"":"–"+claim.scope.end_episode));
+    appendNote(card,"Facet / status:",claim.facet.replaceAll("_"," ")+" · "+claim.status.replaceAll("_"," "));
+    appendNote(card,"Interpretation:",claim.confidence);
+    const ul=el("ul","media-sources");
+    for(const source of claim.evidence||[]){
+      const li=el("li");
+      li.append(external(source.url,source.provider||"Source"));
+      if(source.note)li.append(document.createTextNode(" — "+source.note));
+      ul.append(li);
+    }
+    card.append(ul);episodeResults.append(card);
+  }
+  if(!items.length&&!claims.length){episodeResults.append(el("p","media-empty","No matching evidence within the selected cutoff. This does not prove a theme is absent."));return;}
   for(const item of items){
     const card=el("article","media-card");
     card.append(el("h3","",item.title+" — Episode "+item.episode));
@@ -85,6 +103,6 @@ $("episode-form").addEventListener("submit",async e=>{
   try{
     const data=await request({mode:"episodes",q:$("query").value.trim(),
       mal:selected.mal_id,through,limit:6});
-    renderEpisodes(data.matches||[],through);
+    renderEpisodes(data.matches||[],through,data.reviewed_claims||[],data.reviewed_claims_unavailable);
   }catch(err){episodeResults.replaceChildren(el("p","media-error",err.message));}
 });
