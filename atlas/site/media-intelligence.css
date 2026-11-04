@@ -44,3 +44,8 @@
 .media-scene small{color:#a3a9ba}
 .media-foot{font-size:12px;line-height:1.7;color:#8f94a2;border-top:1px solid #32353f;margin-top:64px;padding-top:24px}
 @media(max-width:760px){.media-page{padding:62px 18px 42px}.media-head{margin:44px 0 30px}.media-results{grid-template-columns:1fr}.media-top{align-items:start;font-size:10px}.media-query{padding:17px}.media-page button{width:100%}.media-controls label,.media-controls select{width:100%}.media-section-heading button{width:auto}.media-episode-form label,.media-episode-form input{width:100%}}
+
+.media-reviewed{border-color:#667ba6;background:#1b2230}
+.media-reviewed h3{line-height:1.45}
+.media-sources{padding-left:19px;color:#c0c7d6;font-size:12px;line-height:1.8}
+.media-sources li+li{margin-top:6px}
