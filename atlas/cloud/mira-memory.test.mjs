@@ -79,3 +79,28 @@ test('malformed provenance and corrections rejected',()=>{
 test('write methods rejected; no network mutation',async()=>{
  assert.equal((await memoryEndpoint(new Request('https://atlas.invalid/api/mira/memory',{method:'POST'}),env)).status,405);
 });
+test('memory page and all new assets remain behind original auth gate',async()=>{
+ const cookie=(await issueSession(pass)).split(';')[0];let calls=0;
+ const local={...env,ASSETS:{fetch:async req=>{calls++;return new Response('synthetic static fixture');}}};
+ for(const path of ['/memory.html','/memory.js','/memory.css','/home.html','/context.html']){
+  const anon=await worker.fetch(new Request('https://atlas.invalid'+path),local);
+  assert.equal(anon.status,303);assert.equal(anon.headers.get('location'),'/login');
+  const signed=await worker.fetch(new Request('https://atlas.invalid'+path,{headers:{cookie}}),local);
+  assert.equal(signed.status,200);assert.match(signed.headers.get('cache-control'),/no-store/);
+  assert.match(signed.headers.get('content-security-policy'),/frame-ancestors 'none'/);
+ }assert.equal(calls,5);
+});
+
+test('fresh Node process recalls persisted synthetic state',async()=>{
+ const {execFileSync}=await import('node:child_process');
+ const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');
+ const {tmpdir}=await import('node:os');
+ const d=mkdtempSync(tmpdir()+'/mira-test-');
+ try{
+  const path=d+'/fixture.json';writeFileSync(path,JSON.stringify(state));
+  const output=execFileSync(process.execPath,['--input-type=module','-e',
+   "import {readFileSync} from 'node:fs';import {projectMemory} from './atlas/cloud/mira-memory.mjs';console.log(JSON.stringify(projectMemory(JSON.parse(readFileSync(process.argv[1])),'coaching')))",path],{encoding:'utf8'});
+  const x=JSON.parse(output);assert.ok(x.memories.some(e=>e.id==='cousin'));
+  assert.deepEqual(x.profile.map(e=>e.id),['now']);
+ }finally{rmSync(d,{recursive:true});}
+});
