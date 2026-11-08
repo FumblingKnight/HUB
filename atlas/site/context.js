@@ -8,14 +8,14 @@ const link=(text,url)=>{
 };
 function display(data){
  root.replaceChildren();
- if(!Array.isArray(data.items)||!data.items.length){root.append(el("p","empty","No relevant ATLAS entries found. Your saved graph may not contain this subject yet."));return;}
+ if(!Array.isArray(data.items)||!data.items.length){root.append(el("p","empty","Nothing saved for this topic yet. Try another name or project; this searches saved entries, not your chat history."));return;}
  for(const item of data.items){
   const card=el("article","memory-card"),heading=el("div","memory-heading"),title=el("h2","",item.title);
   heading.append(title,el("span","kind",item.kind||"knowledge"));
   card.append(heading);
   if(item.summary)card.append(el("p","memory-summary",item.summary));
-  const matched=el("p","matched","Matched: "+(item.matched||[]).join(", "));
-  card.append(matched);
+  const details=el("details","memory-technical");
+  details.append(el("summary","","Search details"),el("p","matched","Matched: "+(item.matched||[]).join(", ")));
   if(Array.isArray(item.claims)&&item.claims.length){
    const group=el("div","memory-claims");
    group.append(el("h3","","Recorded claims"));
@@ -29,7 +29,7 @@ function display(data){
    card.append(group);
   }
   if(item.related?.length){const relation=el("div","memory-relations");relation.append(el("strong","","Related: "));relation.append(el("span","",item.related.map(r=>r.title+" ("+r.type+")").join(" · ")));card.append(relation);}
-  card.append(el("small","memory-date","Updated "+(item.updatedAt||"unknown")));
+  details.append(el("small","memory-date","Updated "+(item.updatedAt||"unknown")));card.append(details);
   root.append(card);
  }
 }
@@ -42,7 +42,7 @@ async function recall(){
   const data=await res.json();
   if(!res.ok)throw Error(data.error||"Retrieval request failed");
   display(data);
-  status.textContent=data.matched+" relevant ATLAS "+(data.matched===1?"entry":"entries")+" retrieved · Graph updated "+(data.graph_updated_at||"unknown");
+  status.textContent=data.matched?(data.matched===1?"One saved entry found.":data.matched+" saved entries found."):"Search complete — no saved match.";
  }catch(e){status.textContent=e.message||"Memory retrieval unavailable";}
 }
 form.addEventListener("submit",e=>{e.preventDefault();recall();});

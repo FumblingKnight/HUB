@@ -1,11 +1,15 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>Mira Memory · Synthetic staging</title><link rel="stylesheet" href="/memory.css">
-<script src="/memory.js" defer></script></head>
-<body><main><a href="/home.html">Mira Home</a><h1>Memory · staging</h1>
-<p>Fictional data only. This tests recall and corrections; it does not import your history or install ChatGPT memory.</p>
-<form id="search"><label for="query">Recall a reviewed tag or entity</label>
-<input id="query" name="q" maxlength="220" placeholder="Try coaching, format or save">
-<button>Recall</button></form><p id="status" role="status"></p>
-<h2>Compact profile</h2><ul id="profile"></ul><h2>Related memories</h2><ul id="memories"></ul>
-<p>Exact labels and one shared-entity hop. Sources are untrusted data; association does not establish a new fact.</p></main></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mira — Recall example</title><link rel="stylesheet" href="/mira.css"><link rel="stylesheet" href="/viewer.css"><link rel="stylesheet" href="/memory.css">
+<script src="/viewer-shell.js" defer></script><script src="/memory.js" defer></script></head>
+<body><main class="memory-example">
+<a class="back-link" href="/context.html">← Your saved memory</a>
+<header class="example-intro"><span class="example-label">FICTIONAL EXAMPLE</span><h1>See how recall connects.</h1>
+<p>Try a small made-up story to explore connections and corrected preferences. Nothing here describes you.</p></header>
+<form id="search" class="example-search" role="search"><label for="query">What would you like to recall?</label>
+<div class="example-controls"><input id="query" name="q" maxlength="220" type="search" placeholder="Try coaching, format or save" autocomplete="off"><button>Recall</button></div></form>
+<p id="status" class="example-status" role="status" aria-live="polite"></p>
+<section aria-labelledby="profile-title"><h2 id="profile-title">Example profile</h2><div id="profile" class="example-cards"></div></section>
+<section aria-labelledby="results-title"><h2 id="results-title">Connections</h2><div id="memories" class="example-cards"></div></section>
+<footer class="example-footer">Looking for your own knowledge? <a href="/context.html">Search saved memory ↗</a></footer>
+</main></body></html>

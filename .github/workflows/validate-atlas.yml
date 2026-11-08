@@ -62,3 +62,17 @@ jobs:
       - run: node --test atlas/cloud/mira-context.test.mjs
       - run: node --test atlas/cloud/mira-signals.test.mjs
       - run: node --test atlas/core.test.mjs atlas/cloud/media.test.mjs atlas/cloud/session.test.mjs atlas/cloud/github-media.test.mjs
+
+      - name: Render fictional memory UI on desktop and mobile
+        timeout-minutes: 4
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.56.1
+          python3 atlas/qa/serve.py > /tmp/mira-visual-server.log 2>&1 &
+          node atlas/qa/memory-visual.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mira-memory-visual-qa
+          path: artifacts/
+          retention-days: 3
+          if-no-files-found: warn
