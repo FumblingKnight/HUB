@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: "22"
       - run: node --check atlas/core.mjs
+      - run: node --test atlas/cloud/mira-memory.test.mjs
       - run: node --check atlas/cloud/worker.mjs
       - run: node --check atlas/cloud/session.mjs
       - run: node --check atlas/cloud/github-media.mjs

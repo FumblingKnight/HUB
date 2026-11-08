@@ -1,3 +1,4 @@
+import {memoryEndpoint} from "./mira-memory.mjs";
 import {readNewspaper,updateNewspaperFeedback} from "./mira-newspaper.mjs";
 import {reconcile,validateVault} from "../core.mjs";
 import {searchVaultContext} from "../retrieve-context.mjs";
@@ -57,6 +58,7 @@ async function editVault(env,operation){
 async function api(req,env,url){
  if(!env.ATLAS_REPOSITORY||!env.ATLAS_GITHUB_TOKEN)
   return error("Private vault is not connected yet",503);
+ if(url.pathname==="/api/mira/memory")return await memoryEndpoint(req,env);
  if(url.pathname==="/api/mira/status"&&req.method==="GET")
   return json(await readMiraProjectStatus(env));
  if(url.pathname==="/api/mira/story"&&req.method==="GET")

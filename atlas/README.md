@@ -62,3 +62,25 @@ Relevant files:
 ## Security caveat
 
 A nine-character password is significantly easier to guess than a long random passphrase even with rate limiting; choose an unpredictable password and use a password manager. The Worker now rejects login requests above eight attempts per minute per Cloudflare location (approximately, because distributed rate limit counters are eventually consistent). This simple passphrase-based authentication is a cost-free compromise, not an enterprise identity system. Choose a unique, long random passphrase, do not reuse credentials, and rotate secrets if exposed. The Cloudflare Worker handles only a personal knowledge vault and should not contain credentials or high-stakes secrets among page contents.
+
+## Synthetic memory integration (staging patch)
+
+The read-only `/api/mira/memory?q=coaching&limit=5` route and `/memory.html` panel
+use the existing signed-session gate. This staging implementation reads only
+`mira/memory-mvp/synthetic-state.json` on the configured private repository's
+`main` branch, with the existing server-side GitHub token. It does not read
+or alter `vault.json`, accept user-selected source paths, or write memory.
+
+The fixed source is limited to 32 KiB / 100 reviewed fictional records.
+Sources must use `https://example.org/fictional/`; personal imports are rejected.
+Responses are private/no-store, vary by Cookie and expose no upstream errors.
+The UI uses textContent rather than rendering source text as HTML.
+
+Run `node --test atlas/cloud/mira-memory.test.mjs` for the route's tests.
+These authenticate through the real Worker with a synthetic signed session and
+mock GitHub transport. They are not proof of a live signed-in deployment.
+No new secrets, bindings, schedules or production deployment are required to
+review this patch. Do not merge on the strength of mocked tests alone:
+confirm the existing authenticated deployment path and included cloud capacity
+first. This is deterministic reviewed-label recall, not AI inference, automatic
+ChatGPT injection, or import of a user's archive.
