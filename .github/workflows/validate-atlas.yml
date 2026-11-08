@@ -27,6 +27,7 @@ jobs:
       - run: node --check atlas/site/viewer-shell.js
       - run: node --check atlas/site/home.js
       - run: node --check atlas/site/login.js
+      - run: node --test atlas/site/memory-ui.test.mjs
       - run: node --test atlas/site/viewer-ui.test.mjs
       - run: node --check atlas/site/mira.js
       - run: node --check atlas/site/mira-reader.js
