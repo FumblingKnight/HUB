@@ -14,7 +14,7 @@ const fs=require('fs');
   if(await page.getByText('Neri now prefers written lessons.',{exact:true}).count()!==1)throw Error('duplicate profile');
   if(await page.getByText('https://example.org/fictional/e2',{exact:true}).isVisible())throw Error('expanded evidence');
   await page.screenshot({path:'artifacts/'+label+'.png',fullPage:true});
-  await page.getByText('Evidence and connection',{exact:true}).last().click();
+  await page.getByText('Evidence and connection',{exact:true}).last().press('Enter');
   if(!await page.getByText('https://example.org/fictional/e2',{exact:true}).isVisible())throw Error('evidence missing');
   await page.getByLabel('What would you like to recall?').fill('orbital mechanics');
   await page.getByRole('button',{name:'Recall',exact:true}).click();

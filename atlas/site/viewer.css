@@ -203,3 +203,9 @@ body.viewer-ui .status-evidence-disclosure>summary span{margin-left:auto;font-si
 body.viewer-ui .status-evidence-disclosure>.audit{margin:0;padding:20px;border-top:1px solid var(--m-hairline)}
 body.viewer-ui .status-evidence-disclosure .status-card{background:#20222a}
 body.viewer-ui .status-evidence-disclosure>summary:focus-visible{outline:2px solid #c6c8ff;outline-offset:-3px}
+/* Keep small-screen navigation legible rather than squeezing labels into icons. */
+@media(max-width:650px){
+ .mira-nav{justify-content:flex-start;overflow-x:auto;gap:5px;scrollbar-width:thin}
+ .mira-nav-item{flex:0 0 auto;padding:8px 10px!important;white-space:nowrap}
+ .mira-nav-shape{display:none}
+}
