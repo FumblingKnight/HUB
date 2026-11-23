@@ -1,5 +1,7 @@
 
 let DATA={stories:[],wire:[],watch:[],stats:{},morning:null},TAB='morning',FILTER='all',TERM='',MORNING_KEY=null;
+let PAPER_INDEX=0, PAPER_COUNT=0;
+
 const E=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const url=v=>{try{let u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password?u.href:''}catch{return ''}};
@@ -101,7 +103,8 @@ function pressItem(s,includeClaims=false){
  const headline=includeClaims?'h3':'h4';
  const summary=s.summary||'';
  return '<div class="press-story-copy"><p class="press-kicker">'+esc(s.category||'Perspective')+'</p><'+headline+'>'+esc(s.title||'Today in context')+'</'+headline+'>'+
- (summary?'<p class="press-summary">'+esc(summary)+'</p>':'')+pressExcerpt(s)+pressClaims(s)+
+ (summary?'<p class="press-summary">'+esc(summary)+'</p>':'')+pressExcerpt(s)+
+ (Array.isArray(s.body_paragraphs)?'<div class="paper-story-body">'+s.body_paragraphs.filter(x=>typeof x==='string'&&x.trim()).slice(0,4).map(x=>'<p>'+esc(x)+'</p>').join('')+'</div>':'')+pressClaims(s)+
  (s.why?'<p class="press-why"><strong>Why it matters:</strong> '+esc(s.why)+'</p>':'')+
  '<div class="press-links">'+external(s.url,'Read original reporting')+(url(s.discussion_url)?external(s.discussion_url,'Community response'):'')+'</div>'+pressVideo(s.video)+'</div>';
 }
@@ -113,48 +116,120 @@ function editionLagDays(date){
  if(!Number.isFinite(epoch)||new Date(epoch).toISOString().slice(0,10)!==date)return null;
  return Math.round((Date.parse(istCalendarDay()+'T00:00:00Z')-epoch)/86400000);
 }
+
+function sheetFooter(n,total,date,label){
+ return '<footer class="paper-sheet-footer"><span>THE MIRA NEWSPAPER · '+esc(date||'PRIVATE EDITION')+'</span><span>'+esc(label||'Independent reporting · original sources linked')+'</span><b>'+n+' / '+total+'</b></footer>';
+}
+function sheetFrame(kind,n,total,date,contents,label){
+ return '<article class="paper-sheet paper-'+kind+'" data-paper-page="'+(n-1)+'" aria-label="Page '+n+' of '+total+'"'+(n-1!==PAPER_INDEX?' hidden':'')+'>'+
+ contents+sheetFooter(n,total,date,label)+'</article>';
+}
+function paperPageControls(pages){
+ return '<nav class="paper-navigation" aria-label="Turn newspaper pages">'+
+ '<button type="button" class="paper-turn" data-paper-step="-1" aria-label="Previous page">← Previous</button>'+
+ '<div class="paper-page-list" role="group" aria-label="Jump to page">'+
+ pages.map((p,i)=>'<button type="button" class="paper-page-button'+(i===PAPER_INDEX?' current':'')+'" data-paper-go="'+i+'" aria-label="Page '+(i+1)+': '+esc(p.label)+'"'+(i===PAPER_INDEX?' aria-current="page"':'')+'><b>'+String(i+1).padStart(2,'0')+'</b><span>'+esc(p.label)+'</span></button>').join('')+
+ '</div><button type="button" class="paper-turn" data-paper-step="1" aria-label="Next page">Next →</button></nav>';
+}
+function setPaperPage(index,scroll=false){
+ if(!PAPER_COUNT)return;
+ if(index!==PAPER_INDEX)closePressVideos();
+ PAPER_INDEX=Math.max(0,Math.min(PAPER_COUNT-1,index));
+ if(scroll&&window.history?.replaceState&&window.location){window.history.replaceState(null,'',window.location.pathname+window.location.search+'#page-'+(PAPER_INDEX+1));}
+ document.querySelectorAll('.paper-sheet').forEach((el,i)=>{
+  el.hidden=i!==PAPER_INDEX;
+  el.setAttribute('aria-hidden',i!==PAPER_INDEX?'true':'false');
+ });
+ document.querySelectorAll('[data-paper-go]').forEach(el=>{
+  const active=Number(el.dataset.paperGo)===PAPER_INDEX;
+  el.classList.toggle('current',active);
+  if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
+ });
+ document.querySelectorAll('[data-paper-step]').forEach(el=>{
+  el.disabled=PAPER_INDEX+(Number(el.dataset.paperStep)||0)<0||PAPER_INDEX+(Number(el.dataset.paperStep)||0)>=PAPER_COUNT;
+ });
+ const indicator=E('paper-page-position');
+ if(indicator)indicator.textContent='PAGE '+(PAPER_INDEX+1)+' OF '+PAPER_COUNT;
+ if(scroll)E('morning-view')?.scrollIntoView?.({behavior:'smooth',block:'start'});
+}
 function morning(){
  const m=plainObject(DATA.morning)?DATA.morning:null, out=E('morning-content');
- // The previous edition must become visibly archived when the calendar changes.
  const key=m?JSON.stringify(m)+'|'+istCalendarDay():null;
  if(key&&MORNING_KEY===key)return;
+ if(MORNING_KEY!==key){const hash=/^#page-(\d+)$/.exec(window.location?.hash||'');PAPER_INDEX=hash?Math.max(0,Number(hash[1])-1):0;}
  MORNING_KEY=key;
  if(!m){
+  PAPER_COUNT=0;
   const stories=(DATA.stories||[]).filter(x=>!x.hidden).slice(0,3);
   out.innerHTML='<article class="press-page"><div class="press-edition-line"><span>Morning edition</span><b>IN PREPARATION</b><span>8:00 AM IST</span></div><div class="press-editor"><div class="press-kicker">From the newsroom</div><h2>The next paper is in preparation.</h2><p>Morning research starts at 8:00 a.m. India time. The edition appears after its sources and stories have been checked.</p><a href="#" class="readlink" data-open="live">Explore the live desk →</a></div>'+
-  (stories.length?'<div class="press-section-head"><h3>Meanwhile, from the live desk</h3></div><div class="press-columns">'+stories.map(s=>'<article>'+pressItem(s)+'</article>').join('')+'</div>':'')+'</article>';return;
+   (stories.length?'<div class="press-section-head"><h3>Meanwhile, from the live desk</h3></div><div class="press-columns">'+stories.map(s=>'<article>'+pressItem(s)+'</article>').join('')+'</div>':'')+'</article>';
+  return;
  }
- const lead=plainObject(m.lead)?m.lead:{}, sections=Array.isArray(m.sections)?m.sections.filter(plainObject):[];
- const count=sections.reduce((n,s)=>n+(Array.isArray(s.stories)?s.stories.filter(plainObject).length:0),0);
+ const lead=plainObject(m.lead)?m.lead:{};
+ const sections=Array.isArray(m.sections)?m.sections.filter(plainObject):[];
+ const content=sections.map(s=>({...s,stories:(Array.isArray(s.stories)?s.stories.filter(plainObject):[]).filter(x=>!(httpsSource(x.url)&&httpsSource(x.url)===httpsSource(lead.url)))})).filter(s=>s.stories.length);
+ const count=content.reduce((n,s)=>n+s.stories.length,0);
  const newsroom=plainObject(m.newsroom)&&m.newsroom.version===1?m.newsroom:{};
  const editorNote=typeof newsroom.editor_note==='string'&&newsroom.editor_note.trim()?newsroom.editor_note:m.dek;
  const date=pressEditionDate(m.edition_date);
  const lag=editionLagDays(m.edition_date);
- const freshnessWarning=lag===0?'':(lag===null||lag<0?
-  '<aside class="press-archive-warning" role="status">Edition date unavailable or invalid. Treat this as an archived paper, not today\'s edition.</aside>':
-  '<aside class="press-archive-warning" role="status">Archive edition from '+esc(date||m.edition_date)+' · '+lag+' '+(lag===1?'day':'days')+' old. Today\'s morning paper has not been published. For recent verified updates, use the Live Desk.</aside>');
- const dateMarkup=date?'<time datetime="'+esc(m.edition_date)+'">'+esc(date)+'</time>':'<span>Archive edition</span>';
- const stages=(Array.isArray(newsroom.stages)?newsroom.stages:[]).filter(s=>plainObject(s)&&typeof s.role==='string'&&Object.hasOwn(newsroomRoles,s.role)&&typeof s.note==='string'&&s.note.trim()).slice(0,7);
+ const freshnessWarning=lag===0?'':lag===null||lag<0?
+  '<aside class="press-archive-warning" role="status">Edition date unavailable or invalid. This is an archived paper, not today\'s edition.</aside>':
+  '<aside class="press-archive-warning" role="status">Archive edition from '+esc(date||m.edition_date)+' · '+lag+' '+(lag===1?'day':'days')+' old. Today\'s morning paper has not been published. See Live Desk for recent verified updates.</aside>';
  const duplicate=sections.flatMap(s=>Array.isArray(s.stories)?s.stories.filter(plainObject):[]).find(s=>httpsSource(s.url)&&httpsSource(s.url)===httpsSource(lead.url));
  const cover={...duplicate,...lead,claims:pressClaims(lead)?lead.claims:duplicate?.claims,video:pressVideoData(lead.video)?lead.video:duplicate?.video};
- let html='<article class="press-page" aria-label="Morning edition">'+freshnessWarning+'<div class="press-edition-line">'+dateMarkup+'<b>'+ (date?'VOL. '+esc(m.edition_date.slice(0,4))+' · ':'') +'MORNING EDITION</b><span>'+count+' '+(count===1?'story':'stories')+'</span></div>'+
- '<header class="press-editor"><div class="press-kicker">From the editor</div><h2>'+esc(m.title||'The Morning Edition')+'</h2>'+(editorNote?'<p>'+esc(editorNote)+'</p>':'')+'</header>'+
- '<section class="press-lead" aria-label="Lead story">'+pressArt(newsroom.illustration)+pressItem(cover,true)+'</section>';
- for(const section of sections){
-  const stories=(Array.isArray(section.stories)?section.stories.filter(plainObject):[]).filter(s=>!(httpsSource(s.url)&&httpsSource(s.url)===httpsSource(lead.url)));
-  if(!stories.length)continue;
-  html+='<section class="press-section"><div class="press-section-head"><h3>'+esc(section.name||'Perspective')+'</h3>'+(section.description?'<p>'+esc(section.description)+'</p>':'')+'</div><div class="press-columns">'+stories.map(s=>'<article>'+pressItem(s)+'</article>').join('')+'</div></section>';
+ const pages=[{label:'Front page',kind:'front',section:null,stories:[]}];
+ const toc=[];
+ for(const section of content){
+  const first=pages.length;
+  for(let offset=0;offset<section.stories.length;offset+=2){
+   pages.push({label:section.name||'World desk',kind:'section',section,stories:section.stories.slice(offset,offset+2),part:Math.floor(offset/2)+1});
+  }
+  toc.push({title:section.name||'Perspective',first,story:section.stories[0]});
  }
- if(m.rabbit_hole?.title){
-  const r=m.rabbit_hole;
-  html+='<section class="press-rabbit"><div class="press-kicker">The rabbit hole · An idea worth an hour</div><h3>'+esc(r.title)+'</h3><p>'+esc(r.why||'')+'</p>'+external(r.url,'Begin exploring')+'</section>';
- }
+ pages.push({label:'The back page',kind:'back'});
+ PAPER_COUNT=pages.length;
+ if(PAPER_INDEX>=PAPER_COUNT)PAPER_INDEX=0;
+ const dateLine=date||'Unverified edition date';
+ const total=PAPER_COUNT;
+ const frontHeader='<div class="paper-overline"><span>PRIVATE DAILY · INDIA STANDARD TIME</span><span>VOLUME '+esc(String(m.edition_date||'').slice(0,4))+' · '+esc(dateLine)+'</span></div>'+
+ '<div class="paper-cover-masthead"><p>Independent discoveries · Original sources linked · No filler</p><h2>THE MIRA<br>NEWSPAPER</h2><div class="paper-cover-rule">THE WORLD · ENGINEERING · CULTURE · BEYOND</div></div>'+
+ '<div class="paper-front-date"><b>MORNING EDITION</b><span>'+esc(dateLine)+'</span><b>'+count+' REPORTS INSIDE</b></div>';
+ const frontContents=frontHeader+freshnessWarning+
+ '<div class="paper-cover-headline"><div><span class="paper-rubric">THE LEAD STORY</span>'+pressItem(cover,true)+'</div>'+pressArt(newsroom.illustration)+'</div>'+
+ '<div class="paper-editorial-note"><b>FROM THE EDITOR</b><h3>'+esc(m.title||'Today in context')+'</h3><p>'+esc(editorNote||'Original journalism and technical discoveries worth reading.')+'</p></div>'+
+ '<div class="paper-contents"><div class="paper-contents-heading"><h3>Inside today’s paper</h3><span>Turn the page · Read the original</span></div>'+
+ toc.map(x=>'<button type="button" data-paper-go="'+x.first+'" class="paper-contents-item"><span>PAGE '+(x.first+1)+'</span><strong>'+esc(x.title)+'</strong><em>'+esc(x.story?.title||'Read this section')+'</em></button>').join('')+'</div>';
+ const sectionHeader=(sec,idx,total)=>
+  '<div class="paper-running-head"><span>THE MIRA NEWSPAPER</span><span>'+esc(dateLine)+'</span><span>PAGE '+idx+' OF '+total+'</span></div>'+
+  '<div class="paper-section-mast"><span>THE '+esc((sec.name||'WORLD').toUpperCase())+' DESK</span><h2>'+esc(sec.name||'The World')+'</h2>'+
+  (sec.description?'<p>'+esc(sec.description)+'</p>':'<p>Carefully verified developments, with original source links.</p>')+'</div>';
+ const backHead='<div class="paper-running-head"><span>THE MIRA NEWSPAPER</span><span>'+esc(dateLine)+'</span><span>THE BACK PAGE</span></div>'+
+  '<div class="paper-section-mast"><span>THE DISCOVERY DESK</span><h2>Before you fold the paper.</h2><p>The deeper reading, open questions, and what we deliberately left out.</p></div>';
+ const stages=(Array.isArray(newsroom.stages)?newsroom.stages:[]).filter(s=>plainObject(s)&&typeof s.role==='string'&&Object.hasOwn(newsroomRoles,s.role)&&typeof s.note==='string'&&s.note.trim()).slice(0,7);
  const next=(Array.isArray(m.watch_next)?m.watch_next:[]).filter(plainObject);
- if(next.length)html+='<section class="press-section"><div class="press-section-head"><h3>What to watch next</h3><p>The questions still open</p></div><div>'+next.map(w=>'<div class="listitem"><span class="item-title">'+esc(w.topic)+'</span><span class="item-label">'+esc(w.trigger)+'</span></div>').join('')+'</div></section>';
- if(m.skip_today)html+='<p class="press-skip"><strong>Not worth chasing today:</strong> '+esc(m.skip_today)+'</p>';
- if(stages.length)html+='<details class="press-colophon"><summary>How this edition was made</summary><ol>'+stages.map(s=>'<li><strong>'+esc(newsroomRoles[s.role])+'</strong><br>'+esc(s.note)+'</li>').join('')+'</ol></details>';
- out.innerHTML=html+'</article>';
+ const backContents=backHead+
+ (m.rabbit_hole?.title?'<section class="paper-back-feature"><div class="paper-rubric">A RABBIT HOLE WORTH FOLLOWING</div><h3>'+esc(m.rabbit_hole.title)+'</h3><p>'+esc(m.rabbit_hole.why||'')+'</p>'+external(m.rabbit_hole.url,'Explore the original source')+'</section>':'')+
+ (next.length?'<section class="paper-back-watch"><h3>What to watch next</h3>'+next.slice(0,8).map(w=>'<div><strong>'+esc(w.topic||'Question')+'</strong><p>'+esc(w.trigger||'')+'</p></div>').join('')+'</section>':'')+
+ (m.skip_today?'<p class="paper-back-excluded"><b>Not worth chasing today:</b> '+esc(m.skip_today)+'</p>':'')+
+ (stages.length?'<details class="paper-editorial-method"><summary>How this edition was produced and checked</summary><ol>'+stages.map(s=>'<li><strong>'+esc(newsroomRoles[s.role])+'</strong>: '+esc(s.note)+'</li>').join('')+'</ol></details>':'')+
+ '<div class="paper-back-signoff">End of this edition <span>Follow the source, not the noise.</span></div>';
+ const sheetHTML=pages.map((page,i)=>{
+  let inside;
+  if(page.kind==='front')inside=frontContents;
+  else if(page.kind==='back')inside=backContents;
+  else inside=sectionHeader(page.section,i+1,total)+
+   '<div class="paper-section-articles '+(page.stories.length===1?'paper-one-story':'')+'">'+
+   page.stories.map((story,j)=>'<article class="paper-section-article"><div class="paper-rubric">'+esc(story.category||'REPORT')+' · '+(j===0?'THE FEATURE':'THE BRIEF')+'</div>'+pressItem(story,j===0)+'</article>').join('')+
+   '</div><div class="paper-section-next"><span>ORIGINAL REPORTING · FOLLOW THE LINKS ABOVE</span><span>TURN TO PAGE '+Math.min(total,i+2)+' →</span></div>';
+  return sheetFrame(page.kind,i+1,total,m.edition_date,inside,page.label);
+ }).join('');
+ out.innerHTML='<div class="paper-reader">'+paperPageControls(pages)+'<div class="paper-page-position" id="paper-page-position" aria-live="polite">PAGE '+(PAPER_INDEX+1)+' OF '+total+'</div>'+
+ '<div class="paper-sheets">'+sheetHTML+'</div>'+
+ '<div class="paper-bottom-navigation"><button data-paper-step="-1">← Previous sheet</button><span>THE MIRA NEWSPAPER · '+total+' PAGES</span><button data-paper-step="1">Next sheet →</button></div></div>';
+ setPaperPage(PAPER_INDEX);
 }
+
 function story(s){let buttons=[['up',s.vote==='up'?'Worth more ✓':'Worth more',s.vote==='up'],['down',s.vote==='down'?'Less like this ✓':'Less like this',s.vote==='down'],['follow',s.following?'Following ✓':'Follow updates',s.following],['note',s.note?'Edit note':'Add note',!!s.note],['hide',s.hidden?'Restore':'Hide',s.hidden]].map(([action,label,on])=>'<button class="action '+(on?'on':'')+'" data-id="'+esc(s.id)+'" data-action="'+action+'">'+esc(label)+'</button>').join('');
 return '<article class="storyline"><div class="storyline-top"><span>'+esc(s.category||'Discovery')+'</span><span>· '+esc(s.lane||'core')+'</span><span style="color:var(--muted)">· '+esc(when(s.last_seen))+'</span></div><h4>'+esc(s.title)+'</h4><p>'+esc(s.summary||'')+'</p>'+(s.why?'<p class="why"><b>Why it matters:</b> '+esc(s.why)+'</p>':'')+(s.updates?.length>1?'<p style="border-left:2px solid var(--accent);padding:10px;background:var(--lightgreen)"><b>What changed:</b> '+esc(s.updates.at(-1).text)+'</p>':'')+(s.note?'<p><b>Your note:</b> '+esc(s.note)+'</p>':'')+'<div class="actions">'+external(s.url,'Original source')+(url(s.discussion_url)?external(s.discussion_url,'Discussion'):'')+buttons+'</div></article>'}
 function sectionRender(){let stories=DATA.stories||[];let filtered=stories.filter(s=>!s.hidden);
@@ -181,11 +256,13 @@ E('page-title').textContent=t[0];E('page-subtitle').textContent=t[1];E('eyebrow'
 async function reload(){try{let response=await fetch('/api/mira/newspaper',{cache:'no-store'});if(!response.ok)throw Error('disconnected');DATA=await response.json();morning();sectionRender();rail()}catch(e){E('top-status').textContent='Offline · retrying';E('bottom-status').textContent='Could not connect to local newsroom'}}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{FILTER=b.dataset.filter;sectionRender()}));
-document.addEventListener('click',async e=>{let clip=e.target.closest('[data-load-clip]');if(clip){togglePressVideo(clip);return}let open=e.target.closest('[data-open]');if(open){e.preventDefault();navigate(open.dataset.open)}
+document.addEventListener('click',async e=>{let page=e.target.closest('[data-paper-go],[data-paper-step]');if(page){const index=page.dataset.paperGo!==undefined?Number(page.dataset.paperGo):PAPER_INDEX+Number(page.dataset.paperStep);setPaperPage(index,true);return}let clip=e.target.closest('[data-load-clip]');if(clip){togglePressVideo(clip);return}let open=e.target.closest('[data-open]');if(open){e.preventDefault();navigate(open.dataset.open)}
 let target=e.target.closest('[data-action]');if(!target)return;let s=DATA.stories.find(x=>x.id===target.dataset.id);if(!s)return;let action=target.dataset.action,body={id:s.id};if(action==='up'||action==='down')body.vote=s.vote===action?'':action;
 else if(action==='follow')body.following=!s.following;else if(action==='hide')body.hidden=!s.hidden;else if(action==='note'){let note=prompt('What should Mira remember about this story?',s.note||'');if(note===null)return;body.note=note.slice(0,200)}
 try{let r=await fetch('/api/mira/newspaper/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('save');await reload()}catch(err){alert('Could not save this preference.')}});
 E('print-paper').addEventListener('click',()=>window.print());
+window.addEventListener?.('hashchange',()=>{if(TAB==='morning'&&PAPER_COUNT){const hash=/^#page-(\d+)$/.exec(window.location?.hash||'');if(hash)setPaperPage(Number(hash[1])-1);}});
+document.addEventListener('keydown',e=>{if(TAB!=='morning'||!PAPER_COUNT||e.altKey||e.metaKey||e.ctrlKey||e.shiftKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();setPaperPage(PAPER_INDEX+(e.key==='ArrowRight'?1:-1),true)}});
 E('live-search').addEventListener('input',e=>{TERM=e.target.value.trim().toLocaleLowerCase();sectionRender()});
 E('wire-link').addEventListener('click',()=>navigate('sources'));E('refresh').addEventListener('click',reload);
 navigate('morning');reload();setInterval(reload,60000);
