@@ -186,3 +186,7 @@ body[data-edition-view=morning] .content-grid{display:block}
  .press-video{break-inside:avoid}
  .press-video-original::after{content:" (" attr(href) ")";overflow-wrap:anywhere}
 }
+
+/* Do not let a recent hourly wire update disguise a stale daily newspaper. */
+.press-archive-warning{margin:0 0 16px;padding:13px 16px;border:1px solid #c49c65;border-left:4px solid #a36528;background:#f7ebd9;color:#594027;font-weight:650;line-height:1.6}
+@media print{.press-archive-warning{break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}}
