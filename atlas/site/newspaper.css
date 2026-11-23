@@ -190,3 +190,10 @@ body[data-edition-view=morning] .content-grid{display:block}
 /* Do not let a recent hourly wire update disguise a stale daily newspaper. */
 .press-archive-warning{margin:0 0 16px;padding:13px 16px;border:1px solid #c49c65;border-left:4px solid #a36528;background:#f7ebd9;color:#594027;font-weight:650;line-height:1.6}
 @media print{.press-archive-warning{break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+/* Verbatim source quotations are visually distinct from MIRA's original context. */
+.press-source-excerpt{margin:16px 0;padding:12px 17px;background:#f1eddf;border-left:3px solid var(--accent);color:var(--ink2)}
+.press-source-excerpt p{margin:0;font:italic 17px/1.48 Georgia,'Times New Roman',serif}
+.press-source-excerpt footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:9px;font:700 10px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.035em;text-transform:uppercase;color:var(--muted)}
+.press-source-excerpt footer a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+@media print{.press-source-excerpt{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}

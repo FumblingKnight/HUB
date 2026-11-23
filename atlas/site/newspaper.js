@@ -89,11 +89,19 @@ function togglePressVideo(button){
  button.setAttribute('aria-expanded','true');
  button.textContent='Close video';
 }
+
+function pressExcerpt(s){
+ const raw=s?.source_excerpt;
+ if(!plainObject(raw)||typeof raw.text!=='string'||typeof raw.publisher!=='string')return '';
+ const text=raw.text.trim(),publisher=raw.publisher.trim(),source=url(raw.source_url);
+ if(!source||text.length<10||text.length>240||text.split(/\s+/).length>25||publisher.length<2||publisher.length>100)return '';
+ return '<blockquote class="press-source-excerpt" cite="'+esc(source)+'"><p>“'+esc(text)+'”</p><footer><span>Quoted from '+esc(publisher)+'</span>'+external(source,'Original source')+'</footer></blockquote>';
+}
 function pressItem(s,includeClaims=false){
  const headline=includeClaims?'h3':'h4';
  const summary=s.summary||'';
  return '<div class="press-story-copy"><p class="press-kicker">'+esc(s.category||'Perspective')+'</p><'+headline+'>'+esc(s.title||'Today in context')+'</'+headline+'>'+
- (summary?'<p class="press-summary">'+esc(summary)+'</p>':'')+pressClaims(s)+
+ (summary?'<p class="press-summary">'+esc(summary)+'</p>':'')+pressExcerpt(s)+pressClaims(s)+
  (s.why?'<p class="press-why"><strong>Why it matters:</strong> '+esc(s.why)+'</p>':'')+
  '<div class="press-links">'+external(s.url,'Read original reporting')+(url(s.discussion_url)?external(s.discussion_url,'Community response'):'')+'</div>'+pressVideo(s.video)+'</div>';
 }
