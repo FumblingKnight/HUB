@@ -80,3 +80,24 @@ test('invalid or future edition dates are never labelled current',()=>{
  vm.runInContext("rail()",invalid.ctx);
  assert.equal(invalid.get('top-status').textContent,'No verified morning edition');
 });
+
+test('source-first excerpts show a short quote, attributed publisher and original link',()=>{
+ const excerpt={text:'This experiment has produced a measured result.',source_url:'https://example.org/telescope',publisher:'Science Desk'};
+ const {html}=harness({morning:{edition_date:'2026-11-24',lead:{...lead,source_excerpt:excerpt},sections:[]}});
+ assert.match(html,/press-source-excerpt/);
+ assert.match(html,/This experiment has produced a measured result/);
+ assert.match(html,/Quoted from Science Desk/);
+ assert.match(html,/cite="https:\/\/example.org\/telescope"/);
+ assert.match(html,/Original source/);
+});
+test('untrusted excerpts fail closed and text never executes as markup',()=>{
+ const extra={text:'A cited & quoted <script>example</script> from the report',source_url:'https://example.org/telescope',publisher:'A & B'};
+ const {html}=harness({morning:{lead:{...lead,source_excerpt:extra},sections:[]}});
+ assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
+ for(const source_url of ['javascript:alert(1)','http://example.org/telescope','https://user:password@example.org/article']){
+  const {html}=harness({morning:{lead:{...lead,source_excerpt:{...extra,source_url}},sections:[]}});
+  assert.doesNotMatch(html,/press-source-excerpt/);
+ }
+ const over=harness({morning:{lead:{...lead,source_excerpt:{...extra,text:Array(26).fill('word').join(' ')}},sections:[]}});
+ assert.doesNotMatch(over.html,/press-source-excerpt/);
+});
