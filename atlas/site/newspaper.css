@@ -374,3 +374,40 @@ body[data-edition-view=morning] .nav{border:0;border-block:1px solid #a99f8e;bac
  .press-video-toggle,.press-video-hint,.press-video-slot{display:none!important}
  .press-video-original::after{content:" (" attr(href) ")";font-size:8pt;overflow-wrap:anywhere}
 }
+
+/* Print imposition: prevent the front-page index from spilling onto a phantom sheet. */
+@media(max-width:480px){
+ .paper-page-button span{display:none}
+ .paper-page-button{min-width:45px;padding:7px 8px}
+ .paper-page-list{gap:5px;max-width:calc(100% - 133px)}
+}
+@media print{
+ .paper-cover-masthead{padding:7px 0 5px}
+ .paper-cover-masthead p{font-size:9pt;margin:0}
+ .paper-cover-masthead h2{font-size:50pt!important;line-height:.8!important;margin:4px 0 8px}
+ .paper-cover-rule{font-size:8pt;padding:5px 0}
+ .paper-front-date{font-size:8pt;padding:5px 0 6px}
+ .paper-cover-headline{padding:11px 0;gap:12px}
+ .paper-cover-headline .press-story-copy h3{font-size:24pt!important;line-height:1.02!important;margin-bottom:6px}
+ .paper-cover-headline .press-summary{font-size:9pt!important;line-height:1.32!important}
+ .paper-cover-headline .press-art svg{max-height:150px}
+ .paper-cover-headline .press-why{font-size:8pt;margin:3px 0}
+ .paper-cover-headline .press-links{margin:3px 0}
+ .paper-cover-headline .press-claims{margin:6px 0}
+ .paper-cover-headline .press-claim{font-size:9pt}
+ .paper-cover-headline .press-video{padding:4px 0;margin:6px 0 0}
+ .paper-cover-headline .press-video figcaption strong{font-size:10pt}
+ .paper-cover-headline .press-art figcaption{font-size:8pt}
+ .paper-editorial-note{padding:7px 0 9px;gap:3px 8px;grid-template-columns:100px 1fr}
+ .paper-editorial-note h3{font-size:14pt}
+ .paper-editorial-note p{font-size:9pt;line-height:1.35}
+ .paper-contents{padding:7px 0 4px;gap:0 12px}
+ .paper-contents-heading{padding-bottom:4px}
+ .paper-contents-heading h3{font-size:16pt}
+ .paper-contents-heading span{font-size:8pt}
+ .paper-contents-item{padding:5px 0;grid-template-columns:42px 1fr;gap:2px 6px}
+ .paper-contents-item span{font-size:7pt}
+ .paper-contents-item strong{font-size:12pt}
+ .paper-contents-item em{font-size:8pt;line-height:1.18}
+ .paper-sheet-footer{font-size:7pt;padding-top:5px}
+}

@@ -50,7 +50,7 @@ newsroom:{version:1,editor_note:'A fictional edition used only to test actual pa
   await page.emulateMedia({media:'print'});
   assert.equal(await page.locator('.paper-sheet:visible').count(),6);
   assert.equal(await page.locator('iframe:visible').count(),0);
-  if(name==='desktop')await page.pdf({path:'artifacts/newspaper-multipage-print.pdf',preferCSSPageSize:true,printBackground:true});
+  if(name==='desktop'){await page.pdf({path:'artifacts/newspaper-multipage-print.pdf',preferCSSPageSize:true,printBackground:true});const pdf=fs.readFileSync('artifacts/newspaper-multipage-print.pdf').toString('latin1');const sheets=(pdf.match(/[/]Type\s*[/]Page\b/g)||[]).length;assert.equal(sheets,6,'the six rendered sheets must be exactly six physical PDF pages');}
   await page.close();
  }
  } finally {await browser.close()}
