@@ -64,3 +64,19 @@ test('only audited-shape canonical YouTube video choices render, never eager fra
    assert.equal(vm.runInContext('pressVideo(suspect)',ctx),'');
  }
 });
+
+test('old morning issue is labelled archived even when recent hourly publication exists',()=>{
+ const old=harness({published_at:new Date().toISOString(),morning:{edition_date:'2026-11-07',title:'Old masthead',lead,sections:[]}});
+ assert.match(old.html,/Archive edition from/);
+ assert.match(old.html,/Today.s morning paper has not been published/);
+ vm.runInContext("rail()",old.ctx);
+ assert.match(old.get('top-status').textContent,/Morning paper .* days old/);
+ vm.runInContext("navigate('live')",old.ctx);
+ assert.match(old.get('top-status').textContent,/Live desk updated/);
+});
+test('invalid or future edition dates are never labelled current',()=>{
+ const invalid=harness({morning:{edition_date:'2099-01-01',title:'Future edition',lead,sections:[]}});
+ assert.match(invalid.html,/Edition date unavailable or invalid/);
+ vm.runInContext("rail()",invalid.ctx);
+ assert.equal(invalid.get('top-status').textContent,'No verified morning edition');
+});

@@ -97,9 +97,18 @@ function pressItem(s,includeClaims=false){
  (s.why?'<p class="press-why"><strong>Why it matters:</strong> '+esc(s.why)+'</p>':'')+
  '<div class="press-links">'+external(s.url,'Read original reporting')+(url(s.discussion_url)?external(s.discussion_url,'Community response'):'')+'</div>'+pressVideo(s.video)+'</div>';
 }
+// India has a fixed UTC+05:30 offset and no daylight-saving transitions.
+function istCalendarDay(){return new Date(Date.now()+330*60000).toISOString().slice(0,10)}
+function editionLagDays(date){
+ if(typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date))return null;
+ const epoch=Date.parse(date+'T00:00:00Z');
+ if(!Number.isFinite(epoch)||new Date(epoch).toISOString().slice(0,10)!==date)return null;
+ return Math.round((Date.parse(istCalendarDay()+'T00:00:00Z')-epoch)/86400000);
+}
 function morning(){
  const m=plainObject(DATA.morning)?DATA.morning:null, out=E('morning-content');
- const key=m?JSON.stringify(m):null;
+ // The previous edition must become visibly archived when the calendar changes.
+ const key=m?JSON.stringify(m)+'|'+istCalendarDay():null;
  if(key&&MORNING_KEY===key)return;
  MORNING_KEY=key;
  if(!m){
@@ -112,11 +121,15 @@ function morning(){
  const newsroom=plainObject(m.newsroom)&&m.newsroom.version===1?m.newsroom:{};
  const editorNote=typeof newsroom.editor_note==='string'&&newsroom.editor_note.trim()?newsroom.editor_note:m.dek;
  const date=pressEditionDate(m.edition_date);
+ const lag=editionLagDays(m.edition_date);
+ const freshnessWarning=lag===0?'':(lag===null||lag<0?
+  '<aside class="press-archive-warning" role="status">Edition date unavailable or invalid. Treat this as an archived paper, not today\'s edition.</aside>':
+  '<aside class="press-archive-warning" role="status">Archive edition from '+esc(date||m.edition_date)+' · '+lag+' '+(lag===1?'day':'days')+' old. Today\'s morning paper has not been published. For recent verified updates, use the Live Desk.</aside>');
  const dateMarkup=date?'<time datetime="'+esc(m.edition_date)+'">'+esc(date)+'</time>':'<span>Archive edition</span>';
  const stages=(Array.isArray(newsroom.stages)?newsroom.stages:[]).filter(s=>plainObject(s)&&typeof s.role==='string'&&Object.hasOwn(newsroomRoles,s.role)&&typeof s.note==='string'&&s.note.trim()).slice(0,7);
  const duplicate=sections.flatMap(s=>Array.isArray(s.stories)?s.stories.filter(plainObject):[]).find(s=>httpsSource(s.url)&&httpsSource(s.url)===httpsSource(lead.url));
  const cover={...duplicate,...lead,claims:pressClaims(lead)?lead.claims:duplicate?.claims,video:pressVideoData(lead.video)?lead.video:duplicate?.video};
- let html='<article class="press-page" aria-label="Morning edition"><div class="press-edition-line">'+dateMarkup+'<b>'+ (date?'VOL. '+esc(m.edition_date.slice(0,4))+' · ':'') +'MORNING EDITION</b><span>'+count+' '+(count===1?'story':'stories')+'</span></div>'+
+ let html='<article class="press-page" aria-label="Morning edition">'+freshnessWarning+'<div class="press-edition-line">'+dateMarkup+'<b>'+ (date?'VOL. '+esc(m.edition_date.slice(0,4))+' · ':'') +'MORNING EDITION</b><span>'+count+' '+(count===1?'story':'stories')+'</span></div>'+
  '<header class="press-editor"><div class="press-kicker">From the editor</div><h2>'+esc(m.title||'The Morning Edition')+'</h2>'+(editorNote?'<p>'+esc(editorNote)+'</p>':'')+'</header>'+
  '<section class="press-lead" aria-label="Lead story">'+pressArt(newsroom.illustration)+pressItem(cover,true)+'</section>';
  for(const section of sections){
@@ -149,10 +162,14 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('on',b.
 function rail(){let s=DATA.stats||{};E('scan-count').textContent=s.runs||0;E('story-count').textContent=s.found||0;const future=v=>{let d=Date.parse(v||'');return Number.isFinite(d)&&d>Date.now()?shortTime(v):'Unconfirmed';};E('next-scan').textContent=future(s.next_run);E('next-morning').textContent=future(s.next_morning);
 let watch=DATA.watch||[];E('watch-desk').innerHTML=watch.length?'<ul class="tiny-list">'+watch.slice(0,6).map(x=>'<li><strong>'+esc(x.topic)+'</strong>'+esc(x.reason||'')+'</li>').join('')+'</ul>':'<p>No developing stories on the watchlist yet.</p>';
 let sources=DATA.searched||[];E('wire-mini').innerHTML=sources.slice(0,4).map(x=>'<div class="stat"><span>'+esc((x.query||'Source').split(' · ')[0])+'</span><b style="font-size:10px;color:var(--green)">CHECKED</b></div>').join('')||'<p>No source scans completed yet.</p>';
-const age=DATA.published_at?Date.now()-Date.parse(DATA.published_at):Infinity;E('top-status').textContent=!Number.isFinite(age)?'No published edition yet':age>24*3600000?'Edition stale · last published '+when(DATA.published_at):age>2*3600000?'Last published '+when(DATA.published_at):'Recently published edition';E('nav-day').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Kolkata'});
+const lag=editionLagDays(DATA.morning?.edition_date);
+const age=DATA.published_at?Date.now()-Date.parse(DATA.published_at):Infinity;
+const morningStatus=lag===0?'Today\'s morning edition':lag===null||lag<0?'No verified morning edition':lag===1?'Yesterday\'s morning edition': 'Morning paper '+lag+' days old';
+const liveStatus=!Number.isFinite(age)?'No live publication yet':age>24*3600000?'Live desk stale · '+when(DATA.published_at):age>2*3600000?'Live desk updated '+when(DATA.published_at):'Live desk updated recently';
+E('top-status').textContent=TAB==='morning'?morningStatus:liveStatus;E('nav-day').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Kolkata'});
 E('bottom-status').textContent='Last published '+when(DATA.published_at)+' · Reader refreshes every minute; source scans are separate'}
 function navigate(tab){if(tab!=='morning')closePressVideos();TAB=tab;document.body.dataset.editionView=tab;let titles={morning:['A day worth reading.','A substantial editorial briefing, once each morning. Fresh developments are monitored every hour.','The morning edition'],live:['The live desk.','Developments as they surface, without repeated headlines or filler.','Updated every hour'],following:['Stories in motion.','The subjects you care to keep watching, with meaningful new developments.','Your own watchlist'],discover:['Beyond the usual.','The things you did not know you would find interesting.','The discovery desk'],sources:['The source wire.','Original publisher headlines, before the AI editor decides what matters.','A look behind the paper']};let t=titles[tab]||titles.morning;
-E('page-title').textContent=t[0];E('page-subtitle').textContent=t[1];E('eyebrow').textContent=t[2];document.querySelectorAll('.view').forEach(e=>e.hidden=e.id!==tab+'-view');document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('selected',b.dataset.tab===tab));}
+E('page-title').textContent=t[0];E('page-subtitle').textContent=t[1];E('eyebrow').textContent=t[2];document.querySelectorAll('.view').forEach(e=>e.hidden=e.id!==tab+'-view');document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('selected',b.dataset.tab===tab));rail();}
 async function reload(){try{let response=await fetch('/api/mira/newspaper',{cache:'no-store'});if(!response.ok)throw Error('disconnected');DATA=await response.json();morning();sectionRender();rail()}catch(e){E('top-status').textContent='Offline · retrying';E('bottom-status').textContent='Could not connect to local newsroom'}}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{FILTER=b.dataset.filter;sectionRender()}));
