@@ -122,14 +122,15 @@ async function api(req,env,url){
 }
 const loginAssetPaths=new Set(["/login","/login.html","/login.css","/login.js"]);
 const redirect=path=>new Response(null,{status:303,headers:{"location":path,"cache-control":"no-store"}});
-function shield(result){
+function shield(result,allowEditorialVideo=false){
  const headers=new Headers(result.headers);
  headers.set("cache-control","private, no-store");
  headers.set("x-content-type-options","nosniff");
  headers.set("referrer-policy","no-referrer");
  headers.set("x-frame-options","DENY");
  headers.set("content-security-policy",
-  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"+
+  (allowEditorialVideo?"; frame-src https://www.youtube-nocookie.com":""));
  return new Response(result.body,{status:result.status,statusText:result.statusText,headers});
 }
 export default {async fetch(req,env){
@@ -167,6 +168,6 @@ export default {async fetch(req,env){
  try{
   if(path.startsWith("/api/"))return await api(req,env,url);
   if(req.method!=="GET"&&req.method!=="HEAD")return error("Method not allowed",405);
-  return shield(await env.ASSETS.fetch(req));
+  return shield(await env.ASSETS.fetch(req),path==='/newspaper.html');
  }catch(e){return error(String(e?.message||"ATLAS request failed").slice(0,250),500);}
 }};

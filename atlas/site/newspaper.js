@@ -1,5 +1,5 @@
 
-let DATA={stories:[],wire:[],watch:[],stats:{},morning:null},TAB='morning',FILTER='all',TERM='';
+let DATA={stories:[],wire:[],watch:[],stats:{},morning:null},TAB='morning',FILTER='all',TERM='',MORNING_KEY=null;
 const E=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const url=v=>{try{let u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password?u.href:''}catch{return ''}};
@@ -50,16 +50,58 @@ function pressEditionDate(s){
  const d=new Date(s+'T12:00:00+05:30');
  return Number.isFinite(+d)?new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'}).format(d):'';
 }
+function pressVideoData(raw){
+ if(!plainObject(raw)||typeof raw.url!=='string'||typeof raw.title!=='string')return null;
+ const m=/^https:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9_-]{11})$/.exec(raw.url);
+ return m&&raw.title.trim() ? {id:m[1],url:raw.url,title:raw.title.trim().slice(0,150)} : null;
+}
+function pressVideo(raw){
+ const clip=pressVideoData(raw);
+ if(!clip)return '';
+ return '<figure class="press-video"><figcaption><span class="press-kicker">Official footage</span><strong>'+esc(clip.title)+'</strong></figcaption>'+
+ '<div class="press-video-controls"><button type="button" class="press-video-toggle" data-load-clip="'+clip.id+'" aria-expanded="false">Load video</button>'+
+ '<a class="readlink press-video-original" href="'+esc(clip.url)+'" target="_blank" rel="noopener noreferrer">Open original on YouTube ↗</a></div>'+
+ '<p class="press-video-hint">YouTube loads only after you choose to open the player.</p><div class="press-video-slot"></div></figure>';
+}
+function closePressVideos(){
+ for(const button of document.querySelectorAll('[data-load-clip][aria-expanded="true"]')){
+  button.closest('.press-video')?.querySelector('.press-video-slot')?.replaceChildren();
+  button.setAttribute('aria-expanded','false');
+  button.textContent='Load video';
+ }
+}
+function togglePressVideo(button){
+ const wasOpen=button.getAttribute('aria-expanded')==='true';
+ const clip=button.closest('.press-video');
+ const slot=clip?.querySelector('.press-video-slot');
+ const id=button.dataset.loadClip;
+ if(!slot||!/^[A-Za-z0-9_-]{11}$/.test(id||''))return;
+ closePressVideos();
+ if(wasOpen)return;
+ const frame=document.createElement('iframe');
+ frame.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=0&playsinline=1';
+ frame.title='Official video: '+(clip.querySelector('figcaption strong')?.textContent||'YouTube');
+ frame.referrerPolicy='strict-origin-when-cross-origin';
+ frame.setAttribute('allow','encrypted-media; fullscreen; picture-in-picture');
+ frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation');
+ frame.allowFullscreen=true;
+ slot.append(frame);
+ button.setAttribute('aria-expanded','true');
+ button.textContent='Close video';
+}
 function pressItem(s,includeClaims=false){
  const headline=includeClaims?'h3':'h4';
  const summary=s.summary||'';
  return '<div class="press-story-copy"><p class="press-kicker">'+esc(s.category||'Perspective')+'</p><'+headline+'>'+esc(s.title||'Today in context')+'</'+headline+'>'+
  (summary?'<p class="press-summary">'+esc(summary)+'</p>':'')+pressClaims(s)+
  (s.why?'<p class="press-why"><strong>Why it matters:</strong> '+esc(s.why)+'</p>':'')+
- '<div class="press-links">'+external(s.url,'Read original reporting')+(url(s.discussion_url)?external(s.discussion_url,'Community response'):'')+'</div></div>';
+ '<div class="press-links">'+external(s.url,'Read original reporting')+(url(s.discussion_url)?external(s.discussion_url,'Community response'):'')+'</div>'+pressVideo(s.video)+'</div>';
 }
 function morning(){
  const m=plainObject(DATA.morning)?DATA.morning:null, out=E('morning-content');
+ const key=m?JSON.stringify(m):null;
+ if(key&&MORNING_KEY===key)return;
+ MORNING_KEY=key;
  if(!m){
   const stories=(DATA.stories||[]).filter(x=>!x.hidden).slice(0,3);
   out.innerHTML='<article class="press-page"><div class="press-edition-line"><span>Morning edition</span><b>IN PREPARATION</b><span>8:00 AM IST</span></div><div class="press-editor"><div class="press-kicker">From the newsroom</div><h2>The next paper is in preparation.</h2><p>Morning research starts at 8:00 a.m. India time. The edition appears after its sources and stories have been checked.</p><a href="#" class="readlink" data-open="live">Explore the live desk →</a></div>'+
@@ -73,8 +115,8 @@ function morning(){
  const dateMarkup=date?'<time datetime="'+esc(m.edition_date)+'">'+esc(date)+'</time>':'<span>Archive edition</span>';
  const stages=(Array.isArray(newsroom.stages)?newsroom.stages:[]).filter(s=>plainObject(s)&&typeof s.role==='string'&&Object.hasOwn(newsroomRoles,s.role)&&typeof s.note==='string'&&s.note.trim()).slice(0,7);
  const duplicate=sections.flatMap(s=>Array.isArray(s.stories)?s.stories.filter(plainObject):[]).find(s=>httpsSource(s.url)&&httpsSource(s.url)===httpsSource(lead.url));
- const cover={...duplicate,...lead,claims:pressClaims(lead)?lead.claims:duplicate?.claims};
- let html='<article class="press-page" aria-label="Morning edition"><div class="press-edition-line">'+dateMarkup+'<b>PERSONAL EDITION</b><span>'+count+' '+(count===1?'story':'stories')+'</span></div>'+
+ const cover={...duplicate,...lead,claims:pressClaims(lead)?lead.claims:duplicate?.claims,video:pressVideoData(lead.video)?lead.video:duplicate?.video};
+ let html='<article class="press-page" aria-label="Morning edition"><div class="press-edition-line">'+dateMarkup+'<b>'+ (date?'VOL. '+esc(m.edition_date.slice(0,4))+' · ':'') +'MORNING EDITION</b><span>'+count+' '+(count===1?'story':'stories')+'</span></div>'+
  '<header class="press-editor"><div class="press-kicker">From the editor</div><h2>'+esc(m.title||'The Morning Edition')+'</h2>'+(editorNote?'<p>'+esc(editorNote)+'</p>':'')+'</header>'+
  '<section class="press-lead" aria-label="Lead story">'+pressArt(newsroom.illustration)+pressItem(cover,true)+'</section>';
  for(const section of sections){
@@ -109,12 +151,12 @@ let watch=DATA.watch||[];E('watch-desk').innerHTML=watch.length?'<ul class="tiny
 let sources=DATA.searched||[];E('wire-mini').innerHTML=sources.slice(0,4).map(x=>'<div class="stat"><span>'+esc((x.query||'Source').split(' · ')[0])+'</span><b style="font-size:10px;color:var(--green)">CHECKED</b></div>').join('')||'<p>No source scans completed yet.</p>';
 const age=DATA.published_at?Date.now()-Date.parse(DATA.published_at):Infinity;E('top-status').textContent=!Number.isFinite(age)?'No published edition yet':age>24*3600000?'Edition stale · last published '+when(DATA.published_at):age>2*3600000?'Last published '+when(DATA.published_at):'Recently published edition';E('nav-day').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',timeZone:'Asia/Kolkata'});
 E('bottom-status').textContent='Last published '+when(DATA.published_at)+' · Reader refreshes every minute; source scans are separate'}
-function navigate(tab){TAB=tab;document.body.dataset.editionView=tab;let titles={morning:['A day worth reading.','A substantial editorial briefing, once each morning. Fresh developments are monitored every hour.','The morning edition'],live:['The live desk.','Developments as they surface, without repeated headlines or filler.','Updated every hour'],following:['Stories in motion.','The subjects you care to keep watching, with meaningful new developments.','Your own watchlist'],discover:['Beyond the usual.','The things you did not know you would find interesting.','The discovery desk'],sources:['The source wire.','Original publisher headlines, before the AI editor decides what matters.','A look behind the paper']};let t=titles[tab]||titles.morning;
+function navigate(tab){if(tab!=='morning')closePressVideos();TAB=tab;document.body.dataset.editionView=tab;let titles={morning:['A day worth reading.','A substantial editorial briefing, once each morning. Fresh developments are monitored every hour.','The morning edition'],live:['The live desk.','Developments as they surface, without repeated headlines or filler.','Updated every hour'],following:['Stories in motion.','The subjects you care to keep watching, with meaningful new developments.','Your own watchlist'],discover:['Beyond the usual.','The things you did not know you would find interesting.','The discovery desk'],sources:['The source wire.','Original publisher headlines, before the AI editor decides what matters.','A look behind the paper']};let t=titles[tab]||titles.morning;
 E('page-title').textContent=t[0];E('page-subtitle').textContent=t[1];E('eyebrow').textContent=t[2];document.querySelectorAll('.view').forEach(e=>e.hidden=e.id!==tab+'-view');document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('selected',b.dataset.tab===tab));}
 async function reload(){try{let response=await fetch('/api/mira/newspaper',{cache:'no-store'});if(!response.ok)throw Error('disconnected');DATA=await response.json();morning();sectionRender();rail()}catch(e){E('top-status').textContent='Offline · retrying';E('bottom-status').textContent='Could not connect to local newsroom'}}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{FILTER=b.dataset.filter;sectionRender()}));
-document.addEventListener('click',async e=>{let open=e.target.closest('[data-open]');if(open){e.preventDefault();navigate(open.dataset.open)}
+document.addEventListener('click',async e=>{let clip=e.target.closest('[data-load-clip]');if(clip){togglePressVideo(clip);return}let open=e.target.closest('[data-open]');if(open){e.preventDefault();navigate(open.dataset.open)}
 let target=e.target.closest('[data-action]');if(!target)return;let s=DATA.stories.find(x=>x.id===target.dataset.id);if(!s)return;let action=target.dataset.action,body={id:s.id};if(action==='up'||action==='down')body.vote=s.vote===action?'':action;
 else if(action==='follow')body.following=!s.following;else if(action==='hide')body.hidden=!s.hidden;else if(action==='note'){let note=prompt('What should Mira remember about this story?',s.note||'');if(note===null)return;body.note=note.slice(0,200)}
 try{let r=await fetch('/api/mira/newspaper/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('save');await reload()}catch(err){alert('Could not save this preference.')}});
