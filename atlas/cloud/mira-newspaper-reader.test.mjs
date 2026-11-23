@@ -48,3 +48,19 @@ test('live filter and live search intersect, navigation preserves renderability'
  assert.match(result,/Radio telescope/);assert.doesNotMatch(result,/Radio receiver|Power unit/);
  assert.match(result,/Follow updates|Worth more/);assert.equal(ctx.document.body.dataset.editionView,'live');
 });
+
+test('only audited-shape canonical YouTube video choices render, never eager frames',()=>{
+ const href='https://www.youtube.com/watch?v=AbCdEfGhI_J';
+ const {html,ctx}=harness({morning:{lead:{...lead,video:{url:href,title:'<em>Primary source clip</em>'}}}});
+ assert.match(html,/Official footage/);
+ assert.match(html,/aria-expanded="false">Load video/);
+ assert.match(html,/href="https:\/\/www\.youtube\.com\/watch\?v=AbCdEfGhI_J"/);
+ assert.match(html,/&lt;em&gt;Primary source clip&lt;\/em&gt;/);
+ assert.doesNotMatch(html,/<iframe|youtube-nocookie|ytimg/);
+ for(const url of ['javascript:alert(1)','https://www.youtube.com.evil.org/watch?v=AbCdEfGhI_J',
+     'https://www.youtube.com/watch?v=AbCdEfGhI_J&autoplay=1','https://www.youtube.com:443/watch?v=AbCdEfGhI_J',
+     'https://www.youtube-nocookie.com/embed/AbCdEfGhI_J','https://youtu.be/AbCdEfGhI_J']){
+   ctx.suspect={url,title:'Untrusted link'};
+   assert.equal(vm.runInContext('pressVideo(suspect)',ctx),'');
+ }
+});

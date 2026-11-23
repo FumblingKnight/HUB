@@ -2,8 +2,11 @@ const { chromium } = require('playwright');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
 
+const clipURL='https://www.youtube.com/watch?v=AbCdEfGhI_J';
+const embedURL='https://www.youtube-nocookie.com/embed/AbCdEfGhI_J?autoplay=0&playsinline=1';
+const hostname='https://www.youtube-nocookie.com/';
 const headline='A telescope gets a sharper view of the night sky';
-const lead={title:headline,url:'https://example.org/fictional/observatory',category:'Science',
+const lead={title:headline,video:{url:clipURL,title:'Example Observatory clip'},url:'https://example.org/fictional/observatory',category:'Science',
  summary:'The fictional Example Observatory is testing a new mirror on a demonstration telescope.',
  why:'Finer detail could help distinguish fainter targets.',
  claims:[{text:'The mirror was installed on the demonstration instrument.',source_urls:['https://example.org/fictional/observatory','https://example.net/fictional/data']}]};
@@ -22,6 +25,11 @@ const edition={edition_date:'2026-11-24',title:'The day in focus',dek:'Sample da
    const page=await browser.newPage({viewport:{width,height}});
    await page.route('**/api/mira/newspaper',route=>route.fulfill({json:{morning:edition,
     stories:[{id:'synthetic',title:'Radio telescope',category:'Science',url:'https://example.org/fictional/radio',lane:'core'}],stats:{}}}));
+   let externalRequests=0;
+   await page.route(hostname+'**',async route=>{
+    externalRequests++;
+    await route.fulfill({status:200,contentType:'text/html',body:'<h1>Fictional embedded player</h1>'});
+   });
    await page.goto('http://127.0.0.1:8765/newspaper.html');
    await page.getByRole('heading',{name:headline,exact:true}).waitFor();
    assert.equal(await page.getByRole('heading',{name:headline,exact:true}).count(),1);
@@ -36,17 +44,40 @@ const edition={edition_date:'2026-11-24',title:'The day in focus',dek:'Sample da
    await page.getByText('How this edition was made',{exact:true}).click();
    assert.ok(await page.getByText('Two fictional source links',{exact:false}).isVisible());
    await page.screenshot({path:'artifacts/newspaper-'+label+'.png',fullPage:true});
+   assert.equal(externalRequests,0);
+   assert.equal(await page.locator('iframe').count(),0);
+   assert.equal(await page.getByRole('link',{name:/Open original on YouTube/}).getAttribute('href'),clipURL);
+   const sending=page.waitForRequest(embedURL);
+   await page.getByRole('button',{name:'Load video'}).click();
+   const request=await sending;
+   assert.equal((await request.allHeaders()).referer,'http://127.0.0.1:8765/');
+   assert.equal(externalRequests,1);
+   const frame=page.locator('iframe');
+   assert.equal(await frame.getAttribute('src'),embedURL);
+   assert.equal(await frame.getAttribute('referrerpolicy'),'strict-origin-when-cross-origin');
+   assert.doesNotMatch(await frame.getAttribute('allow'),/autoplay/);
+   await page.getByRole('button',{name:'Update'}).click();
+   assert.equal(await frame.count(),1);
+   await page.getByRole('button',{name:'Close video'}).click();
+   assert.equal(await frame.count(),0);
+   assert.ok(await page.getByRole('link',{name:/Open original on YouTube/}).isVisible());
+   await page.getByRole('button',{name:'Load video'}).click();
+   assert.equal(await frame.count(),1);
    await page.getByRole('button',{name:'Live desk',exact:true}).click();
+   assert.equal(await frame.count(),0);
    const search=page.getByLabel('Find in the live desk');
    await search.fill('geology');
    assert.ok(await page.getByText('No matching stories.').isVisible());
    await search.fill('radio');
    assert.ok(await page.getByRole('button',{name:'Follow updates'}).isVisible());
    await page.getByRole('button',{name:'Morning edition',exact:true}).click();
+   await page.getByRole('button',{name:'Load video'}).click();
    await page.emulateMedia({media:'print'});
    assert.equal(await page.getByRole('navigation',{name:'Newspaper sections'}).isVisible(),false);
    assert.ok(await page.getByRole('heading',{name:headline,exact:true}).isVisible());
    assert.ok(await page.getByRole('link',{name:/Source 1/}).isVisible());
+   assert.equal(await frame.isVisible(),false);
+   assert.ok(await page.getByRole('link',{name:/Open original on YouTube/}).isVisible());
    if(label==='desktop')await page.pdf({path:'artifacts/newspaper-print.pdf',format:'A4'});
    await page.close();
   }
