@@ -101,3 +101,37 @@ test('untrusted excerpts fail closed and text never executes as markup',()=>{
  const over=harness({morning:{lead:{...lead,source_excerpt:{...extra,text:Array(26).fill('word').join(' ')}},sections:[]}});
  assert.doesNotMatch(over.html,/press-source-excerpt/);
 });
+
+
+test('a substantial edition becomes discrete numbered front, interior and back pages',()=>{
+ const story=n=>({title:'An original source-backed report number '+n,url:'https://example.org/story/'+n,summary:'A full demonstration article with independently identified primary material and useful context.',category:'Research'});
+ const sections=[{name:'The World',stories:[story(1),story(2),story(3)]},{name:'Engineering',stories:[story(4),story(5)]},{name:'Culture',stories:[story(6)]}];
+ const {html,ctx,get}=harness({morning:{edition_date:'2026-11-24',title:'World in focus',lead,sections,rabbit_hole:{title:'Research question',why:'A deep question to investigate.',url:'https://example.org/deeper'}}});
+ const pages=[...html.matchAll(/data-paper-page="(\d+)"/g)].map(m=>Number(m[1]));
+ assert.deepEqual(pages,[0,1,2,3,4,5]);
+ assert.match(html,/THE MIRA/);
+ assert.match(html,/NEWSPAPER/);
+ assert.match(html,/paper-cover-masthead/);
+ assert.match(html,/paper-running-head/);
+ assert.match(html,/paper-back-feature/);
+ assert.match(html,/data-paper-go="5"/);
+ assert.match(html,/Page 1 of 6/);
+ assert.match(html,/Page 6 of 6/);
+ assert.match(html,/hidden/);
+ vm.runInContext('setPaperPage(2)',ctx);
+ assert.equal(get('paper-page-position').textContent,'PAGE 3 OF 6');
+ vm.runInContext('setPaperPage(999)',ctx);
+ assert.equal(get('paper-page-position').textContent,'PAGE 6 OF 6');
+ vm.runInContext('setPaperPage(-5)',ctx);
+ assert.equal(get('paper-page-position').textContent,'PAGE 1 OF 6');
+});
+test('optional article depth is escaped, capped at four paragraphs and stays visibly sourced',()=>{
+ const raw={...lead,body_paragraphs:['One longer independently written paragraph','<img src=x onerror=alert(1)>','A third paragraph','Fourth paragraph','Fifth paragraph']};
+ const {html}=harness({morning:{edition_date:'2026-11-24',lead:raw,sections:[{name:'Science',stories:[{...raw,title:'A different original story',url:'https://example.org/other'}]}]}});
+ assert.match(html,/paper-story-body/);
+ assert.match(html,/One longer independently written paragraph/);
+ assert.match(html,/&lt;img src=x onerror=alert\(1\)&gt;/);
+ assert.doesNotMatch(html,/<img src=x/);
+ assert.doesNotMatch(html,/Fifth paragraph/);
+ assert.match(html,/Read original reporting/);
+});
